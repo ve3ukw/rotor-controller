@@ -1,0 +1,5 @@
+/home/marcel/src/rotor-controller/test/host_tests/build/CMakeFiles/test_state_machine.dir
+/home/marcel/src/rotor-controller/test/host_tests/build/CMakeFiles/test_protocol.dir
+/home/marcel/src/rotor-controller/test/host_tests/build/CMakeFiles/test.dir
+/home/marcel/src/rotor-controller/test/host_tests/build/CMakeFiles/edit_cache.dir
+/home/marcel/src/rotor-controller/test/host_tests/build/CMakeFiles/rebuild_cache.dir
