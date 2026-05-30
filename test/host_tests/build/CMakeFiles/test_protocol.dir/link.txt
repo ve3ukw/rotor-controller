@@ -1,0 +1,1 @@
+/usr/bin/cc -g -Wl,--dependency-file=CMakeFiles/test_protocol.dir/link.d CMakeFiles/test_protocol.dir/test_protocol.c.o "CMakeFiles/test_protocol.dir/home/marcel/src/rotor-controller/controller/src/protocol.c.o" "CMakeFiles/test_protocol.dir/home/marcel/src/rotor-controller/controller/src/state_machine.c.o" -o test_protocol

@@ -1,0 +1,23 @@
+CMakeFiles/rotor-controller.elf.dir/src/main.c.obj: \
+ /home/marcel/src/rotor-controller/controller/src/main.c \
+ /usr/lib/gcc/arm-none-eabi/14.2.1/include/stdint.h \
+ /usr/lib/gcc/arm-none-eabi/14.2.1/include/stdbool.h \
+ /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/sysctl.h \
+ /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/gpio.h \
+ /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/watchdog.h \
+ /home/marcel/src/rotor-controller/controller/lib/tivaware/inc/hw_memmap.h \
+ /home/marcel/src/rotor-controller/controller/src/config.h \
+ /home/marcel/src/rotor-controller/controller/src/tick.h \
+ /home/marcel/src/rotor-controller/controller/src/adc.h \
+ /home/marcel/src/rotor-controller/controller/src/gpio_outputs.h \
+ /home/marcel/src/rotor-controller/controller/src/state_machine.h \
+ /home/marcel/src/rotor-controller/controller/src/command.h \
+ /home/marcel/src/rotor-controller/controller/src/net.h \
+ /home/marcel/src/rotor-controller/controller/lib/w5500/Ethernet/W5500/w5500.h \
+ /home/marcel/src/rotor-controller/controller/lib/w5500/Ethernet/wizchip_conf.h \
+ /home/marcel/src/rotor-controller/controller/lib/w5500/Ethernet/W5500/w5500.h \
+ /home/marcel/src/rotor-controller/controller/src/debug.h \
+ /home/marcel/src/rotor-controller/controller/lib/tivaware/utils/uartstdio.h \
+ /usr/lib/gcc/arm-none-eabi/14.2.1/include/stdarg.h \
+ /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/uart.h \
+ /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/pin_map.h
