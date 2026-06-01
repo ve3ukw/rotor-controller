@@ -114,10 +114,24 @@ CMakeFiles/driverlib.dir/lib/tivaware/driverlib/gpio.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/driverlib.dir/lib/tivaware/driverlib/gpio.c.s"
 	/usr/bin/arm-none-eabi-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/gpio.c -o CMakeFiles/driverlib.dir/lib/tivaware/driverlib/gpio.c.s
 
+CMakeFiles/driverlib.dir/lib/tivaware/driverlib/i2c.c.obj: CMakeFiles/driverlib.dir/flags.make
+CMakeFiles/driverlib.dir/lib/tivaware/driverlib/i2c.c.obj: /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/i2c.c
+CMakeFiles/driverlib.dir/lib/tivaware/driverlib/i2c.c.obj: CMakeFiles/driverlib.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/marcel/src/rotor-controller/controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building C object CMakeFiles/driverlib.dir/lib/tivaware/driverlib/i2c.c.obj"
+	/usr/bin/arm-none-eabi-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/driverlib.dir/lib/tivaware/driverlib/i2c.c.obj -MF CMakeFiles/driverlib.dir/lib/tivaware/driverlib/i2c.c.obj.d -o CMakeFiles/driverlib.dir/lib/tivaware/driverlib/i2c.c.obj -c /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/i2c.c
+
+CMakeFiles/driverlib.dir/lib/tivaware/driverlib/i2c.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/driverlib.dir/lib/tivaware/driverlib/i2c.c.i"
+	/usr/bin/arm-none-eabi-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/i2c.c > CMakeFiles/driverlib.dir/lib/tivaware/driverlib/i2c.c.i
+
+CMakeFiles/driverlib.dir/lib/tivaware/driverlib/i2c.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/driverlib.dir/lib/tivaware/driverlib/i2c.c.s"
+	/usr/bin/arm-none-eabi-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/i2c.c -o CMakeFiles/driverlib.dir/lib/tivaware/driverlib/i2c.c.s
+
 CMakeFiles/driverlib.dir/lib/tivaware/driverlib/interrupt.c.obj: CMakeFiles/driverlib.dir/flags.make
 CMakeFiles/driverlib.dir/lib/tivaware/driverlib/interrupt.c.obj: /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/interrupt.c
 CMakeFiles/driverlib.dir/lib/tivaware/driverlib/interrupt.c.obj: CMakeFiles/driverlib.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/marcel/src/rotor-controller/controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building C object CMakeFiles/driverlib.dir/lib/tivaware/driverlib/interrupt.c.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/marcel/src/rotor-controller/controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building C object CMakeFiles/driverlib.dir/lib/tivaware/driverlib/interrupt.c.obj"
 	/usr/bin/arm-none-eabi-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/driverlib.dir/lib/tivaware/driverlib/interrupt.c.obj -MF CMakeFiles/driverlib.dir/lib/tivaware/driverlib/interrupt.c.obj.d -o CMakeFiles/driverlib.dir/lib/tivaware/driverlib/interrupt.c.obj -c /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/interrupt.c
 
 CMakeFiles/driverlib.dir/lib/tivaware/driverlib/interrupt.c.i: cmake_force
@@ -131,7 +145,7 @@ CMakeFiles/driverlib.dir/lib/tivaware/driverlib/interrupt.c.s: cmake_force
 CMakeFiles/driverlib.dir/lib/tivaware/driverlib/ssi.c.obj: CMakeFiles/driverlib.dir/flags.make
 CMakeFiles/driverlib.dir/lib/tivaware/driverlib/ssi.c.obj: /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/ssi.c
 CMakeFiles/driverlib.dir/lib/tivaware/driverlib/ssi.c.obj: CMakeFiles/driverlib.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/marcel/src/rotor-controller/controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building C object CMakeFiles/driverlib.dir/lib/tivaware/driverlib/ssi.c.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/marcel/src/rotor-controller/controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building C object CMakeFiles/driverlib.dir/lib/tivaware/driverlib/ssi.c.obj"
 	/usr/bin/arm-none-eabi-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/driverlib.dir/lib/tivaware/driverlib/ssi.c.obj -MF CMakeFiles/driverlib.dir/lib/tivaware/driverlib/ssi.c.obj.d -o CMakeFiles/driverlib.dir/lib/tivaware/driverlib/ssi.c.obj -c /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/ssi.c
 
 CMakeFiles/driverlib.dir/lib/tivaware/driverlib/ssi.c.i: cmake_force
@@ -145,7 +159,7 @@ CMakeFiles/driverlib.dir/lib/tivaware/driverlib/ssi.c.s: cmake_force
 CMakeFiles/driverlib.dir/lib/tivaware/driverlib/sysctl.c.obj: CMakeFiles/driverlib.dir/flags.make
 CMakeFiles/driverlib.dir/lib/tivaware/driverlib/sysctl.c.obj: /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/sysctl.c
 CMakeFiles/driverlib.dir/lib/tivaware/driverlib/sysctl.c.obj: CMakeFiles/driverlib.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/marcel/src/rotor-controller/controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building C object CMakeFiles/driverlib.dir/lib/tivaware/driverlib/sysctl.c.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/marcel/src/rotor-controller/controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building C object CMakeFiles/driverlib.dir/lib/tivaware/driverlib/sysctl.c.obj"
 	/usr/bin/arm-none-eabi-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/driverlib.dir/lib/tivaware/driverlib/sysctl.c.obj -MF CMakeFiles/driverlib.dir/lib/tivaware/driverlib/sysctl.c.obj.d -o CMakeFiles/driverlib.dir/lib/tivaware/driverlib/sysctl.c.obj -c /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/sysctl.c
 
 CMakeFiles/driverlib.dir/lib/tivaware/driverlib/sysctl.c.i: cmake_force
@@ -159,7 +173,7 @@ CMakeFiles/driverlib.dir/lib/tivaware/driverlib/sysctl.c.s: cmake_force
 CMakeFiles/driverlib.dir/lib/tivaware/driverlib/systick.c.obj: CMakeFiles/driverlib.dir/flags.make
 CMakeFiles/driverlib.dir/lib/tivaware/driverlib/systick.c.obj: /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/systick.c
 CMakeFiles/driverlib.dir/lib/tivaware/driverlib/systick.c.obj: CMakeFiles/driverlib.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/marcel/src/rotor-controller/controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building C object CMakeFiles/driverlib.dir/lib/tivaware/driverlib/systick.c.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/marcel/src/rotor-controller/controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building C object CMakeFiles/driverlib.dir/lib/tivaware/driverlib/systick.c.obj"
 	/usr/bin/arm-none-eabi-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/driverlib.dir/lib/tivaware/driverlib/systick.c.obj -MF CMakeFiles/driverlib.dir/lib/tivaware/driverlib/systick.c.obj.d -o CMakeFiles/driverlib.dir/lib/tivaware/driverlib/systick.c.obj -c /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/systick.c
 
 CMakeFiles/driverlib.dir/lib/tivaware/driverlib/systick.c.i: cmake_force
@@ -173,7 +187,7 @@ CMakeFiles/driverlib.dir/lib/tivaware/driverlib/systick.c.s: cmake_force
 CMakeFiles/driverlib.dir/lib/tivaware/driverlib/timer.c.obj: CMakeFiles/driverlib.dir/flags.make
 CMakeFiles/driverlib.dir/lib/tivaware/driverlib/timer.c.obj: /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/timer.c
 CMakeFiles/driverlib.dir/lib/tivaware/driverlib/timer.c.obj: CMakeFiles/driverlib.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/marcel/src/rotor-controller/controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building C object CMakeFiles/driverlib.dir/lib/tivaware/driverlib/timer.c.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/marcel/src/rotor-controller/controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building C object CMakeFiles/driverlib.dir/lib/tivaware/driverlib/timer.c.obj"
 	/usr/bin/arm-none-eabi-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/driverlib.dir/lib/tivaware/driverlib/timer.c.obj -MF CMakeFiles/driverlib.dir/lib/tivaware/driverlib/timer.c.obj.d -o CMakeFiles/driverlib.dir/lib/tivaware/driverlib/timer.c.obj -c /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/timer.c
 
 CMakeFiles/driverlib.dir/lib/tivaware/driverlib/timer.c.i: cmake_force
@@ -187,7 +201,7 @@ CMakeFiles/driverlib.dir/lib/tivaware/driverlib/timer.c.s: cmake_force
 CMakeFiles/driverlib.dir/lib/tivaware/driverlib/uart.c.obj: CMakeFiles/driverlib.dir/flags.make
 CMakeFiles/driverlib.dir/lib/tivaware/driverlib/uart.c.obj: /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/uart.c
 CMakeFiles/driverlib.dir/lib/tivaware/driverlib/uart.c.obj: CMakeFiles/driverlib.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/marcel/src/rotor-controller/controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building C object CMakeFiles/driverlib.dir/lib/tivaware/driverlib/uart.c.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/marcel/src/rotor-controller/controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building C object CMakeFiles/driverlib.dir/lib/tivaware/driverlib/uart.c.obj"
 	/usr/bin/arm-none-eabi-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/driverlib.dir/lib/tivaware/driverlib/uart.c.obj -MF CMakeFiles/driverlib.dir/lib/tivaware/driverlib/uart.c.obj.d -o CMakeFiles/driverlib.dir/lib/tivaware/driverlib/uart.c.obj -c /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/uart.c
 
 CMakeFiles/driverlib.dir/lib/tivaware/driverlib/uart.c.i: cmake_force
@@ -201,7 +215,7 @@ CMakeFiles/driverlib.dir/lib/tivaware/driverlib/uart.c.s: cmake_force
 CMakeFiles/driverlib.dir/lib/tivaware/driverlib/udma.c.obj: CMakeFiles/driverlib.dir/flags.make
 CMakeFiles/driverlib.dir/lib/tivaware/driverlib/udma.c.obj: /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/udma.c
 CMakeFiles/driverlib.dir/lib/tivaware/driverlib/udma.c.obj: CMakeFiles/driverlib.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/marcel/src/rotor-controller/controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building C object CMakeFiles/driverlib.dir/lib/tivaware/driverlib/udma.c.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/marcel/src/rotor-controller/controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building C object CMakeFiles/driverlib.dir/lib/tivaware/driverlib/udma.c.obj"
 	/usr/bin/arm-none-eabi-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/driverlib.dir/lib/tivaware/driverlib/udma.c.obj -MF CMakeFiles/driverlib.dir/lib/tivaware/driverlib/udma.c.obj.d -o CMakeFiles/driverlib.dir/lib/tivaware/driverlib/udma.c.obj -c /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/udma.c
 
 CMakeFiles/driverlib.dir/lib/tivaware/driverlib/udma.c.i: cmake_force
@@ -215,7 +229,7 @@ CMakeFiles/driverlib.dir/lib/tivaware/driverlib/udma.c.s: cmake_force
 CMakeFiles/driverlib.dir/lib/tivaware/driverlib/watchdog.c.obj: CMakeFiles/driverlib.dir/flags.make
 CMakeFiles/driverlib.dir/lib/tivaware/driverlib/watchdog.c.obj: /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/watchdog.c
 CMakeFiles/driverlib.dir/lib/tivaware/driverlib/watchdog.c.obj: CMakeFiles/driverlib.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/marcel/src/rotor-controller/controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building C object CMakeFiles/driverlib.dir/lib/tivaware/driverlib/watchdog.c.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/marcel/src/rotor-controller/controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building C object CMakeFiles/driverlib.dir/lib/tivaware/driverlib/watchdog.c.obj"
 	/usr/bin/arm-none-eabi-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/driverlib.dir/lib/tivaware/driverlib/watchdog.c.obj -MF CMakeFiles/driverlib.dir/lib/tivaware/driverlib/watchdog.c.obj.d -o CMakeFiles/driverlib.dir/lib/tivaware/driverlib/watchdog.c.obj -c /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/watchdog.c
 
 CMakeFiles/driverlib.dir/lib/tivaware/driverlib/watchdog.c.i: cmake_force
@@ -231,6 +245,7 @@ driverlib_OBJECTS = \
 "CMakeFiles/driverlib.dir/lib/tivaware/driverlib/adc.c.obj" \
 "CMakeFiles/driverlib.dir/lib/tivaware/driverlib/cpu.c.obj" \
 "CMakeFiles/driverlib.dir/lib/tivaware/driverlib/gpio.c.obj" \
+"CMakeFiles/driverlib.dir/lib/tivaware/driverlib/i2c.c.obj" \
 "CMakeFiles/driverlib.dir/lib/tivaware/driverlib/interrupt.c.obj" \
 "CMakeFiles/driverlib.dir/lib/tivaware/driverlib/ssi.c.obj" \
 "CMakeFiles/driverlib.dir/lib/tivaware/driverlib/sysctl.c.obj" \
@@ -246,6 +261,7 @@ driverlib_EXTERNAL_OBJECTS =
 libdriverlib.a: CMakeFiles/driverlib.dir/lib/tivaware/driverlib/adc.c.obj
 libdriverlib.a: CMakeFiles/driverlib.dir/lib/tivaware/driverlib/cpu.c.obj
 libdriverlib.a: CMakeFiles/driverlib.dir/lib/tivaware/driverlib/gpio.c.obj
+libdriverlib.a: CMakeFiles/driverlib.dir/lib/tivaware/driverlib/i2c.c.obj
 libdriverlib.a: CMakeFiles/driverlib.dir/lib/tivaware/driverlib/interrupt.c.obj
 libdriverlib.a: CMakeFiles/driverlib.dir/lib/tivaware/driverlib/ssi.c.obj
 libdriverlib.a: CMakeFiles/driverlib.dir/lib/tivaware/driverlib/sysctl.c.obj
@@ -256,7 +272,7 @@ libdriverlib.a: CMakeFiles/driverlib.dir/lib/tivaware/driverlib/udma.c.obj
 libdriverlib.a: CMakeFiles/driverlib.dir/lib/tivaware/driverlib/watchdog.c.obj
 libdriverlib.a: CMakeFiles/driverlib.dir/build.make
 libdriverlib.a: CMakeFiles/driverlib.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/marcel/src/rotor-controller/controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Linking C static library libdriverlib.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/marcel/src/rotor-controller/controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Linking C static library libdriverlib.a"
 	$(CMAKE_COMMAND) -P CMakeFiles/driverlib.dir/cmake_clean_target.cmake
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/driverlib.dir/link.txt --verbose=$(VERBOSE)
 

@@ -13,6 +13,7 @@ CMakeFiles/rotor-controller.elf.dir/src/main.c.obj: \
  /home/marcel/src/rotor-controller/controller/src/state_machine.h \
  /home/marcel/src/rotor-controller/controller/src/command.h \
  /home/marcel/src/rotor-controller/controller/src/net.h \
+ /home/marcel/src/rotor-controller/controller/src/display.h \
  /home/marcel/src/rotor-controller/controller/lib/w5500/Ethernet/W5500/w5500.h \
  /home/marcel/src/rotor-controller/controller/lib/w5500/Ethernet/wizchip_conf.h \
  /home/marcel/src/rotor-controller/controller/lib/w5500/Ethernet/W5500/w5500.h \

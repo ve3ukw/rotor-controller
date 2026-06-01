@@ -10,6 +10,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/marcel/src/rotor-controller/controller/lib/tivaware/utils/uartstdio.c" "CMakeFiles/rotor-controller.elf.dir/lib/tivaware/utils/uartstdio.c.obj" "gcc" "CMakeFiles/rotor-controller.elf.dir/lib/tivaware/utils/uartstdio.c.obj.d"
   "/home/marcel/src/rotor-controller/controller/src/adc.c" "CMakeFiles/rotor-controller.elf.dir/src/adc.c.obj" "gcc" "CMakeFiles/rotor-controller.elf.dir/src/adc.c.obj.d"
+  "/home/marcel/src/rotor-controller/controller/src/display.c" "CMakeFiles/rotor-controller.elf.dir/src/display.c.obj" "gcc" "CMakeFiles/rotor-controller.elf.dir/src/display.c.obj.d"
   "/home/marcel/src/rotor-controller/controller/src/gpio_outputs.c" "CMakeFiles/rotor-controller.elf.dir/src/gpio_outputs.c.obj" "gcc" "CMakeFiles/rotor-controller.elf.dir/src/gpio_outputs.c.obj.d"
   "/home/marcel/src/rotor-controller/controller/src/main.c" "CMakeFiles/rotor-controller.elf.dir/src/main.c.obj" "gcc" "CMakeFiles/rotor-controller.elf.dir/src/main.c.obj.d"
   "/home/marcel/src/rotor-controller/controller/src/net.c" "CMakeFiles/rotor-controller.elf.dir/src/net.c.obj" "gcc" "CMakeFiles/rotor-controller.elf.dir/src/net.c.obj.d"

@@ -5,6 +5,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/driverlib.dir/lib/tivaware/driverlib/cpu.c.obj.d"
   "CMakeFiles/driverlib.dir/lib/tivaware/driverlib/gpio.c.obj"
   "CMakeFiles/driverlib.dir/lib/tivaware/driverlib/gpio.c.obj.d"
+  "CMakeFiles/driverlib.dir/lib/tivaware/driverlib/i2c.c.obj"
+  "CMakeFiles/driverlib.dir/lib/tivaware/driverlib/i2c.c.obj.d"
   "CMakeFiles/driverlib.dir/lib/tivaware/driverlib/interrupt.c.obj"
   "CMakeFiles/driverlib.dir/lib/tivaware/driverlib/interrupt.c.obj.d"
   "CMakeFiles/driverlib.dir/lib/tivaware/driverlib/ssi.c.obj"

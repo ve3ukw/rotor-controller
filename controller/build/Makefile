@@ -240,6 +240,30 @@ lib/tivaware/driverlib/gpio.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/driverlib.dir/build.make CMakeFiles/driverlib.dir/lib/tivaware/driverlib/gpio.c.s
 .PHONY : lib/tivaware/driverlib/gpio.c.s
 
+lib/tivaware/driverlib/i2c.obj: lib/tivaware/driverlib/i2c.c.obj
+.PHONY : lib/tivaware/driverlib/i2c.obj
+
+# target to build an object file
+lib/tivaware/driverlib/i2c.c.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/driverlib.dir/build.make CMakeFiles/driverlib.dir/lib/tivaware/driverlib/i2c.c.obj
+.PHONY : lib/tivaware/driverlib/i2c.c.obj
+
+lib/tivaware/driverlib/i2c.i: lib/tivaware/driverlib/i2c.c.i
+.PHONY : lib/tivaware/driverlib/i2c.i
+
+# target to preprocess a source file
+lib/tivaware/driverlib/i2c.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/driverlib.dir/build.make CMakeFiles/driverlib.dir/lib/tivaware/driverlib/i2c.c.i
+.PHONY : lib/tivaware/driverlib/i2c.c.i
+
+lib/tivaware/driverlib/i2c.s: lib/tivaware/driverlib/i2c.c.s
+.PHONY : lib/tivaware/driverlib/i2c.s
+
+# target to generate assembly for a file
+lib/tivaware/driverlib/i2c.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/driverlib.dir/build.make CMakeFiles/driverlib.dir/lib/tivaware/driverlib/i2c.c.s
+.PHONY : lib/tivaware/driverlib/i2c.c.s
+
 lib/tivaware/driverlib/interrupt.obj: lib/tivaware/driverlib/interrupt.c.obj
 .PHONY : lib/tivaware/driverlib/interrupt.obj
 
@@ -552,6 +576,30 @@ src/adc.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/rotor-controller.elf.dir/build.make CMakeFiles/rotor-controller.elf.dir/src/adc.c.s
 .PHONY : src/adc.c.s
 
+src/display.obj: src/display.c.obj
+.PHONY : src/display.obj
+
+# target to build an object file
+src/display.c.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rotor-controller.elf.dir/build.make CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
+.PHONY : src/display.c.obj
+
+src/display.i: src/display.c.i
+.PHONY : src/display.i
+
+# target to preprocess a source file
+src/display.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rotor-controller.elf.dir/build.make CMakeFiles/rotor-controller.elf.dir/src/display.c.i
+.PHONY : src/display.c.i
+
+src/display.s: src/display.c.s
+.PHONY : src/display.s
+
+# target to generate assembly for a file
+src/display.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rotor-controller.elf.dir/build.make CMakeFiles/rotor-controller.elf.dir/src/display.c.s
+.PHONY : src/display.c.s
+
 src/gpio_outputs.obj: src/gpio_outputs.c.obj
 .PHONY : src/gpio_outputs.obj
 
@@ -741,6 +789,9 @@ help:
 	@echo "... lib/tivaware/driverlib/gpio.obj"
 	@echo "... lib/tivaware/driverlib/gpio.i"
 	@echo "... lib/tivaware/driverlib/gpio.s"
+	@echo "... lib/tivaware/driverlib/i2c.obj"
+	@echo "... lib/tivaware/driverlib/i2c.i"
+	@echo "... lib/tivaware/driverlib/i2c.s"
 	@echo "... lib/tivaware/driverlib/interrupt.obj"
 	@echo "... lib/tivaware/driverlib/interrupt.i"
 	@echo "... lib/tivaware/driverlib/interrupt.s"
@@ -780,6 +831,9 @@ help:
 	@echo "... src/adc.obj"
 	@echo "... src/adc.i"
 	@echo "... src/adc.s"
+	@echo "... src/display.obj"
+	@echo "... src/display.i"
+	@echo "... src/display.s"
 	@echo "... src/gpio_outputs.obj"
 	@echo "... src/gpio_outputs.i"
 	@echo "... src/gpio_outputs.s"

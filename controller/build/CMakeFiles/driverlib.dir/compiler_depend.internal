@@ -32,6 +32,19 @@ CMakeFiles/driverlib.dir/lib/tivaware/driverlib/gpio.c.obj
  /usr/lib/gcc/arm-none-eabi/14.2.1/include/stdbool.h
  /usr/lib/gcc/arm-none-eabi/14.2.1/include/stdint.h
 
+CMakeFiles/driverlib.dir/lib/tivaware/driverlib/i2c.c.obj
+ /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/i2c.c
+ /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/debug.h
+ /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/i2c.h
+ /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/interrupt.h
+ /home/marcel/src/rotor-controller/controller/lib/tivaware/inc/hw_i2c.h
+ /home/marcel/src/rotor-controller/controller/lib/tivaware/inc/hw_ints.h
+ /home/marcel/src/rotor-controller/controller/lib/tivaware/inc/hw_memmap.h
+ /home/marcel/src/rotor-controller/controller/lib/tivaware/inc/hw_sysctl.h
+ /home/marcel/src/rotor-controller/controller/lib/tivaware/inc/hw_types.h
+ /usr/lib/gcc/arm-none-eabi/14.2.1/include/stdbool.h
+ /usr/lib/gcc/arm-none-eabi/14.2.1/include/stdint.h
+
 CMakeFiles/driverlib.dir/lib/tivaware/driverlib/interrupt.c.obj
  /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/interrupt.c
  /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/cpu.h
