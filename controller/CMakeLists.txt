@@ -36,6 +36,7 @@ add_library(driverlib STATIC
     ${TIVAWARE_DIR}/driverlib/adc.c
     ${TIVAWARE_DIR}/driverlib/cpu.c
     ${TIVAWARE_DIR}/driverlib/gpio.c
+    ${TIVAWARE_DIR}/driverlib/i2c.c
     ${TIVAWARE_DIR}/driverlib/interrupt.c
     ${TIVAWARE_DIR}/driverlib/ssi.c
     ${TIVAWARE_DIR}/driverlib/sysctl.c
@@ -63,6 +64,7 @@ add_executable(rotor-controller.elf
     src/state_machine.c
     src/net.c
     src/protocol.c
+    src/display.c
 )
 
 # ── optional debug UART (UART0 / ICDI virtual COM, 115200) ────────────────

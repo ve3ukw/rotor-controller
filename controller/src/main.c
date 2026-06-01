@@ -12,6 +12,7 @@
 #include "gpio_outputs.h"
 #include "state_machine.h"
 #include "net.h"
+#include "display.h"
 #include "w5500.h"    /* getSn_SR — temporary diagnostic */
 #include "debug.h"
 
@@ -72,20 +73,24 @@ int main(void)
     GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, LED_RED | LED_BLUE | LED_GREEN);
     GPIOPinWrite(GPIO_PORTF_BASE, LED_RED | LED_BLUE | LED_GREEN, 0);
 
-    /* Hardware watchdog — 100ms reload, reset on second timeout (≤200ms to reset).
-       IntDefaultHandler in startup_gcc.c spins on first timeout; second timeout
-       fires the system reset.  On boot, gpio_outputs_safe() ensures safe state. */
+    /* Configure watchdog timer but DON'T enable yet — hardware init sequences
+       (LCD 50ms power-on, W5500 reset, etc.) take longer than 100ms and would
+       trigger a reset loop.  Watchdog is armed after all init completes. */
     SysCtlPeripheralEnable(SYSCTL_PERIPH_WDOG0);
     while (!SysCtlPeripheralReady(SYSCTL_PERIPH_WDOG0)) {}
     WatchdogReloadSet(WATCHDOG0_BASE, SYSCLOCK_HZ / 10);  /* 100 ms */
     WatchdogResetEnable(WATCHDOG0_BASE);
-    WatchdogEnable(WATCHDOG0_BASE);
-    WatchdogLock(WATCHDOG0_BASE);
 
     tick_init();
     adc_init();
     gpio_outputs_init();
     net_init();
+    display_init();
+
+    /* Arm the watchdog AFTER all init — kicked every tick in the main loop.
+       On timeout: IntDefaultHandler spins → second timeout → system reset → safe state. */
+    WatchdogEnable(WATCHDOG0_BASE);
+    WatchdogLock(WATCHDOG0_BASE);
 
     sm_ctx_t sm;
     sm_init(&sm);
@@ -131,6 +136,7 @@ int main(void)
         apply_outputs(&out);
 
         net_tick(&sm, in.az_pos, in.el_pos, tick_count() * (1000U / TICK_HZ));
+        display_tick(&sm, in.az_pos, in.el_pos);
 
         /* Diagnostic: red LED = TCP socket is active (listening or connected). */
         {
