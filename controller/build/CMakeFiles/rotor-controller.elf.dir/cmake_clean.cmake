@@ -11,6 +11,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/rotor-controller.elf.dir/src/main.c.obj.d"
   "CMakeFiles/rotor-controller.elf.dir/src/net.c.obj"
   "CMakeFiles/rotor-controller.elf.dir/src/net.c.obj.d"
+  "CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.obj"
+  "CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.obj.d"
   "CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj"
   "CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj.d"
   "CMakeFiles/rotor-controller.elf.dir/src/startup_gcc.c.obj"

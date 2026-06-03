@@ -216,6 +216,30 @@ lib/tivaware/driverlib/cpu.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/driverlib.dir/build.make CMakeFiles/driverlib.dir/lib/tivaware/driverlib/cpu.c.s
 .PHONY : lib/tivaware/driverlib/cpu.c.s
 
+lib/tivaware/driverlib/eeprom.obj: lib/tivaware/driverlib/eeprom.c.obj
+.PHONY : lib/tivaware/driverlib/eeprom.obj
+
+# target to build an object file
+lib/tivaware/driverlib/eeprom.c.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/driverlib.dir/build.make CMakeFiles/driverlib.dir/lib/tivaware/driverlib/eeprom.c.obj
+.PHONY : lib/tivaware/driverlib/eeprom.c.obj
+
+lib/tivaware/driverlib/eeprom.i: lib/tivaware/driverlib/eeprom.c.i
+.PHONY : lib/tivaware/driverlib/eeprom.i
+
+# target to preprocess a source file
+lib/tivaware/driverlib/eeprom.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/driverlib.dir/build.make CMakeFiles/driverlib.dir/lib/tivaware/driverlib/eeprom.c.i
+.PHONY : lib/tivaware/driverlib/eeprom.c.i
+
+lib/tivaware/driverlib/eeprom.s: lib/tivaware/driverlib/eeprom.c.s
+.PHONY : lib/tivaware/driverlib/eeprom.s
+
+# target to generate assembly for a file
+lib/tivaware/driverlib/eeprom.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/driverlib.dir/build.make CMakeFiles/driverlib.dir/lib/tivaware/driverlib/eeprom.c.s
+.PHONY : lib/tivaware/driverlib/eeprom.c.s
+
 lib/tivaware/driverlib/gpio.obj: lib/tivaware/driverlib/gpio.c.obj
 .PHONY : lib/tivaware/driverlib/gpio.obj
 
@@ -672,6 +696,30 @@ src/net.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/rotor-controller.elf.dir/build.make CMakeFiles/rotor-controller.elf.dir/src/net.c.s
 .PHONY : src/net.c.s
 
+src/net_persist.obj: src/net_persist.c.obj
+.PHONY : src/net_persist.obj
+
+# target to build an object file
+src/net_persist.c.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rotor-controller.elf.dir/build.make CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.obj
+.PHONY : src/net_persist.c.obj
+
+src/net_persist.i: src/net_persist.c.i
+.PHONY : src/net_persist.i
+
+# target to preprocess a source file
+src/net_persist.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rotor-controller.elf.dir/build.make CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.i
+.PHONY : src/net_persist.c.i
+
+src/net_persist.s: src/net_persist.c.s
+.PHONY : src/net_persist.s
+
+# target to generate assembly for a file
+src/net_persist.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rotor-controller.elf.dir/build.make CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.s
+.PHONY : src/net_persist.c.s
+
 src/protocol.obj: src/protocol.c.obj
 .PHONY : src/protocol.obj
 
@@ -786,6 +834,9 @@ help:
 	@echo "... lib/tivaware/driverlib/cpu.obj"
 	@echo "... lib/tivaware/driverlib/cpu.i"
 	@echo "... lib/tivaware/driverlib/cpu.s"
+	@echo "... lib/tivaware/driverlib/eeprom.obj"
+	@echo "... lib/tivaware/driverlib/eeprom.i"
+	@echo "... lib/tivaware/driverlib/eeprom.s"
 	@echo "... lib/tivaware/driverlib/gpio.obj"
 	@echo "... lib/tivaware/driverlib/gpio.i"
 	@echo "... lib/tivaware/driverlib/gpio.s"
@@ -843,6 +894,9 @@ help:
 	@echo "... src/net.obj"
 	@echo "... src/net.i"
 	@echo "... src/net.s"
+	@echo "... src/net_persist.obj"
+	@echo "... src/net_persist.i"
+	@echo "... src/net_persist.s"
 	@echo "... src/protocol.obj"
 	@echo "... src/protocol.i"
 	@echo "... src/protocol.s"

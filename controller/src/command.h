@@ -17,7 +17,9 @@ typedef enum {
     CMD_TYPE_SET_LIMITS,
     CMD_TYPE_CLEAR_FAULT,
     CMD_TYPE_EMERGENCY_STOP,
-    CMD_TYPE_PARK,      /* move to pre-defined parking position */
+    CMD_TYPE_PARK,          /* move to pre-defined parking position      */
+    CMD_TYPE_SET_NETCONFIG, /* override IP/subnet/gateway/MAC in EEPROM  */
+    CMD_TYPE_RESET_NETCONFIG, /* clear EEPROM override → factory defaults */
 } cmd_type_t;
 
 typedef enum {
@@ -45,6 +47,14 @@ typedef struct {
 } cmd_limits_t;
 
 typedef struct {
+    uint8_t ip[4];
+    uint8_t subnet[4];
+    uint8_t gateway[4];
+    uint8_t mac[6];
+    bool    has_mac;    /* false = keep current MAC */
+} cmd_netconfig_t;
+
+typedef struct {
     cmd_type_t   type;
     cmd_source_t source;
     uint8_t      priority;  /* higher = wins on conflict */
@@ -52,5 +62,6 @@ typedef struct {
         cmd_motion_t      motion;
         cmd_polarization_t pol;
         cmd_limits_t      limits;
+        cmd_netconfig_t   netconfig;
     };
 } sm_command_t;

@@ -35,6 +35,7 @@ target_compile_options(wiznet PRIVATE -Os -ffunction-sections -fdata-sections -w
 add_library(driverlib STATIC
     ${TIVAWARE_DIR}/driverlib/adc.c
     ${TIVAWARE_DIR}/driverlib/cpu.c
+    ${TIVAWARE_DIR}/driverlib/eeprom.c
     ${TIVAWARE_DIR}/driverlib/gpio.c
     ${TIVAWARE_DIR}/driverlib/i2c.c
     ${TIVAWARE_DIR}/driverlib/interrupt.c
@@ -63,9 +64,14 @@ add_executable(rotor-controller.elf
     src/gpio_outputs.c
     src/state_machine.c
     src/net.c
+    src/net_persist.c
     src/protocol.c
     src/display.c
 )
+
+# net.c includes socket.h which has static IPv6 stub declarations with no
+# definitions — a WIZnet issue we can't fix in vendored code.
+set_source_files_properties(src/net.c PROPERTIES COMPILE_FLAGS "-Wno-unused-function")
 
 # ── optional debug UART (UART0 / ICDI virtual COM, 115200) ────────────────
 option(ENABLE_DEBUG_LOG "Enable UARTprintf debug logging over UART0" OFF)

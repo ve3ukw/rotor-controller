@@ -141,6 +141,10 @@ sm_output_t sm_tick(sm_ctx_t *ctx, const sm_input_t *in)
                 ctx->el_cmd = SM_EL_STOP;
             }
             break;
+
+        case CMD_TYPE_SET_NETCONFIG:
+        case CMD_TYPE_RESET_NETCONFIG:
+            break;  /* handled in net.c before reaching the state machine */
         }
 
         ctx->has_command = false;

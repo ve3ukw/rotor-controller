@@ -17,6 +17,20 @@ CMakeFiles/driverlib.dir/lib/tivaware/driverlib/cpu.c.obj: /home/marcel/src/roto
   /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/cpu.h \
   /usr/lib/gcc/arm-none-eabi/14.2.1/include/stdint.h
 
+CMakeFiles/driverlib.dir/lib/tivaware/driverlib/eeprom.c.obj: /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/eeprom.c \
+  /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/debug.h \
+  /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/eeprom.h \
+  /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/flash.h \
+  /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/interrupt.h \
+  /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/sysctl.h \
+  /home/marcel/src/rotor-controller/controller/lib/tivaware/inc/hw_eeprom.h \
+  /home/marcel/src/rotor-controller/controller/lib/tivaware/inc/hw_flash.h \
+  /home/marcel/src/rotor-controller/controller/lib/tivaware/inc/hw_ints.h \
+  /home/marcel/src/rotor-controller/controller/lib/tivaware/inc/hw_sysctl.h \
+  /home/marcel/src/rotor-controller/controller/lib/tivaware/inc/hw_types.h \
+  /usr/lib/gcc/arm-none-eabi/14.2.1/include/stdbool.h \
+  /usr/lib/gcc/arm-none-eabi/14.2.1/include/stdint.h
+
 CMakeFiles/driverlib.dir/lib/tivaware/driverlib/gpio.c.obj: /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/gpio.c \
   /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/debug.h \
   /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/gpio.h \
@@ -148,6 +162,12 @@ CMakeFiles/driverlib.dir/lib/tivaware/driverlib/watchdog.c.obj: /home/marcel/src
 
 /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/timer.c:
 
+/home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/systick.c:
+
+/home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/sysctl.c:
+
+/home/marcel/src/rotor-controller/controller/lib/tivaware/inc/hw_ssi.h:
+
 /home/marcel/src/rotor-controller/controller/lib/tivaware/inc/hw_memmap.h:
 
 /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/ssi.c:
@@ -168,8 +188,6 @@ CMakeFiles/driverlib.dir/lib/tivaware/driverlib/watchdog.c.obj: /home/marcel/src
 
 /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/interrupt.h:
 
-/home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/sysctl.c:
-
 /home/marcel/src/rotor-controller/controller/lib/tivaware/inc/hw_uart.h:
 
 /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/cpu.c:
@@ -178,23 +196,21 @@ CMakeFiles/driverlib.dir/lib/tivaware/driverlib/watchdog.c.obj: /home/marcel/src
 
 /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/debug.h:
 
-/usr/lib/gcc/arm-none-eabi/14.2.1/include/stdint.h:
-
 /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/adc.c:
 
-/home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/gpio.c:
+/home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/eeprom.c:
 
-/home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/watchdog.h:
-
-/home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/gpio.h:
+/home/marcel/src/rotor-controller/controller/lib/tivaware/inc/hw_eeprom.h:
 
 /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/watchdog.c:
 
 /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/i2c.c:
 
-/home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/i2c.h:
+/usr/lib/gcc/arm-none-eabi/14.2.1/include/stdint.h:
 
-/home/marcel/src/rotor-controller/controller/lib/tivaware/inc/hw_i2c.h:
+/home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/eeprom.h:
+
+/home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/flash.h:
 
 /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/timer.h:
 
@@ -202,14 +218,20 @@ CMakeFiles/driverlib.dir/lib/tivaware/driverlib/watchdog.c.obj: /home/marcel/src
 
 /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/interrupt.c:
 
-/home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/ssi.h:
-
-/home/marcel/src/rotor-controller/controller/lib/tivaware/inc/hw_ssi.h:
-
-/home/marcel/src/rotor-controller/controller/lib/tivaware/inc/hw_flash.h:
-
-/home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/systick.c:
+/home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/systick.h:
 
 /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/sysctl.h:
 
-/home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/systick.h:
+/home/marcel/src/rotor-controller/controller/lib/tivaware/inc/hw_flash.h:
+
+/home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/gpio.c:
+
+/home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/watchdog.h:
+
+/home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/gpio.h:
+
+/home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/i2c.h:
+
+/home/marcel/src/rotor-controller/controller/lib/tivaware/inc/hw_i2c.h:
+
+/home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/ssi.h:

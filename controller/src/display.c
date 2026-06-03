@@ -71,18 +71,13 @@ static void lcd_en_pulse(uint8_t val)
     SysCtlDelay(SYSCLOCK_HZ / 3 / 100000);   /* ~10 µs low — give clone time to latch */
 }
 
-/* Reverse 4 bits: needed when PCF P4=DB7, P5=DB6, P6=DB5, P7=DB4
-   (some modules connect data pins in opposite order from standard). */
-static uint8_t brev4(uint8_t n)
-{
-    return (uint8_t)(((n&1u)<<3)|((n&2u)<<1)|((n&4u)>>1)|((n&8u)>>3));
-}
-
 static void lcd_nibble(uint8_t nibble, uint8_t rs)
 {
-    /* Try standard first; if display stays garbled, #define LCD_NIBBLE_REVERSED */
 #ifdef LCD_NIBBLE_REVERSED
-    uint8_t v = (uint8_t)((brev4(nibble & 0x0Fu) << 4) | PCF_BL | (rs ? PCF_RS : 0u));
+    /* Reverse 4 bits: for modules wired P4=DB7, P5=DB6, P6=DB5, P7=DB4. */
+    uint8_t n = nibble & 0x0Fu;
+    uint8_t rev = (uint8_t)(((n&1u)<<3)|((n&2u)<<1)|((n&4u)>>1)|((n&8u)>>3));
+    uint8_t v = (uint8_t)((rev << 4) | PCF_BL | (rs ? PCF_RS : 0u));
 #else
     uint8_t v = (uint8_t)(((nibble & 0x0Fu) << 4) | PCF_BL | (rs ? PCF_RS : 0u));
 #endif

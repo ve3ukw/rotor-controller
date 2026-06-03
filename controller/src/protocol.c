@@ -1,4 +1,4 @@
-#include <stdio.h>    /* snprintf */
+#include <stdio.h>    /* snprintf, sscanf */
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -154,6 +154,48 @@ bool protocol_parse(const char *json, uint32_t *seq, sm_command_t *cmd)
         if (!get_float(json, "az_max", &cmd->limits.az_max)) { return false; }
         if (!get_float(json, "el_min", &cmd->limits.el_min)) { return false; }
         if (!get_float(json, "el_max", &cmd->limits.el_max)) { return false; }
+        return true;
+    }
+
+    if (strcmp(type, "set_netconfig") == 0) {
+        cmd->type = CMD_TYPE_SET_NETCONFIG;
+        char buf[24];
+        /* IP, subnet, gateway are required. */
+        if (!get_string(json, "ip",      buf, sizeof(buf))) { return false; }
+        unsigned a, b, c, d;
+        if (sscanf(buf, "%u.%u.%u.%u", &a, &b, &c, &d) != 4) { return false; }
+        cmd->netconfig.ip[0] = (uint8_t)a; cmd->netconfig.ip[1] = (uint8_t)b;
+        cmd->netconfig.ip[2] = (uint8_t)c; cmd->netconfig.ip[3] = (uint8_t)d;
+
+        if (!get_string(json, "subnet",  buf, sizeof(buf))) { return false; }
+        if (sscanf(buf, "%u.%u.%u.%u", &a, &b, &c, &d) != 4) { return false; }
+        cmd->netconfig.subnet[0] = (uint8_t)a; cmd->netconfig.subnet[1] = (uint8_t)b;
+        cmd->netconfig.subnet[2] = (uint8_t)c; cmd->netconfig.subnet[3] = (uint8_t)d;
+
+        if (!get_string(json, "gateway", buf, sizeof(buf))) { return false; }
+        if (sscanf(buf, "%u.%u.%u.%u", &a, &b, &c, &d) != 4) { return false; }
+        cmd->netconfig.gateway[0] = (uint8_t)a; cmd->netconfig.gateway[1] = (uint8_t)b;
+        cmd->netconfig.gateway[2] = (uint8_t)c; cmd->netconfig.gateway[3] = (uint8_t)d;
+
+        /* MAC is optional — keep current if absent. */
+        cmd->netconfig.has_mac = false;
+        if (get_string(json, "mac", buf, sizeof(buf))) {
+            unsigned ma, mb, mc, md, me, mf;
+            if (sscanf(buf, "%x:%x:%x:%x:%x:%x",
+                       &ma, &mb, &mc, &md, &me, &mf) == 6) {
+                cmd->netconfig.mac[0] = (uint8_t)ma;
+                cmd->netconfig.mac[1] = (uint8_t)mb;
+                cmd->netconfig.mac[2] = (uint8_t)mc;
+                cmd->netconfig.mac[3] = (uint8_t)md;
+                cmd->netconfig.mac[4] = (uint8_t)me;
+                cmd->netconfig.mac[5] = (uint8_t)mf;
+                cmd->netconfig.has_mac = true;
+            }
+        }
+        return true;
+    }
+    if (strcmp(type, "reset_netconfig") == 0) {
+        cmd->type = CMD_TYPE_RESET_NETCONFIG;
         return true;
     }
 

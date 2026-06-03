@@ -14,6 +14,7 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/marcel/src/rotor-controller/controller/src/gpio_outputs.c" "CMakeFiles/rotor-controller.elf.dir/src/gpio_outputs.c.obj" "gcc" "CMakeFiles/rotor-controller.elf.dir/src/gpio_outputs.c.obj.d"
   "/home/marcel/src/rotor-controller/controller/src/main.c" "CMakeFiles/rotor-controller.elf.dir/src/main.c.obj" "gcc" "CMakeFiles/rotor-controller.elf.dir/src/main.c.obj.d"
   "/home/marcel/src/rotor-controller/controller/src/net.c" "CMakeFiles/rotor-controller.elf.dir/src/net.c.obj" "gcc" "CMakeFiles/rotor-controller.elf.dir/src/net.c.obj.d"
+  "/home/marcel/src/rotor-controller/controller/src/net_persist.c" "CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.obj" "gcc" "CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.obj.d"
   "/home/marcel/src/rotor-controller/controller/src/protocol.c" "CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj" "gcc" "CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj.d"
   "/home/marcel/src/rotor-controller/controller/src/startup_gcc.c" "CMakeFiles/rotor-controller.elf.dir/src/startup_gcc.c.obj" "gcc" "CMakeFiles/rotor-controller.elf.dir/src/startup_gcc.c.obj.d"
   "/home/marcel/src/rotor-controller/controller/src/state_machine.c" "CMakeFiles/rotor-controller.elf.dir/src/state_machine.c.obj" "gcc" "CMakeFiles/rotor-controller.elf.dir/src/state_machine.c.obj.d"

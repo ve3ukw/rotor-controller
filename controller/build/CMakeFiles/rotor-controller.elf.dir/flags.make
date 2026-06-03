@@ -8,3 +8,5 @@ C_INCLUDES = -I/home/marcel/src/rotor-controller/controller/lib/tivaware/utils -
 
 C_FLAGS = -mcpu=cortex-m4 -mthumb -mfpu=fpv4-sp-d16 -mfloat-abi=hard -std=gnu11 -Wall -Wextra -Os -ffunction-sections -fdata-sections -fno-common
 
+# Custom flags: CMakeFiles/rotor-controller.elf.dir/src/net.c.obj_FLAGS = -Wno-unused-function
+

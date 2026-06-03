@@ -10,6 +10,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/adc.c" "CMakeFiles/driverlib.dir/lib/tivaware/driverlib/adc.c.obj" "gcc" "CMakeFiles/driverlib.dir/lib/tivaware/driverlib/adc.c.obj.d"
   "/home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/cpu.c" "CMakeFiles/driverlib.dir/lib/tivaware/driverlib/cpu.c.obj" "gcc" "CMakeFiles/driverlib.dir/lib/tivaware/driverlib/cpu.c.obj.d"
+  "/home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/eeprom.c" "CMakeFiles/driverlib.dir/lib/tivaware/driverlib/eeprom.c.obj" "gcc" "CMakeFiles/driverlib.dir/lib/tivaware/driverlib/eeprom.c.obj.d"
   "/home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/gpio.c" "CMakeFiles/driverlib.dir/lib/tivaware/driverlib/gpio.c.obj" "gcc" "CMakeFiles/driverlib.dir/lib/tivaware/driverlib/gpio.c.obj.d"
   "/home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/i2c.c" "CMakeFiles/driverlib.dir/lib/tivaware/driverlib/i2c.c.obj" "gcc" "CMakeFiles/driverlib.dir/lib/tivaware/driverlib/i2c.c.obj.d"
   "/home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/interrupt.c" "CMakeFiles/driverlib.dir/lib/tivaware/driverlib/interrupt.c.obj" "gcc" "CMakeFiles/driverlib.dir/lib/tivaware/driverlib/interrupt.c.obj.d"

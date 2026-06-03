@@ -13,7 +13,6 @@
 #include "state_machine.h"
 #include "net.h"
 #include "display.h"
-#include "w5500.h"    /* getSn_SR — temporary diagnostic */
 #include "debug.h"
 
 #ifdef DEBUG_LOG
@@ -96,7 +95,7 @@ int main(void)
     sm_init(&sm);
 
     uint32_t ticks_since_toggle = 0;
-    bool     a10_prev = true;              /* A10 previous state for edge detect */
+    bool     park_prev = true;             /* A8 (PB0) previous state for edge detect */
 
     for (;;) {
         while (!tick_pending()) {}
@@ -104,25 +103,25 @@ int main(void)
         WatchdogIntClear(WATCHDOG0_BASE);   /* kick hardware watchdog */
 
         /* ── Hardware safety inputs ─────────────────────────────────────── */
-        bool a11_low = (GPIOPinRead(GPIO_PORTB_BASE, GPIO_PIN_1) == 0);  /* A9 */
-        bool a10_low = (GPIOPinRead(GPIO_PORTB_BASE, GPIO_PIN_0) == 0);  /* A8 */
+        bool estop_low = (GPIOPinRead(GPIO_PORTB_BASE, GPIO_PIN_1) == 0);  /* A9 PB1 */
+        bool park_low  = (GPIOPinRead(GPIO_PORTB_BASE, GPIO_PIN_0) == 0);  /* A8 PB0 */
 
-        if (a11_low) {
-            /* A11: emergency stop held — push every tick while low */
+        if (estop_low) {
+            /* A9: emergency stop held — push every tick while low */
             sm_command_t estop = { .type     = CMD_TYPE_EMERGENCY_STOP,
                                    .source   = CMD_SRC_LOCAL,
                                    .priority = 255 };
             sm_push_command(&sm, &estop);
         }
 
-        if (a10_low && a10_prev) {
-            /* A10: falling edge — trigger park once per press */
+        if (park_low && park_prev) {
+            /* A8: falling edge — trigger park once per press */
             sm_command_t park = { .type     = CMD_TYPE_PARK,
                                   .source   = CMD_SRC_LOCAL,
                                   .priority = 10 };
             sm_push_command(&sm, &park);
         }
-        a10_prev = !a10_low;   /* track for next tick */
+        park_prev = !park_low;   /* track for next tick */
 
         adc_tick();
 
@@ -138,13 +137,9 @@ int main(void)
         net_tick(&sm, in.az_pos, in.el_pos, tick_count() * (1000U / TICK_HZ));
         display_tick(&sm, in.az_pos, in.el_pos);
 
-        /* Diagnostic: red LED = TCP socket is active (listening or connected). */
-        {
-            uint8_t _sr = getSn_SR(0);
-            GPIOPinWrite(GPIO_PORTF_BASE, LED_RED,
-                (_sr == SOCK_LISTEN || _sr == SOCK_ESTABLISHED)
-                ? LED_RED : 0);
-        }
+        /* Red LED: brain TCP session active. */
+        GPIOPinWrite(GPIO_PORTF_BASE, LED_RED,
+            net_is_connected() ? LED_RED : 0);
 
         /* Blue LED: 1 Hz blink — scheduler alive. */
         if (++ticks_since_toggle >= TICKS_PER_LED_TOGGLE) {

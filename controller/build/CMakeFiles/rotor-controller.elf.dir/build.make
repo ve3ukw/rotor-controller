@@ -160,20 +160,34 @@ CMakeFiles/rotor-controller.elf.dir/src/net.c.obj: CMakeFiles/rotor-controller.e
 CMakeFiles/rotor-controller.elf.dir/src/net.c.obj: /home/marcel/src/rotor-controller/controller/src/net.c
 CMakeFiles/rotor-controller.elf.dir/src/net.c.obj: CMakeFiles/rotor-controller.elf.dir/compiler_depend.ts
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/marcel/src/rotor-controller/controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building C object CMakeFiles/rotor-controller.elf.dir/src/net.c.obj"
-	/usr/bin/arm-none-eabi-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/rotor-controller.elf.dir/src/net.c.obj -MF CMakeFiles/rotor-controller.elf.dir/src/net.c.obj.d -o CMakeFiles/rotor-controller.elf.dir/src/net.c.obj -c /home/marcel/src/rotor-controller/controller/src/net.c
+	/usr/bin/arm-none-eabi-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -Wno-unused-function -MD -MT CMakeFiles/rotor-controller.elf.dir/src/net.c.obj -MF CMakeFiles/rotor-controller.elf.dir/src/net.c.obj.d -o CMakeFiles/rotor-controller.elf.dir/src/net.c.obj -c /home/marcel/src/rotor-controller/controller/src/net.c
 
 CMakeFiles/rotor-controller.elf.dir/src/net.c.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/rotor-controller.elf.dir/src/net.c.i"
-	/usr/bin/arm-none-eabi-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/marcel/src/rotor-controller/controller/src/net.c > CMakeFiles/rotor-controller.elf.dir/src/net.c.i
+	/usr/bin/arm-none-eabi-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -Wno-unused-function -E /home/marcel/src/rotor-controller/controller/src/net.c > CMakeFiles/rotor-controller.elf.dir/src/net.c.i
 
 CMakeFiles/rotor-controller.elf.dir/src/net.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/rotor-controller.elf.dir/src/net.c.s"
-	/usr/bin/arm-none-eabi-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/marcel/src/rotor-controller/controller/src/net.c -o CMakeFiles/rotor-controller.elf.dir/src/net.c.s
+	/usr/bin/arm-none-eabi-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -Wno-unused-function -S /home/marcel/src/rotor-controller/controller/src/net.c -o CMakeFiles/rotor-controller.elf.dir/src/net.c.s
+
+CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.obj: CMakeFiles/rotor-controller.elf.dir/flags.make
+CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.obj: /home/marcel/src/rotor-controller/controller/src/net_persist.c
+CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.obj: CMakeFiles/rotor-controller.elf.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/marcel/src/rotor-controller/controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building C object CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.obj"
+	/usr/bin/arm-none-eabi-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.obj -MF CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.obj.d -o CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.obj -c /home/marcel/src/rotor-controller/controller/src/net_persist.c
+
+CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.i"
+	/usr/bin/arm-none-eabi-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/marcel/src/rotor-controller/controller/src/net_persist.c > CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.i
+
+CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.s"
+	/usr/bin/arm-none-eabi-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/marcel/src/rotor-controller/controller/src/net_persist.c -o CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.s
 
 CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj: CMakeFiles/rotor-controller.elf.dir/flags.make
 CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj: /home/marcel/src/rotor-controller/controller/src/protocol.c
 CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj: CMakeFiles/rotor-controller.elf.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/marcel/src/rotor-controller/controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building C object CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/marcel/src/rotor-controller/controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building C object CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj"
 	/usr/bin/arm-none-eabi-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj -MF CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj.d -o CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj -c /home/marcel/src/rotor-controller/controller/src/protocol.c
 
 CMakeFiles/rotor-controller.elf.dir/src/protocol.c.i: cmake_force
@@ -187,7 +201,7 @@ CMakeFiles/rotor-controller.elf.dir/src/protocol.c.s: cmake_force
 CMakeFiles/rotor-controller.elf.dir/src/display.c.obj: CMakeFiles/rotor-controller.elf.dir/flags.make
 CMakeFiles/rotor-controller.elf.dir/src/display.c.obj: /home/marcel/src/rotor-controller/controller/src/display.c
 CMakeFiles/rotor-controller.elf.dir/src/display.c.obj: CMakeFiles/rotor-controller.elf.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/marcel/src/rotor-controller/controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building C object CMakeFiles/rotor-controller.elf.dir/src/display.c.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/marcel/src/rotor-controller/controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building C object CMakeFiles/rotor-controller.elf.dir/src/display.c.obj"
 	/usr/bin/arm-none-eabi-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/rotor-controller.elf.dir/src/display.c.obj -MF CMakeFiles/rotor-controller.elf.dir/src/display.c.obj.d -o CMakeFiles/rotor-controller.elf.dir/src/display.c.obj -c /home/marcel/src/rotor-controller/controller/src/display.c
 
 CMakeFiles/rotor-controller.elf.dir/src/display.c.i: cmake_force
@@ -201,7 +215,7 @@ CMakeFiles/rotor-controller.elf.dir/src/display.c.s: cmake_force
 CMakeFiles/rotor-controller.elf.dir/lib/tivaware/utils/uartstdio.c.obj: CMakeFiles/rotor-controller.elf.dir/flags.make
 CMakeFiles/rotor-controller.elf.dir/lib/tivaware/utils/uartstdio.c.obj: /home/marcel/src/rotor-controller/controller/lib/tivaware/utils/uartstdio.c
 CMakeFiles/rotor-controller.elf.dir/lib/tivaware/utils/uartstdio.c.obj: CMakeFiles/rotor-controller.elf.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/marcel/src/rotor-controller/controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building C object CMakeFiles/rotor-controller.elf.dir/lib/tivaware/utils/uartstdio.c.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/marcel/src/rotor-controller/controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building C object CMakeFiles/rotor-controller.elf.dir/lib/tivaware/utils/uartstdio.c.obj"
 	/usr/bin/arm-none-eabi-gcc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/rotor-controller.elf.dir/lib/tivaware/utils/uartstdio.c.obj -MF CMakeFiles/rotor-controller.elf.dir/lib/tivaware/utils/uartstdio.c.obj.d -o CMakeFiles/rotor-controller.elf.dir/lib/tivaware/utils/uartstdio.c.obj -c /home/marcel/src/rotor-controller/controller/lib/tivaware/utils/uartstdio.c
 
 CMakeFiles/rotor-controller.elf.dir/lib/tivaware/utils/uartstdio.c.i: cmake_force
@@ -221,6 +235,7 @@ rotor__controller_elf_OBJECTS = \
 "CMakeFiles/rotor-controller.elf.dir/src/gpio_outputs.c.obj" \
 "CMakeFiles/rotor-controller.elf.dir/src/state_machine.c.obj" \
 "CMakeFiles/rotor-controller.elf.dir/src/net.c.obj" \
+"CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.obj" \
 "CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj" \
 "CMakeFiles/rotor-controller.elf.dir/src/display.c.obj" \
 "CMakeFiles/rotor-controller.elf.dir/lib/tivaware/utils/uartstdio.c.obj"
@@ -235,6 +250,7 @@ rotor-controller.elf: CMakeFiles/rotor-controller.elf.dir/src/adc.c.obj
 rotor-controller.elf: CMakeFiles/rotor-controller.elf.dir/src/gpio_outputs.c.obj
 rotor-controller.elf: CMakeFiles/rotor-controller.elf.dir/src/state_machine.c.obj
 rotor-controller.elf: CMakeFiles/rotor-controller.elf.dir/src/net.c.obj
+rotor-controller.elf: CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.obj
 rotor-controller.elf: CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj
 rotor-controller.elf: CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
 rotor-controller.elf: CMakeFiles/rotor-controller.elf.dir/lib/tivaware/utils/uartstdio.c.obj
@@ -242,7 +258,7 @@ rotor-controller.elf: CMakeFiles/rotor-controller.elf.dir/build.make
 rotor-controller.elf: libdriverlib.a
 rotor-controller.elf: libwiznet.a
 rotor-controller.elf: CMakeFiles/rotor-controller.elf.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/marcel/src/rotor-controller/controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Linking C executable rotor-controller.elf"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/marcel/src/rotor-controller/controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Linking C executable rotor-controller.elf"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/rotor-controller.elf.dir/link.txt --verbose=$(VERBOSE)
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold "Generating rotor-controller.bin"
 	arm-none-eabi-objcopy -O binary /home/marcel/src/rotor-controller/controller/build/rotor-controller.elf /home/marcel/src/rotor-controller/controller/build/rotor-controller.bin
