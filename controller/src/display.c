@@ -145,6 +145,18 @@ void display_init(void)
 
     I2CMasterInitExpClk(I2C1_BASE, SYSCLOCK_HZ, false);  /* 100 kHz — safer for cheap modules */
 
+    /* Scan FIRST so the init sequence goes to the correct address.
+       Previously the scan ran after the init sequence, so the three reset
+       pulses and 4-bit mode switch were sent to the default 0x27 (NAK'd),
+       leaving the LCD in 8-bit power-on-reset mode → garbled nibble output. */
+    uint8_t addr = i2c_scan();
+    if (addr == 0) {
+        debug_log("LCD: not found\r\n");
+        return;
+    }
+    g_lcd_addr = addr;
+    debug_log("LCD: found at 0x%02X\r\n", addr);
+
     /* HD44780 power-on sequence (≥50 ms after Vcc rise) */
     SysCtlDelay(SYSCLOCK_HZ / 3 / 20);    /* 50 ms */
 
@@ -164,27 +176,35 @@ void display_init(void)
     lcd_cmd(0x06);   /* entry: increment, no shift */
     lcd_cmd(0x0C);   /* display on, cursor off, blink off */
 
-    /* Scan for display — works regardless of address jumper state */
-    uint8_t addr = i2c_scan();
-    if (addr == 0) {
-        debug_log("LCD: not found\r\n");
-        return;   /* no display — all subsequent calls are no-ops */
-    }
-    g_lcd_addr = addr;
-    g_present  = true;
-    debug_log("LCD: found at 0x%02X\r\n", addr);
+    g_present = true;
 
-    /* Blank all rows on boot — live content follows from display_tick(). */
+    /* Blank all rows on boot — splash or live content follows. */
     for (uint8_t r = 0; r < 4; r++) {
         lcd_cursor(r, 0);
         for (uint8_t c = 0; c < LCD_COLS; c++) { lcd_data(' '); }
     }
 }
 
-/* ── 4-row renders (all rows now accessible with brev4 nibble correction) ── */
+void display_splash(const char *row0, const char *row1,
+                    const char *row2, const char *row3)
+{
+    if (!g_present) { return; }
+    const char *rows[4] = { row0, row1, row2, row3 };
+    for (uint8_t r = 0; r < 4; r++) {
+        lcd_cursor(r, 0);
+        lcd_field(rows[r] ? rows[r] : "", LCD_COLS);
+    }
+}
+
+/* ── 4-row renders ───────────────────────────────────────────────────────── */
 
 static void render_az(const sm_ctx_t *sm, float az)
 {
+    lcd_cursor(0, 0);
+    if (sm_get_state(sm) == SM_STATE_FAULT_ADC_INVALID) {
+        lcd_puts("AZ: NO SENSOR       ");
+        return;
+    }
     /* "AZ:0.400  [>> CW  ]" — 20 chars */
     char pos[6]; fmt_norm(pos, az);
     const char *motion;
@@ -193,12 +213,16 @@ static void render_az(const sm_ctx_t *sm, float az)
     case SM_AZ_CCW: motion = "[<< CCW ]"; break;
     default:        motion = "[  STOP ]"; break;
     }
-    lcd_cursor(0, 0);
     lcd_puts("AZ:"); lcd_puts(pos); lcd_puts("  "); lcd_puts(motion); lcd_data(' ');
 }
 
 static void render_el(const sm_ctx_t *sm, float el)
 {
+    lcd_cursor(1, 0);
+    if (sm_get_state(sm) == SM_STATE_FAULT_ADC_INVALID) {
+        lcd_puts("EL: NO SENSOR       ");
+        return;
+    }
     /* "EL:0.250  [^^ UP  ]" — 20 chars */
     char pos[6]; fmt_norm(pos, el);
     const char *motion;
@@ -207,7 +231,6 @@ static void render_el(const sm_ctx_t *sm, float el)
     case SM_EL_DOWN: motion = "[vv DOWN]"; break;
     default:         motion = "[  STOP ]"; break;
     }
-    lcd_cursor(1, 0);
     lcd_puts("EL:"); lcd_puts(pos); lcd_puts("  "); lcd_puts(motion); lcd_data(' ');
 }
 
@@ -223,7 +246,7 @@ static void render_state(const sm_ctx_t *sm)
     case SM_STATE_FAULT_LINK_LOST:   st12 = "FAULT:LINK  "; break;
     case SM_STATE_FAULT_LIMIT:       st12 = "FAULT:LIMIT "; break;
     case SM_STATE_FAULT_DUTY_CYCLE:  st12 = "FAULT:DUTY  "; break;
-    case SM_STATE_FAULT_ADC_INVALID: st12 = "FAULT:ADC   "; break;
+    case SM_STATE_FAULT_ADC_INVALID: st12 = "NO G-5500   "; break;
     default:                         st12 = "???         "; break;
     }
     lcd_cursor(2, 0);
@@ -256,7 +279,8 @@ void display_tick(const sm_ctx_t *sm, float az_raw, float el_raw)
        A single burst is visually cleaner than 4 staggered writes
        each causing a separate 1 Hz blink on different rows. */
     g_tick_ctr++;
-    if (g_tick_ctr % 100u != 0u) { return; }
+    if (g_tick_ctr < 500u) { return; }                    /* 5 s splash hold */
+    if ((g_tick_ctr - 500u) % 100u != 0u) { return; }     /* 1 Hz thereafter */
 
     render_az(sm, az_raw);
     render_el(sm, el_raw);

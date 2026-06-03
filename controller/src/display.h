@@ -16,8 +16,13 @@
  *   Row 3  A:  0% E:  0% V-U-L-
  */
 
-/* Call once after system clock setup. */
+/* Call once after system clock setup (before watchdog is armed). */
 void display_init(void);
+
+/* Write a static 4-row message immediately — useful during boot before the
+   main loop starts.  Each string is truncated/padded to LCD_COLS chars. */
+void display_splash(const char *row0, const char *row1,
+                    const char *row2, const char *row3);
 
 /* Call every main-loop tick.  Refreshes all 4 rows once per second (every
    100 ticks) in a single burst so rows don't update at staggered times. */
