@@ -85,6 +85,10 @@ int main(void)
     gpio_outputs_init();
     net_init();
     display_init();
+    display_splash("  Rotor Controller  ",
+                   "     Starting...    ",
+                   "                    ",
+                   "     VE3UKW         ");
 
     /* Arm the watchdog AFTER all init — kicked every tick in the main loop.
        On timeout: IntDefaultHandler spins → second timeout → system reset → safe state. */
