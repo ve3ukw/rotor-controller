@@ -13,9 +13,9 @@
  * effective immediately but lost on reset (no EEPROM).
  * ───────────────────────────────────────────────────────────────────────── */
 #define NET_MAC       { 0x02, 0x00, 0xDC, 0x57, 0x3A, 0xF2 }
-#define NET_IP        { 192, 168, 3,   1 }
+#define NET_IP        { 192, 168, 1,   5 }
 #define NET_SUBNET    { 255, 255, 255, 0 }
-#define NET_GATEWAY   { 192, 168, 3, 254 }
+#define NET_GATEWAY   { 192, 168, 1,   1 }
 #define NET_DNS       {   0,   0,   0, 0 }   /* unused */
 
 #define NET_TCP_PORT  7700U   /* command socket */

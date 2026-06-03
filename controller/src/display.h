@@ -19,6 +19,6 @@
 /* Call once after system clock setup. */
 void display_init(void);
 
-/* Call every main-loop tick.  Updates one row per call (rolling 4-tick
-   cycle) so each tick spends ~4 ms maximum on I2C — well within budget. */
+/* Call every main-loop tick.  Refreshes all 4 rows once per second (every
+   100 ticks) in a single burst so rows don't update at staggered times. */
 void display_tick(const sm_ctx_t *sm, float az_raw, float el_raw);

@@ -29,6 +29,9 @@ typedef struct {
 
 void net_init(void);
 
+/* Returns true while a brain TCP session is active. */
+bool net_is_connected(void);
+
 /*
  * Call once per main-loop tick.  Handles TCP command receive + ack,
  * UDP telemetry emission (~20 Hz), and socket lifecycle.
