@@ -33,6 +33,7 @@ typedef struct {
     float az_pos;      /* normalized 0..1 */
     float el_pos;
     bool  adc_valid;
+    float el_floor;    /* min normalized elevation for current AZ (from blocks) */
 } sm_input_t;
 
 /* ── outputs (caller applies to GPIO each tick) ──────────────────────────── */

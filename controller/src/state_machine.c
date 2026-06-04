@@ -144,6 +144,9 @@ sm_output_t sm_tick(sm_ctx_t *ctx, const sm_input_t *in)
 
         case CMD_TYPE_SET_NETCONFIG:
         case CMD_TYPE_RESET_NETCONFIG:
+        case CMD_TYPE_SET_BLOCK:
+        case CMD_TYPE_SET_BLOCKS:
+        case CMD_TYPE_RESET_BLOCKS:
             break;  /* handled in net.c before reaching the state machine */
         }
 
@@ -226,6 +229,14 @@ sm_output_t sm_tick(sm_ctx_t *ctx, const sm_input_t *in)
         ctx->el_cmd = SM_EL_STOP;
         enter_fault(ctx, SM_STATE_FAULT_LIMIT);
         goto build_output;
+    }
+
+    /* ── 6b. AZ block el_floor enforcement ───────────────────────────────
+     * If the current AZ sector has a minimum elevation floor and the antenna
+     * is at or below it, prevent further EL DOWN movement.  No fault — it is
+     * expected behaviour at an obstacle boundary. */
+    if (ctx->el_cmd == SM_EL_DOWN && in->el_pos <= in->el_floor) {
+        ctx->el_cmd = SM_EL_STOP;
     }
 
     /* ── 7. Update duty-cycle counters ──────────────────────────────────── */

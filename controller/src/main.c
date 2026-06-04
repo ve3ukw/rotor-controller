@@ -12,6 +12,7 @@
 #include "gpio_outputs.h"
 #include "state_machine.h"
 #include "net.h"
+#include "blocks.h"
 #include "display.h"
 #include "debug.h"
 
@@ -83,7 +84,8 @@ int main(void)
     tick_init();
     adc_init();
     gpio_outputs_init();
-    net_init();
+    net_init();          /* calls net_persist_init() which enables EEPROM peripheral */
+    blocks_load();       /* load AZ block floors from EEPROM (EEPROM already up) */
     display_init();
     display_splash("  Rotor Controller  ",
                    "     Starting...    ",
@@ -129,10 +131,12 @@ int main(void)
 
         adc_tick();
 
+        float az = adc_get_az();
         sm_input_t in = {
-            .az_pos    = adc_get_az(),
+            .az_pos    = az,
             .el_pos    = adc_get_el(),
             .adc_valid = adc_is_valid(),
+            .el_floor  = blocks_get_el_floor(az),
         };
 
         sm_output_t out = sm_tick(&sm, &in);

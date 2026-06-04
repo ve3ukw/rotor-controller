@@ -18,8 +18,11 @@ typedef enum {
     CMD_TYPE_CLEAR_FAULT,
     CMD_TYPE_EMERGENCY_STOP,
     CMD_TYPE_PARK,          /* move to pre-defined parking position      */
-    CMD_TYPE_SET_NETCONFIG, /* override IP/subnet/gateway/MAC in EEPROM  */
-    CMD_TYPE_RESET_NETCONFIG, /* clear EEPROM override → factory defaults */
+    CMD_TYPE_SET_NETCONFIG,    /* override IP/subnet/gateway/MAC in EEPROM      */
+    CMD_TYPE_RESET_NETCONFIG,  /* clear EEPROM override → factory defaults       */
+    CMD_TYPE_SET_BLOCK,        /* set el_floor (degrees) for one 5° AZ chunk     */
+    CMD_TYPE_SET_BLOCKS,       /* set all 90 el_floor values at once              */
+    CMD_TYPE_RESET_BLOCKS,     /* clear all AZ blocks to 0 (no restrictions)     */
 } cmd_type_t;
 
 typedef enum {
@@ -54,14 +57,28 @@ typedef struct {
     bool    has_mac;    /* false = keep current MAC */
 } cmd_netconfig_t;
 
+/* For CMD_TYPE_SET_BLOCK: set one 5° AZ chunk's minimum elevation. */
+typedef struct {
+    float   az_deg;        /* AZ in degrees — chunk is floor(az_deg/5) × 5 */
+    uint8_t el_floor_deg;  /* minimum elevation in degrees (0 = unrestricted) */
+} cmd_block_t;
+
+/* For CMD_TYPE_SET_BLOCKS: 90-entry bulk update. */
+#define AZ_BLOCK_COUNT_CMD 90U   /* same as AZ_BLOCK_COUNT in blocks.h */
+typedef struct {
+    uint8_t el_floor[AZ_BLOCK_COUNT_CMD];
+} cmd_blocks_t;
+
 typedef struct {
     cmd_type_t   type;
     cmd_source_t source;
     uint8_t      priority;  /* higher = wins on conflict */
     union {
-        cmd_motion_t      motion;
+        cmd_motion_t       motion;
         cmd_polarization_t pol;
-        cmd_limits_t      limits;
-        cmd_netconfig_t   netconfig;
+        cmd_limits_t       limits;
+        cmd_netconfig_t    netconfig;
+        cmd_block_t        block;
+        cmd_blocks_t       blocks;
     };
 } sm_command_t;
