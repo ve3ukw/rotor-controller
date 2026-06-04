@@ -1,0 +1,75 @@
+GPIO Mapping — Rotor Controller Field Unit
+EK-TM4C123GXL LaunchPad + BOOSTXL-IOBKOUT BoosterPack
+========================================================
+
+BoosterPack   MCU Pin   Direction   Function
+-----------   -------   ---------   --------
+
+── ADC INPUTS (conditioned to ≤3.28 V before MCU) ───────────────────────────
+
+AY            PE1       IN (AIN2)   Elevation pot wiper  (AIN2)
+AZ            PD3       IN (AIN4)   Azimuth pot wiper    (AIN4)
+
+── MOTOR CONTACT OUTPUTS (→ opto-isolators → G-5500 DIN-8) ─────────────────
+   State-machine writes only.  Active HIGH = relay closed.
+
+A1            PF4       OUT         Elevation UP
+A2            PE0       OUT         Elevation DOWN
+A3            PE3       OUT         Azimuth CW
+A4            PE4       OUT         Azimuth CCW
+
+── RF / ANTENNA SWITCH OUTPUTS (→ SSR / relay drivers) ─────────────────────
+   Brain-commandable independently of motor motion.
+
+B1            PF0       OUT         Polarization — VHF  (NMI pin, SW unlocked)
+B2            PC4       OUT         Polarization — UHF
+B3            PC5       OUT         LNA — UHF
+B4            PC6       OUT         RX/TX switch — UHF
+
+── W5500 ETHERNET SPI ───────────────────────────────────────────────────────
+
+B11           PA2       SSI0CLK     SPI clock  (20 MHz)
+B10           PA3       OUT (GPIO)  SPI chip select  /CS  (software-controlled)
+B9            PA4       SSI0RX      SPI MISO
+B8            PA5       SSI0TX      SPI MOSI
+B7            PD7       OUT         W5500 /RST  (NMI pin, SW unlocked, active LOW)
+B6            PD6       IN          W5500 /INT  (polled, not yet used)
+
+── HARDWARE SAFETY INPUTS (weak pull-up, active LOW) ────────────────────────
+
+A9            PB1       IN          Emergency stop  — Lo = stop all motors
+                                    Hi = normal operation
+A8            PB0       IN          Park trigger    — falling edge = move to
+                                    park position (az 180° / el 45°)
+
+── ONBOARD LEDs (EK-TM4C123GXL, diagnostic only) ───────────────────────────
+
+—             PF1       OUT         Red   — TCP socket active (listening / connected)
+—             PF2       OUT         Blue  — 1 Hz blink = main loop alive
+—             PF3       OUT         Green — no active SM fault
+
+── DEBUG UART (ICDI virtual COM, 115 200 8N1) ───────────────────────────────
+   Only populated when firmware built with -DENABLE_DEBUG_LOG=ON
+
+—             PA0       UART0 RX    Debug console RX  (not connected externally)
+—             PA1       UART0 TX    Debug console TX  (appears as /dev/ttyACM0)
+
+── RESERVED / KEPT FREE ─────────────────────────────────────────────────────
+
+A10           PA6       —           Reserved (I2C1 SCL — kept free)
+A11           PA7       —           Reserved (I2C1 SDA — kept free)
+A8/A9 (UART) PB0/PB1   —           PB0/PB1 alternate function UART1 not used
+                                    (configured as GPIO inputs above)
+
+========================================================
+Notes
+------
+* PF0 (B1) and PD7 (B7) are NMI-locked on the LaunchPad; firmware unlocks
+  the GPIO commit register before use.
+* PC0–PC3 are JTAG/SWD — not available as GPIO.
+* Motor outputs are written exclusively by the state machine.
+  No other code may call gpio_motor_az_set() / gpio_motor_el_set().
+* ADC inputs must be conditioned to ≤3.28 V (op-amp buffer + divider)
+  before reaching the MCU.  Do NOT connect the G-5500 pin-7 reference
+  rail directly — it sags under motor load.
+* Power the field unit from an independent supply, not from the G-5500.

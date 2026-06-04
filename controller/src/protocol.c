@@ -198,6 +198,38 @@ bool protocol_parse(const char *json, uint32_t *seq, sm_command_t *cmd)
         cmd->type = CMD_TYPE_RESET_NETCONFIG;
         return true;
     }
+    if (strcmp(type, "set_block") == 0) {
+        cmd->type = CMD_TYPE_SET_BLOCK;
+        float az = 0.0f, el = 0.0f;
+        if (!get_float(json, "az_deg",    &az)) { return false; }
+        if (!get_float(json, "el_floor",  &el)) { return false; }
+        if (az < 0.0f || az > 450.0f || el < 0.0f || el > 180.0f) { return false; }
+        cmd->block.az_deg       = az;
+        cmd->block.el_floor_deg = (uint8_t)(el + 0.5f);
+        return true;
+    }
+    if (strcmp(type, "set_blocks") == 0) {
+        /* Expects "blocks":[v0,v1,...,v89] — 90 uint8 el_floor values in degrees. */
+        cmd->type = CMD_TYPE_SET_BLOCKS;
+        const char *p = find_val(json, "blocks");
+        if (!p || *p != '[') { return false; }
+        p++;  /* skip '[' */
+        for (uint8_t i = 0; i < AZ_BLOCK_COUNT_CMD; i++) {
+            while (*p == ' ') { p++; }
+            char *end;
+            unsigned long v = strtoul(p, &end, 10);
+            if (end == p) { return false; }
+            cmd->blocks.el_floor[i] = (v > 180U) ? 180U : (uint8_t)v;
+            p = end;
+            while (*p == ' ') { p++; }
+            if (*p == ',') { p++; }
+        }
+        return true;
+    }
+    if (strcmp(type, "reset_blocks") == 0) {
+        cmd->type = CMD_TYPE_RESET_BLOCKS;
+        return true;
+    }
 
     return false;   /* unknown type */
 }

@@ -65,6 +65,7 @@ add_executable(rotor-controller.elf
     src/state_machine.c
     src/net.c
     src/net_persist.c
+    src/blocks.c
     src/protocol.c
     src/display.c
 )

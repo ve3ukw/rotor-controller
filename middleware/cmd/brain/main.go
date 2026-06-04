@@ -25,6 +25,11 @@ func main() {
 	log.Printf("rotor-brain %s starting", version)
 
 	cfg := config.Load()
+	if cfg.FilePath != "" {
+		log.Printf("config: loaded from %s", cfg.FilePath)
+	} else {
+		log.Printf("config: no config file found at %s — using defaults", config.DefaultFilePath())
+	}
 	log.Printf("config: field unit %s:%d  http %s  mqtt %q",
 		cfg.FieldUnitHost, cfg.FieldUnitTCPPort, cfg.HTTPAddr, cfg.MQTTBroker)
 
@@ -38,12 +43,28 @@ func main() {
 	// Telemetry arrives over TCP because the W5500 on this module silently
 	// drops UDP SEND commands (Sn_MR is cleared after OPEN).
 	fuAddr := fmt.Sprintf("%s:%d", cfg.FieldUnitHost, cfg.FieldUnitTCPPort)
-	fuClient := fieldunit.NewClient(fuAddr,
+	// Load stored block table so we can push it to the field unit on connect.
+	storedBlocks := config.LoadBlocks()
+	st.SetBlocks(storedBlocks)
+
+	var fuClient *fieldunit.Client
+	fuClient = fieldunit.NewClient(fuAddr,
 		func(linked bool) {
 			st.SetLinked(linked)
 			pub.PublishLink(linked)
 			if linked {
 				log.Printf("fieldunit: link UP")
+				// Push block table so field unit enforces the latest config
+				// even if it rebooted and only has older EEPROM data.
+				blocks := st.Blocks()
+				go func() {
+					cmd := wire.Command{Type: "set_blocks", Blocks: blocks[:]}
+					if _, err := fuClient.Send(cmd); err != nil {
+						log.Printf("blocks: push failed: %v", err)
+					} else {
+						log.Printf("blocks: pushed 90 sectors to field unit")
+					}
+				}()
 			} else {
 				log.Printf("fieldunit: link DOWN")
 			}

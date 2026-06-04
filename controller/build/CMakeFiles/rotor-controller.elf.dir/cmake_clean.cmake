@@ -3,6 +3,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/rotor-controller.elf.dir/lib/tivaware/utils/uartstdio.c.obj.d"
   "CMakeFiles/rotor-controller.elf.dir/src/adc.c.obj"
   "CMakeFiles/rotor-controller.elf.dir/src/adc.c.obj.d"
+  "CMakeFiles/rotor-controller.elf.dir/src/blocks.c.obj"
+  "CMakeFiles/rotor-controller.elf.dir/src/blocks.c.obj.d"
   "CMakeFiles/rotor-controller.elf.dir/src/display.c.obj"
   "CMakeFiles/rotor-controller.elf.dir/src/display.c.obj.d"
   "CMakeFiles/rotor-controller.elf.dir/src/gpio_outputs.c.obj"

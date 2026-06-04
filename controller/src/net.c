@@ -17,6 +17,7 @@
 #include "config.h"
 #include "net.h"
 #include "net_persist.h"
+#include "blocks.h"
 #include "protocol.h"
 #include "debug.h"
 
@@ -357,7 +358,7 @@ static void tcp_receive(const sm_ctx_t *sm)
         sm_command_t cmd;
         bool ok = protocol_parse(line, &seq, &cmd);
 
-        /* Network-layer commands are handled here (not through state machine). */
+        /* Network-layer and block commands are handled here (not state machine). */
         bool netcfg_pending = false;
         bool netcfg_reset   = false;
         if (ok) {
@@ -365,6 +366,15 @@ static void tcp_receive(const sm_ctx_t *sm)
                 netcfg_pending = true;   /* apply AFTER ack is sent */
             } else if (cmd.type == CMD_TYPE_RESET_NETCONFIG) {
                 netcfg_reset = true;
+            } else if (cmd.type == CMD_TYPE_SET_BLOCK) {
+                blocks_set(cmd.block.az_deg, cmd.block.el_floor_deg);
+                blocks_save();
+            } else if (cmd.type == CMD_TYPE_SET_BLOCKS) {
+                blocks_set_all(cmd.blocks.el_floor);
+                blocks_save();
+            } else if (cmd.type == CMD_TYPE_RESET_BLOCKS) {
+                blocks_reset();
+                blocks_save();
             } else {
                 sm_push_command((sm_ctx_t *)sm, &cmd);
             }

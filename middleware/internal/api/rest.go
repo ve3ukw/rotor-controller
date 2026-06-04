@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"rotor-controller/brain/internal/state"
@@ -98,6 +99,112 @@ func handleLimits(send func(wire.Command) (*wire.Ack, error)) http.HandlerFunc {
 func handleSimple(cmdType string, send func(wire.Command) (*wire.Ack, error)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		forwardCmd(w, wire.Command{Type: cmdType}, send)
+	}
+}
+
+type netconfigRequest struct {
+	IP      string `json:"ip"`
+	Subnet  string `json:"subnet"`
+	Gateway string `json:"gateway"`
+	MAC     string `json:"mac,omitempty"` // optional
+}
+
+func handleNetconfig(send func(wire.Command) (*wire.Ack, error)) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req netconfigRequest
+		if !decodeBody(w, r, &req) {
+			return
+		}
+		if req.IP == "" || req.Subnet == "" || req.Gateway == "" {
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "ip, subnet and gateway are required"})
+			return
+		}
+		cmd := wire.Command{
+			Type:    "set_netconfig",
+			IP:      wire.StrPtr(req.IP),
+			Subnet:  wire.StrPtr(req.Subnet),
+			Gateway: wire.StrPtr(req.Gateway),
+		}
+		if req.MAC != "" {
+			cmd.MAC = wire.StrPtr(req.MAC)
+		}
+		// NOTE: the field unit will drop the TCP connection immediately after
+		// acking this command (its IP changes).  The ack may arrive before the
+		// connection closes; a 5xx here just means the timing was tight.
+		forwardCmd(w, cmd, send)
+	}
+}
+
+func handleResetNetconfig(send func(wire.Command) (*wire.Ack, error)) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		forwardCmd(w, wire.Command{Type: "reset_netconfig"}, send)
+	}
+}
+
+// ── block endpoints ──────────────────────────────────────────────────────────
+
+type blockSetRequest struct {
+	AzDeg   float64 `json:"az_deg"`   // AZ of the 5° sector, degrees
+	ElFloor float64 `json:"el_floor"` // minimum elevation, degrees (0 = unrestricted)
+}
+
+// handleBlockGet returns the full 90-entry block table as a JSON array.
+func handleBlockGet(st *state.Store) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		tbl := st.Blocks()
+		writeJSON(w, http.StatusOK, map[string]any{
+			"chunks": tbl[:],
+			"chunk_deg": 5,
+		})
+	}
+}
+
+// handleBlockSet sets one 5° sector and saves to field unit + config file.
+func handleBlockSet(st *state.Store, send func(wire.Command) (*wire.Ack, error)) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req blockSetRequest
+		if !decodeBody(w, r, &req) {
+			return
+		}
+		if req.AzDeg < 0 || req.AzDeg > 450 || req.ElFloor < 0 || req.ElFloor > 180 {
+			writeJSON(w, http.StatusBadRequest, map[string]string{
+				"error": fmt.Sprintf("az_deg 0-450, el_floor 0-180 (got az=%.1f el=%.1f)", req.AzDeg, req.ElFloor),
+			})
+			return
+		}
+		cmd := wire.Command{
+			Type:    "set_block",
+			AzDeg:   wire.F64Ptr(req.AzDeg),
+			ElFloor: wire.F64Ptr(req.ElFloor),
+		}
+		ack, err := send(cmd)
+		if err != nil {
+			writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": err.Error()})
+			return
+		}
+		if !ack.Ok {
+			writeJSON(w, http.StatusBadRequest, ack)
+			return
+		}
+		st.SetBlock(req.AzDeg, uint8(req.ElFloor+0.5))
+		writeJSON(w, http.StatusOK, ack)
+	}
+}
+
+// handleBlockReset clears all blocks.
+func handleBlockReset(st *state.Store, send func(wire.Command) (*wire.Ack, error)) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ack, err := send(wire.Command{Type: "reset_blocks"})
+		if err != nil {
+			writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": err.Error()})
+			return
+		}
+		if !ack.Ok {
+			writeJSON(w, http.StatusBadRequest, ack)
+			return
+		}
+		st.SetBlocks([state.BlockCount]uint8{})
+		writeJSON(w, http.StatusOK, ack)
 	}
 }
 

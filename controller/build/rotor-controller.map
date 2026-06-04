@@ -45,7 +45,7 @@ libwiznet.a(socket.c.obj)     CMakeFiles/rotor-controller.elf.dir/src/net.c.obj 
 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-locale.o)
                               /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strtod.o) (__global_locale)
 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-memcpy.o)
-                              CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj (memcpy)
+                              CMakeFiles/rotor-controller.elf.dir/src/state_machine.c.obj (memcpy)
 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-wctomb_r.o)
                               /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-locale.o) (__ascii_wctomb)
 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-impure.o)
@@ -253,6 +253,11 @@ Discarded input sections
  .text          0x00000000        0x0 CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.obj
  .data          0x00000000        0x0 CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.obj
  .bss           0x00000000        0x0 CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.obj
+ .text          0x00000000        0x0 CMakeFiles/rotor-controller.elf.dir/src/blocks.c.obj
+ .data          0x00000000        0x0 CMakeFiles/rotor-controller.elf.dir/src/blocks.c.obj
+ .bss           0x00000000        0x0 CMakeFiles/rotor-controller.elf.dir/src/blocks.c.obj
+ .text.blocks_table
+                0x00000000        0x8 CMakeFiles/rotor-controller.elf.dir/src/blocks.c.obj
  .text          0x00000000        0x0 CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj
  .data          0x00000000        0x0 CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj
  .bss           0x00000000        0x0 CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj
@@ -1449,6 +1454,7 @@ LOAD CMakeFiles/rotor-controller.elf.dir/src/gpio_outputs.c.obj
 LOAD CMakeFiles/rotor-controller.elf.dir/src/state_machine.c.obj
 LOAD CMakeFiles/rotor-controller.elf.dir/src/net.c.obj
 LOAD CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.obj
+LOAD CMakeFiles/rotor-controller.elf.dir/src/blocks.c.obj
 LOAD CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj
 LOAD CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
 LOAD CMakeFiles/rotor-controller.elf.dir/lib/tivaware/utils/uartstdio.c.obj
@@ -1472,7 +1478,7 @@ END GROUP
 LOAD /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/crtend.o
 LOAD /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/crtn.o
 
-.text           0x00000000     0xabbc
+.text           0x00000000     0xaefc
                 0x00000000                        _text = .
  *(.isr_vector)
  .isr_vector    0x00000000      0x26c CMakeFiles/rotor-controller.elf.dir/src/startup_gcc.c.obj
@@ -1488,880 +1494,902 @@ LOAD /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/crtn.o
                 0x00000274       0x50 CMakeFiles/rotor-controller.elf.dir/src/startup_gcc.c.obj
                 0x00000274                ResetISR
  .text.startup.main
-                0x000002c4      0x27c CMakeFiles/rotor-controller.elf.dir/src/main.c.obj
+                0x000002c4      0x290 CMakeFiles/rotor-controller.elf.dir/src/main.c.obj
                 0x000002c4                main
  .text.SysTick_Handler
-                0x00000540       0x18 CMakeFiles/rotor-controller.elf.dir/src/tick.c.obj
-                0x00000540                SysTick_Handler
+                0x00000554       0x18 CMakeFiles/rotor-controller.elf.dir/src/tick.c.obj
+                0x00000554                SysTick_Handler
  .text.tick_init
-                0x00000558       0x1c CMakeFiles/rotor-controller.elf.dir/src/tick.c.obj
-                0x00000558                tick_init
+                0x0000056c       0x1c CMakeFiles/rotor-controller.elf.dir/src/tick.c.obj
+                0x0000056c                tick_init
  .text.tick_pending
-                0x00000574        0xc CMakeFiles/rotor-controller.elf.dir/src/tick.c.obj
-                0x00000574                tick_pending
+                0x00000588        0xc CMakeFiles/rotor-controller.elf.dir/src/tick.c.obj
+                0x00000588                tick_pending
  .text.tick_clear
-                0x00000580        0xc CMakeFiles/rotor-controller.elf.dir/src/tick.c.obj
-                0x00000580                tick_clear
+                0x00000594        0xc CMakeFiles/rotor-controller.elf.dir/src/tick.c.obj
+                0x00000594                tick_clear
  .text.tick_count
-                0x0000058c        0xc CMakeFiles/rotor-controller.elf.dir/src/tick.c.obj
-                0x0000058c                tick_count
+                0x000005a0        0xc CMakeFiles/rotor-controller.elf.dir/src/tick.c.obj
+                0x000005a0                tick_count
  .text.median_normalized
-                0x00000598       0x60 CMakeFiles/rotor-controller.elf.dir/src/adc.c.obj
+                0x000005ac       0x60 CMakeFiles/rotor-controller.elf.dir/src/adc.c.obj
  .text.ADC0SS0_Handler
-                0x000005f8       0x7c CMakeFiles/rotor-controller.elf.dir/src/adc.c.obj
-                0x000005f8                ADC0SS0_Handler
+                0x0000060c       0x7c CMakeFiles/rotor-controller.elf.dir/src/adc.c.obj
+                0x0000060c                ADC0SS0_Handler
  .text.adc_init
-                0x00000674      0x134 CMakeFiles/rotor-controller.elf.dir/src/adc.c.obj
-                0x00000674                adc_init
+                0x00000688      0x134 CMakeFiles/rotor-controller.elf.dir/src/adc.c.obj
+                0x00000688                adc_init
  .text.adc_tick
-                0x000007a8       0x40 CMakeFiles/rotor-controller.elf.dir/src/adc.c.obj
-                0x000007a8                adc_tick
+                0x000007bc       0x40 CMakeFiles/rotor-controller.elf.dir/src/adc.c.obj
+                0x000007bc                adc_tick
  .text.adc_get_az
-                0x000007e8       0x8c CMakeFiles/rotor-controller.elf.dir/src/adc.c.obj
-                0x000007e8                adc_get_az
+                0x000007fc       0x8c CMakeFiles/rotor-controller.elf.dir/src/adc.c.obj
+                0x000007fc                adc_get_az
  .text.adc_get_el
-                0x00000874       0x8c CMakeFiles/rotor-controller.elf.dir/src/adc.c.obj
-                0x00000874                adc_get_el
+                0x00000888       0x8c CMakeFiles/rotor-controller.elf.dir/src/adc.c.obj
+                0x00000888                adc_get_el
  .text.adc_is_valid
-                0x00000900       0x10 CMakeFiles/rotor-controller.elf.dir/src/adc.c.obj
-                0x00000900                adc_is_valid
+                0x00000914       0x10 CMakeFiles/rotor-controller.elf.dir/src/adc.c.obj
+                0x00000914                adc_is_valid
  .text.gpio_outputs_safe
-                0x00000910       0x30 CMakeFiles/rotor-controller.elf.dir/src/gpio_outputs.c.obj
-                0x00000910                gpio_outputs_safe
+                0x00000924       0x30 CMakeFiles/rotor-controller.elf.dir/src/gpio_outputs.c.obj
+                0x00000924                gpio_outputs_safe
  .text.gpio_outputs_init
-                0x00000940       0x7c CMakeFiles/rotor-controller.elf.dir/src/gpio_outputs.c.obj
-                0x00000940                gpio_outputs_init
+                0x00000954       0x7c CMakeFiles/rotor-controller.elf.dir/src/gpio_outputs.c.obj
+                0x00000954                gpio_outputs_init
  .text.gpio_motor_az_set
-                0x000009bc       0x1c CMakeFiles/rotor-controller.elf.dir/src/gpio_outputs.c.obj
-                0x000009bc                gpio_motor_az_set
+                0x000009d0       0x1c CMakeFiles/rotor-controller.elf.dir/src/gpio_outputs.c.obj
+                0x000009d0                gpio_motor_az_set
  .text.gpio_motor_el_set
-                0x000009d8       0x34 CMakeFiles/rotor-controller.elf.dir/src/gpio_outputs.c.obj
-                0x000009d8                gpio_motor_el_set
+                0x000009ec       0x34 CMakeFiles/rotor-controller.elf.dir/src/gpio_outputs.c.obj
+                0x000009ec                gpio_motor_el_set
  .text.gpio_pol_vhf_set
-                0x00000a0c       0x10 CMakeFiles/rotor-controller.elf.dir/src/gpio_outputs.c.obj
-                0x00000a0c                gpio_pol_vhf_set
+                0x00000a20       0x10 CMakeFiles/rotor-controller.elf.dir/src/gpio_outputs.c.obj
+                0x00000a20                gpio_pol_vhf_set
  .text.gpio_pol_uhf_set
-                0x00000a1c       0x14 CMakeFiles/rotor-controller.elf.dir/src/gpio_outputs.c.obj
-                0x00000a1c                gpio_pol_uhf_set
- .text.gpio_lna_uhf_set
                 0x00000a30       0x14 CMakeFiles/rotor-controller.elf.dir/src/gpio_outputs.c.obj
-                0x00000a30                gpio_lna_uhf_set
- .text.gpio_rxtx_uhf_set
+                0x00000a30                gpio_pol_uhf_set
+ .text.gpio_lna_uhf_set
                 0x00000a44       0x14 CMakeFiles/rotor-controller.elf.dir/src/gpio_outputs.c.obj
-                0x00000a44                gpio_rxtx_uhf_set
- .text.sm_init  0x00000a58       0x16 CMakeFiles/rotor-controller.elf.dir/src/state_machine.c.obj
-                0x00000a58                sm_init
+                0x00000a44                gpio_lna_uhf_set
+ .text.gpio_rxtx_uhf_set
+                0x00000a58       0x14 CMakeFiles/rotor-controller.elf.dir/src/gpio_outputs.c.obj
+                0x00000a58                gpio_rxtx_uhf_set
+ .text.sm_init  0x00000a6c       0x16 CMakeFiles/rotor-controller.elf.dir/src/state_machine.c.obj
+                0x00000a6c                sm_init
  .text.sm_push_command
-                0x00000a6e       0x3e CMakeFiles/rotor-controller.elf.dir/src/state_machine.c.obj
-                0x00000a6e                sm_push_command
- .text.sm_tick  0x00000aac      0x2d8 CMakeFiles/rotor-controller.elf.dir/src/state_machine.c.obj
-                0x00000aac                sm_tick
+                0x00000a82       0x34 CMakeFiles/rotor-controller.elf.dir/src/state_machine.c.obj
+                0x00000a82                sm_push_command
+ *fill*         0x00000ab6        0x2 
+ .text.sm_tick  0x00000ab8      0x2ec CMakeFiles/rotor-controller.elf.dir/src/state_machine.c.obj
+                0x00000ab8                sm_tick
  .text.sm_get_state
-                0x00000d84        0x4 CMakeFiles/rotor-controller.elf.dir/src/state_machine.c.obj
-                0x00000d84                sm_get_state
+                0x00000da4        0x4 CMakeFiles/rotor-controller.elf.dir/src/state_machine.c.obj
+                0x00000da4                sm_get_state
  .text.sm_get_az_motion
-                0x00000d88        0x4 CMakeFiles/rotor-controller.elf.dir/src/state_machine.c.obj
-                0x00000d88                sm_get_az_motion
+                0x00000da8        0x4 CMakeFiles/rotor-controller.elf.dir/src/state_machine.c.obj
+                0x00000da8                sm_get_az_motion
  .text.sm_get_el_motion
-                0x00000d8c        0x4 CMakeFiles/rotor-controller.elf.dir/src/state_machine.c.obj
-                0x00000d8c                sm_get_el_motion
+                0x00000dac        0x4 CMakeFiles/rotor-controller.elf.dir/src/state_machine.c.obj
+                0x00000dac                sm_get_el_motion
  .text.sm_duty_az_pct
-                0x00000d90       0x1c CMakeFiles/rotor-controller.elf.dir/src/state_machine.c.obj
-                0x00000d90                sm_duty_az_pct
+                0x00000db0       0x1c CMakeFiles/rotor-controller.elf.dir/src/state_machine.c.obj
+                0x00000db0                sm_duty_az_pct
  .text.sm_duty_el_pct
-                0x00000dac       0x1c CMakeFiles/rotor-controller.elf.dir/src/state_machine.c.obj
-                0x00000dac                sm_duty_el_pct
+                0x00000dcc       0x1c CMakeFiles/rotor-controller.elf.dir/src/state_machine.c.obj
+                0x00000dcc                sm_duty_el_pct
  .text.sm_state_str
-                0x00000dc8       0x18 CMakeFiles/rotor-controller.elf.dir/src/state_machine.c.obj
-                0x00000dc8                sm_state_str
+                0x00000de8       0x18 CMakeFiles/rotor-controller.elf.dir/src/state_machine.c.obj
+                0x00000de8                sm_state_str
  .text.sm_az_str
-                0x00000de0       0x24 CMakeFiles/rotor-controller.elf.dir/src/state_machine.c.obj
-                0x00000de0                sm_az_str
+                0x00000e00       0x24 CMakeFiles/rotor-controller.elf.dir/src/state_machine.c.obj
+                0x00000e00                sm_az_str
  .text.sm_el_str
-                0x00000e04       0x24 CMakeFiles/rotor-controller.elf.dir/src/state_machine.c.obj
-                0x00000e04                sm_el_str
+                0x00000e24       0x24 CMakeFiles/rotor-controller.elf.dir/src/state_machine.c.obj
+                0x00000e24                sm_el_str
  .text.spi_writeburst
-                0x00000e28       0x28 CMakeFiles/rotor-controller.elf.dir/src/net.c.obj
+                0x00000e48       0x28 CMakeFiles/rotor-controller.elf.dir/src/net.c.obj
  .text.spi_readburst
-                0x00000e50       0x2c CMakeFiles/rotor-controller.elf.dir/src/net.c.obj
+                0x00000e70       0x2c CMakeFiles/rotor-controller.elf.dir/src/net.c.obj
  .text.spi_writebyte
-                0x00000e7c       0x1c CMakeFiles/rotor-controller.elf.dir/src/net.c.obj
+                0x00000e9c       0x1c CMakeFiles/rotor-controller.elf.dir/src/net.c.obj
  .text.spi_readbyte
-                0x00000e98       0x20 CMakeFiles/rotor-controller.elf.dir/src/net.c.obj
+                0x00000eb8       0x20 CMakeFiles/rotor-controller.elf.dir/src/net.c.obj
  .text.spi_cs_deassert
-                0x00000eb8        0xc CMakeFiles/rotor-controller.elf.dir/src/net.c.obj
+                0x00000ed8        0xc CMakeFiles/rotor-controller.elf.dir/src/net.c.obj
  .text.spi_cs_assert
-                0x00000ec4        0xc CMakeFiles/rotor-controller.elf.dir/src/net.c.obj
+                0x00000ee4        0xc CMakeFiles/rotor-controller.elf.dir/src/net.c.obj
  .text.rxbuf_read_9bit
-                0x00000ed0       0x84 CMakeFiles/rotor-controller.elf.dir/src/net.c.obj
+                0x00000ef0       0x84 CMakeFiles/rotor-controller.elf.dir/src/net.c.obj
  .text.getSn_SR.constprop.0
-                0x00000f54       0x2c CMakeFiles/rotor-controller.elf.dir/src/net.c.obj
+                0x00000f74       0x2c CMakeFiles/rotor-controller.elf.dir/src/net.c.obj
  .text.net_is_connected
-                0x00000f80        0xc CMakeFiles/rotor-controller.elf.dir/src/net.c.obj
-                0x00000f80                net_is_connected
+                0x00000fa0        0xc CMakeFiles/rotor-controller.elf.dir/src/net.c.obj
+                0x00000fa0                net_is_connected
  .text.net_init
-                0x00000f8c      0x1d4 CMakeFiles/rotor-controller.elf.dir/src/net.c.obj
-                0x00000f8c                net_init
+                0x00000fac      0x1d4 CMakeFiles/rotor-controller.elf.dir/src/net.c.obj
+                0x00000fac                net_init
  .text.net_set_config
-                0x00001160       0x5c CMakeFiles/rotor-controller.elf.dir/src/net.c.obj
-                0x00001160                net_set_config
+                0x00001180       0x5c CMakeFiles/rotor-controller.elf.dir/src/net.c.obj
+                0x00001180                net_set_config
  .text.net_tick
-                0x000011bc      0x468 CMakeFiles/rotor-controller.elf.dir/src/net.c.obj
-                0x000011bc                net_tick
+                0x000011dc      0x47c CMakeFiles/rotor-controller.elf.dir/src/net.c.obj
+                0x000011dc                net_tick
  .text.net_persist_init
-                0x00001624       0x20 CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.obj
-                0x00001624                net_persist_init
+                0x00001658       0x20 CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.obj
+                0x00001658                net_persist_init
  .text.net_persist_load
-                0x00001644       0x64 CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.obj
-                0x00001644                net_persist_load
+                0x00001678       0x64 CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.obj
+                0x00001678                net_persist_load
  .text.net_persist_save
-                0x000016a8       0x58 CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.obj
-                0x000016a8                net_persist_save
+                0x000016dc       0x58 CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.obj
+                0x000016dc                net_persist_save
  .text.net_persist_clear
-                0x00001700       0x20 CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.obj
-                0x00001700                net_persist_clear
+                0x00001734       0x20 CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.obj
+                0x00001734                net_persist_clear
+ .text.blocks_load
+                0x00001754       0x54 CMakeFiles/rotor-controller.elf.dir/src/blocks.c.obj
+                0x00001754                blocks_load
+ .text.blocks_save
+                0x000017a8       0x3c CMakeFiles/rotor-controller.elf.dir/src/blocks.c.obj
+                0x000017a8                blocks_save
+ .text.blocks_set
+                0x000017e4       0x54 CMakeFiles/rotor-controller.elf.dir/src/blocks.c.obj
+                0x000017e4                blocks_set
+ .text.blocks_set_all
+                0x00001838       0x14 CMakeFiles/rotor-controller.elf.dir/src/blocks.c.obj
+                0x00001838                blocks_set_all
+ .text.blocks_reset
+                0x0000184c       0x10 CMakeFiles/rotor-controller.elf.dir/src/blocks.c.obj
+                0x0000184c                blocks_reset
+ .text.blocks_get_el_floor
+                0x0000185c       0x60 CMakeFiles/rotor-controller.elf.dir/src/blocks.c.obj
+                0x0000185c                blocks_get_el_floor
  .text.find_val
-                0x00001720       0x66 CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj
+                0x000018bc       0x66 CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj
  .text.get_string
-                0x00001786       0x3e CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj
+                0x00001922       0x3e CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj
  .text.get_float
-                0x000017c4       0x26 CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj
- *fill*         0x000017ea        0x2 
+                0x00001960       0x26 CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj
+ *fill*         0x00001986        0x2 
  .text.fmt_01.constprop.0.isra.0
-                0x000017ec       0x58 CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj
+                0x00001988       0x58 CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj
  .text.get_bool.isra.0
-                0x00001844       0x38 CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj
+                0x000019e0       0x38 CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj
  .text.protocol_parse
-                0x0000187c      0x390 CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj
-                0x0000187c                protocol_parse
+                0x00001a18      0x4b8 CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj
+                0x00001a18                protocol_parse
  .text.protocol_encode_ack
-                0x00001c0c       0x34 CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj
-                0x00001c0c                protocol_encode_ack
+                0x00001ed0       0x34 CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj
+                0x00001ed0                protocol_encode_ack
  .text.protocol_encode_telemetry
-                0x00001c40       0xe4 CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj
-                0x00001c40                protocol_encode_telemetry
+                0x00001f04       0xe4 CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj
+                0x00001f04                protocol_encode_telemetry
  .text.i2c_send.isra.0
-                0x00001d24       0x44 CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
+                0x00001fe8       0x44 CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
  .text.lcd_en_pulse
-                0x00001d68       0x24 CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
+                0x0000202c       0x24 CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
  .text.lcd_byte
-                0x00001d8c       0x26 CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
+                0x00002050       0x26 CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
  .text.lcd_data
-                0x00001db2        0x6 CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
+                0x00002076        0x6 CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
  .text.lcd_field
-                0x00001db8       0x2a CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
+                0x0000207c       0x2a CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
  .text.lcd_puts
-                0x00001de2       0x12 CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
+                0x000020a6       0x12 CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
  .text.lcd_cursor.constprop.0
-                0x00001df4       0x14 CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
+                0x000020b8       0x14 CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
  .text.display_init
-                0x00001e08      0x158 CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
-                0x00001e08                display_init
+                0x000020cc      0x158 CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
+                0x000020cc                display_init
  .text.display_splash
-                0x00001f60       0x40 CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
-                0x00001f60                display_splash
+                0x00002224       0x40 CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
+                0x00002224                display_splash
  .text.display_tick
-                0x00001fa0      0x308 CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
-                0x00001fa0                display_tick
+                0x00002264      0x308 CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
+                0x00002264                display_tick
  .text.UARTStdioConfig
-                0x000022a8       0x50 CMakeFiles/rotor-controller.elf.dir/lib/tivaware/utils/uartstdio.c.obj
-                0x000022a8                UARTStdioConfig
+                0x0000256c       0x50 CMakeFiles/rotor-controller.elf.dir/lib/tivaware/utils/uartstdio.c.obj
+                0x0000256c                UARTStdioConfig
  .text.UARTwrite
-                0x000022f8       0x3c CMakeFiles/rotor-controller.elf.dir/lib/tivaware/utils/uartstdio.c.obj
-                0x000022f8                UARTwrite
+                0x000025bc       0x3c CMakeFiles/rotor-controller.elf.dir/lib/tivaware/utils/uartstdio.c.obj
+                0x000025bc                UARTwrite
  .text.UARTvprintf
-                0x00002334      0x1c8 CMakeFiles/rotor-controller.elf.dir/lib/tivaware/utils/uartstdio.c.obj
-                0x00002334                UARTvprintf
+                0x000025f8      0x1c8 CMakeFiles/rotor-controller.elf.dir/lib/tivaware/utils/uartstdio.c.obj
+                0x000025f8                UARTvprintf
  .text.UARTprintf
-                0x000024fc       0x1a CMakeFiles/rotor-controller.elf.dir/lib/tivaware/utils/uartstdio.c.obj
-                0x000024fc                UARTprintf
+                0x000027c0       0x1a CMakeFiles/rotor-controller.elf.dir/lib/tivaware/utils/uartstdio.c.obj
+                0x000027c0                UARTprintf
  .text.ADCIntEnable
-                0x00002516       0x10 libdriverlib.a(adc.c.obj)
-                0x00002516                ADCIntEnable
+                0x000027da       0x10 libdriverlib.a(adc.c.obj)
+                0x000027da                ADCIntEnable
  .text.ADCIntClear
-                0x00002526        0x8 libdriverlib.a(adc.c.obj)
-                0x00002526                ADCIntClear
+                0x000027ea        0x8 libdriverlib.a(adc.c.obj)
+                0x000027ea                ADCIntClear
  .text.ADCSequenceEnable
-                0x0000252e        0xc libdriverlib.a(adc.c.obj)
-                0x0000252e                ADCSequenceEnable
+                0x000027f2        0xc libdriverlib.a(adc.c.obj)
+                0x000027f2                ADCSequenceEnable
  .text.ADCSequenceConfigure
-                0x0000253a       0x48 libdriverlib.a(adc.c.obj)
-                0x0000253a                ADCSequenceConfigure
+                0x000027fe       0x48 libdriverlib.a(adc.c.obj)
+                0x000027fe                ADCSequenceConfigure
  .text.ADCSequenceStepConfigure
-                0x00002582       0x86 libdriverlib.a(adc.c.obj)
-                0x00002582                ADCSequenceStepConfigure
+                0x00002846       0x86 libdriverlib.a(adc.c.obj)
+                0x00002846                ADCSequenceStepConfigure
  .text.ADCSequenceDMAEnable
-                0x00002608        0xe libdriverlib.a(adc.c.obj)
-                0x00002608                ADCSequenceDMAEnable
- *fill*         0x00002616        0x2 
+                0x000028cc        0xe libdriverlib.a(adc.c.obj)
+                0x000028cc                ADCSequenceDMAEnable
+ *fill*         0x000028da        0x2 
  .text._EEPROMWaitForDone
-                0x00002618       0x10 libdriverlib.a(eeprom.c.obj)
+                0x000028dc       0x10 libdriverlib.a(eeprom.c.obj)
  .text._EEPROMSectorMaskSet
-                0x00002628       0x44 libdriverlib.a(eeprom.c.obj)
+                0x000028ec       0x44 libdriverlib.a(eeprom.c.obj)
  .text._EEPROMSectorMaskClear
-                0x0000266c       0x3c libdriverlib.a(eeprom.c.obj)
+                0x00002930       0x3c libdriverlib.a(eeprom.c.obj)
  .text.EEPROMInit
-                0x000026a8       0x44 libdriverlib.a(eeprom.c.obj)
-                0x000026a8                EEPROMInit
+                0x0000296c       0x44 libdriverlib.a(eeprom.c.obj)
+                0x0000296c                EEPROMInit
  .text.EEPROMRead
-                0x000026ec       0x34 libdriverlib.a(eeprom.c.obj)
-                0x000026ec                EEPROMRead
+                0x000029b0       0x34 libdriverlib.a(eeprom.c.obj)
+                0x000029b0                EEPROMRead
  .text.EEPROMProgram
-                0x00002720       0xb8 libdriverlib.a(eeprom.c.obj)
-                0x00002720                EEPROMProgram
+                0x000029e4       0xb8 libdriverlib.a(eeprom.c.obj)
+                0x000029e4                EEPROMProgram
  .text.GPIODirModeSet
-                0x000027d8       0x26 libdriverlib.a(gpio.c.obj)
-                0x000027d8                GPIODirModeSet
- *fill*         0x000027fe        0x2 
+                0x00002a9c       0x26 libdriverlib.a(gpio.c.obj)
+                0x00002a9c                GPIODirModeSet
+ *fill*         0x00002ac2        0x2 
  .text.GPIOPadConfigSet
-                0x00002800      0x144 libdriverlib.a(gpio.c.obj)
-                0x00002800                GPIOPadConfigSet
+                0x00002ac4      0x144 libdriverlib.a(gpio.c.obj)
+                0x00002ac4                GPIOPadConfigSet
  .text.GPIOPinRead
-                0x00002944        0x6 libdriverlib.a(gpio.c.obj)
-                0x00002944                GPIOPinRead
+                0x00002c08        0x6 libdriverlib.a(gpio.c.obj)
+                0x00002c08                GPIOPinRead
  .text.GPIOPinWrite
-                0x0000294a        0x6 libdriverlib.a(gpio.c.obj)
-                0x0000294a                GPIOPinWrite
+                0x00002c0e        0x6 libdriverlib.a(gpio.c.obj)
+                0x00002c0e                GPIOPinWrite
  .text.GPIOPinTypeADC
-                0x00002950       0x18 libdriverlib.a(gpio.c.obj)
-                0x00002950                GPIOPinTypeADC
+                0x00002c14       0x18 libdriverlib.a(gpio.c.obj)
+                0x00002c14                GPIOPinTypeADC
  .text.GPIOPinTypeComparatorOutput
-                0x00002968       0x18 libdriverlib.a(gpio.c.obj)
-                0x00002968                GPIOPinTypeComparatorOutput
+                0x00002c2c       0x18 libdriverlib.a(gpio.c.obj)
+                0x00002c2c                GPIOPinTypeComparatorOutput
  .text.GPIOPinTypeGPIOInput
-                0x00002980       0x18 libdriverlib.a(gpio.c.obj)
-                0x00002980                GPIOPinTypeGPIOInput
+                0x00002c44       0x18 libdriverlib.a(gpio.c.obj)
+                0x00002c44                GPIOPinTypeGPIOInput
  .text.GPIOPinTypeGPIOOutput
-                0x00002998       0x18 libdriverlib.a(gpio.c.obj)
-                0x00002998                GPIOPinTypeGPIOOutput
+                0x00002c5c       0x18 libdriverlib.a(gpio.c.obj)
+                0x00002c5c                GPIOPinTypeGPIOOutput
  .text.GPIOPinTypeI2C
-                0x000029b0       0x18 libdriverlib.a(gpio.c.obj)
-                0x000029b0                GPIOPinTypeI2C
+                0x00002c74       0x18 libdriverlib.a(gpio.c.obj)
+                0x00002c74                GPIOPinTypeI2C
  .text.GPIOPinTypeI2CSCL
-                0x000029c8        0x4 libdriverlib.a(gpio.c.obj)
-                0x000029c8                GPIOPinTypeI2CSCL
+                0x00002c8c        0x4 libdriverlib.a(gpio.c.obj)
+                0x00002c8c                GPIOPinTypeI2CSCL
  .text.GPIOPinTypeSSI
-                0x000029cc        0x4 libdriverlib.a(gpio.c.obj)
-                0x000029cc                GPIOPinTypeSSI
+                0x00002c90        0x4 libdriverlib.a(gpio.c.obj)
+                0x00002c90                GPIOPinTypeSSI
  .text.GPIOPinTypeUART
-                0x000029d0        0x4 libdriverlib.a(gpio.c.obj)
-                0x000029d0                GPIOPinTypeUART
+                0x00002c94        0x4 libdriverlib.a(gpio.c.obj)
+                0x00002c94                GPIOPinTypeUART
  .text.GPIOPinConfigure
-                0x000029d4       0x44 libdriverlib.a(gpio.c.obj)
-                0x000029d4                GPIOPinConfigure
+                0x00002c98       0x44 libdriverlib.a(gpio.c.obj)
+                0x00002c98                GPIOPinConfigure
  .text.I2CMasterEnable
-                0x00002a18        0xa libdriverlib.a(i2c.c.obj)
-                0x00002a18                I2CMasterEnable
- *fill*         0x00002a22        0x2 
+                0x00002cdc        0xa libdriverlib.a(i2c.c.obj)
+                0x00002cdc                I2CMasterEnable
+ *fill*         0x00002ce6        0x2 
  .text.I2CMasterInitExpClk
-                0x00002a24       0x50 libdriverlib.a(i2c.c.obj)
-                0x00002a24                I2CMasterInitExpClk
+                0x00002ce8       0x50 libdriverlib.a(i2c.c.obj)
+                0x00002ce8                I2CMasterInitExpClk
  .text.I2CMasterSlaveAddrSet
-                0x00002a74        0x8 libdriverlib.a(i2c.c.obj)
-                0x00002a74                I2CMasterSlaveAddrSet
+                0x00002d38        0x8 libdriverlib.a(i2c.c.obj)
+                0x00002d38                I2CMasterSlaveAddrSet
  .text.I2CMasterBusy
-                0x00002a7c        0x8 libdriverlib.a(i2c.c.obj)
-                0x00002a7c                I2CMasterBusy
+                0x00002d40        0x8 libdriverlib.a(i2c.c.obj)
+                0x00002d40                I2CMasterBusy
  .text.I2CMasterControl
-                0x00002a84        0x4 libdriverlib.a(i2c.c.obj)
-                0x00002a84                I2CMasterControl
+                0x00002d48        0x4 libdriverlib.a(i2c.c.obj)
+                0x00002d48                I2CMasterControl
  .text.I2CMasterErr
-                0x00002a88       0x16 libdriverlib.a(i2c.c.obj)
-                0x00002a88                I2CMasterErr
+                0x00002d4c       0x16 libdriverlib.a(i2c.c.obj)
+                0x00002d4c                I2CMasterErr
  .text.I2CMasterDataPut
-                0x00002a9e        0x4 libdriverlib.a(i2c.c.obj)
-                0x00002a9e                I2CMasterDataPut
+                0x00002d62        0x4 libdriverlib.a(i2c.c.obj)
+                0x00002d62                I2CMasterDataPut
  .text.IntMasterEnable
-                0x00002aa2        0xe libdriverlib.a(interrupt.c.obj)
-                0x00002aa2                IntMasterEnable
+                0x00002d66        0xe libdriverlib.a(interrupt.c.obj)
+                0x00002d66                IntMasterEnable
  .text.IntEnable
-                0x00002ab0       0x68 libdriverlib.a(interrupt.c.obj)
-                0x00002ab0                IntEnable
+                0x00002d74       0x68 libdriverlib.a(interrupt.c.obj)
+                0x00002d74                IntEnable
  .text.SSIConfigSetExpClk
-                0x00002b18       0x3a libdriverlib.a(ssi.c.obj)
-                0x00002b18                SSIConfigSetExpClk
+                0x00002ddc       0x3a libdriverlib.a(ssi.c.obj)
+                0x00002ddc                SSIConfigSetExpClk
  .text.SSIEnable
-                0x00002b52        0xa libdriverlib.a(ssi.c.obj)
-                0x00002b52                SSIEnable
+                0x00002e16        0xa libdriverlib.a(ssi.c.obj)
+                0x00002e16                SSIEnable
  .text.SSIDataPut
-                0x00002b5c        0xa libdriverlib.a(ssi.c.obj)
-                0x00002b5c                SSIDataPut
+                0x00002e20        0xa libdriverlib.a(ssi.c.obj)
+                0x00002e20                SSIDataPut
  .text.SSIDataGet
-                0x00002b66        0xc libdriverlib.a(ssi.c.obj)
-                0x00002b66                SSIDataGet
+                0x00002e2a        0xc libdriverlib.a(ssi.c.obj)
+                0x00002e2a                SSIDataGet
  .text.SSIDataGetNonBlocking
-                0x00002b72       0x12 libdriverlib.a(ssi.c.obj)
-                0x00002b72                SSIDataGetNonBlocking
+                0x00002e36       0x12 libdriverlib.a(ssi.c.obj)
+                0x00002e36                SSIDataGetNonBlocking
  .text.SysCtlPeripheralPresent
-                0x00002b84       0x24 libdriverlib.a(sysctl.c.obj)
-                0x00002b84                SysCtlPeripheralPresent
+                0x00002e48       0x24 libdriverlib.a(sysctl.c.obj)
+                0x00002e48                SysCtlPeripheralPresent
  .text.SysCtlPeripheralReady
-                0x00002ba8       0x24 libdriverlib.a(sysctl.c.obj)
-                0x00002ba8                SysCtlPeripheralReady
+                0x00002e6c       0x24 libdriverlib.a(sysctl.c.obj)
+                0x00002e6c                SysCtlPeripheralReady
  .text.SysCtlPeripheralReset
-                0x00002bcc       0x38 libdriverlib.a(sysctl.c.obj)
-                0x00002bcc                SysCtlPeripheralReset
+                0x00002e90       0x38 libdriverlib.a(sysctl.c.obj)
+                0x00002e90                SysCtlPeripheralReset
  .text.SysCtlPeripheralEnable
-                0x00002c04       0x20 libdriverlib.a(sysctl.c.obj)
-                0x00002c04                SysCtlPeripheralEnable
+                0x00002ec8       0x20 libdriverlib.a(sysctl.c.obj)
+                0x00002ec8                SysCtlPeripheralEnable
  .text.SysCtlDelay
-                0x00002c24        0x8 libdriverlib.a(sysctl.c.obj)
-                0x00002c24                SysCtlDelay
+                0x00002ee8        0x8 libdriverlib.a(sysctl.c.obj)
+                0x00002ee8                SysCtlDelay
  .text.SysCtlClockSet
-                0x00002c2c      0x104 libdriverlib.a(sysctl.c.obj)
-                0x00002c2c                SysCtlClockSet
+                0x00002ef0      0x104 libdriverlib.a(sysctl.c.obj)
+                0x00002ef0                SysCtlClockSet
  .text.SysTickEnable
-                0x00002d30        0xe libdriverlib.a(systick.c.obj)
-                0x00002d30                SysTickEnable
+                0x00002ff4        0xe libdriverlib.a(systick.c.obj)
+                0x00002ff4                SysTickEnable
  .text.SysTickIntEnable
-                0x00002d3e        0xe libdriverlib.a(systick.c.obj)
-                0x00002d3e                SysTickIntEnable
+                0x00003002        0xe libdriverlib.a(systick.c.obj)
+                0x00003002                SysTickIntEnable
  .text.SysTickPeriodSet
-                0x00002d4c        0xa libdriverlib.a(systick.c.obj)
-                0x00002d4c                SysTickPeriodSet
+                0x00003010        0xa libdriverlib.a(systick.c.obj)
+                0x00003010                SysTickPeriodSet
  .text.TimerEnable
-                0x00002d56       0x10 libdriverlib.a(timer.c.obj)
-                0x00002d56                TimerEnable
- *fill*         0x00002d66        0x2 
+                0x0000301a       0x10 libdriverlib.a(timer.c.obj)
+                0x0000301a                TimerEnable
+ *fill*         0x0000302a        0x2 
  .text.TimerConfigure
-                0x00002d68       0x5c libdriverlib.a(timer.c.obj)
-                0x00002d68                TimerConfigure
+                0x0000302c       0x5c libdriverlib.a(timer.c.obj)
+                0x0000302c                TimerConfigure
  .text.TimerControlTrigger
-                0x00002dc4       0x4c libdriverlib.a(timer.c.obj)
-                0x00002dc4                TimerControlTrigger
+                0x00003088       0x4c libdriverlib.a(timer.c.obj)
+                0x00003088                TimerControlTrigger
  .text.TimerLoadSet
-                0x00002e10       0x10 libdriverlib.a(timer.c.obj)
-                0x00002e10                TimerLoadSet
+                0x000030d4       0x10 libdriverlib.a(timer.c.obj)
+                0x000030d4                TimerLoadSet
  .text.UARTEnable
-                0x00002e20       0x16 libdriverlib.a(uart.c.obj)
-                0x00002e20                UARTEnable
+                0x000030e4       0x16 libdriverlib.a(uart.c.obj)
+                0x000030e4                UARTEnable
  .text.UARTDisable
-                0x00002e36       0x1c libdriverlib.a(uart.c.obj)
-                0x00002e36                UARTDisable
+                0x000030fa       0x1c libdriverlib.a(uart.c.obj)
+                0x000030fa                UARTDisable
  .text.UARTConfigSetExpClk
-                0x00002e52       0x44 libdriverlib.a(uart.c.obj)
-                0x00002e52                UARTConfigSetExpClk
+                0x00003116       0x44 libdriverlib.a(uart.c.obj)
+                0x00003116                UARTConfigSetExpClk
  .text.UARTCharPut
-                0x00002e96        0xa libdriverlib.a(uart.c.obj)
-                0x00002e96                UARTCharPut
+                0x0000315a        0xa libdriverlib.a(uart.c.obj)
+                0x0000315a                UARTCharPut
  .text.uDMAEnable
-                0x00002ea0        0xc libdriverlib.a(udma.c.obj)
-                0x00002ea0                uDMAEnable
+                0x00003164        0xc libdriverlib.a(udma.c.obj)
+                0x00003164                uDMAEnable
  .text.uDMAChannelEnable
-                0x00002eac       0x14 libdriverlib.a(udma.c.obj)
-                0x00002eac                uDMAChannelEnable
+                0x00003170       0x14 libdriverlib.a(udma.c.obj)
+                0x00003170                uDMAChannelEnable
  .text.uDMAControlBaseSet
-                0x00002ec0        0xc libdriverlib.a(udma.c.obj)
-                0x00002ec0                uDMAControlBaseSet
+                0x00003184        0xc libdriverlib.a(udma.c.obj)
+                0x00003184                uDMAControlBaseSet
  .text.uDMAChannelAttributeDisable
-                0x00002ecc       0x3c libdriverlib.a(udma.c.obj)
-                0x00002ecc                uDMAChannelAttributeDisable
+                0x00003190       0x3c libdriverlib.a(udma.c.obj)
+                0x00003190                uDMAChannelAttributeDisable
  .text.uDMAChannelControlSet
-                0x00002f08       0x20 libdriverlib.a(udma.c.obj)
-                0x00002f08                uDMAChannelControlSet
+                0x000031cc       0x20 libdriverlib.a(udma.c.obj)
+                0x000031cc                uDMAChannelControlSet
  .text.uDMAChannelTransferSet
-                0x00002f28       0x8c libdriverlib.a(udma.c.obj)
-                0x00002f28                uDMAChannelTransferSet
+                0x000031ec       0x8c libdriverlib.a(udma.c.obj)
+                0x000031ec                uDMAChannelTransferSet
  .text.uDMAChannelModeGet
-                0x00002fb4       0x20 libdriverlib.a(udma.c.obj)
-                0x00002fb4                uDMAChannelModeGet
+                0x00003278       0x20 libdriverlib.a(udma.c.obj)
+                0x00003278                uDMAChannelModeGet
  .text.uDMAChannelAssign
-                0x00002fd4       0x2c libdriverlib.a(udma.c.obj)
-                0x00002fd4                uDMAChannelAssign
+                0x00003298       0x2c libdriverlib.a(udma.c.obj)
+                0x00003298                uDMAChannelAssign
  .text.WatchdogEnable
-                0x00003000        0xa libdriverlib.a(watchdog.c.obj)
-                0x00003000                WatchdogEnable
+                0x000032c4        0xa libdriverlib.a(watchdog.c.obj)
+                0x000032c4                WatchdogEnable
  .text.WatchdogResetEnable
-                0x0000300a        0xa libdriverlib.a(watchdog.c.obj)
-                0x0000300a                WatchdogResetEnable
+                0x000032ce        0xa libdriverlib.a(watchdog.c.obj)
+                0x000032ce                WatchdogResetEnable
  .text.WatchdogLock
-                0x00003014        0x8 libdriverlib.a(watchdog.c.obj)
-                0x00003014                WatchdogLock
+                0x000032d8        0x8 libdriverlib.a(watchdog.c.obj)
+                0x000032d8                WatchdogLock
  .text.WatchdogReloadSet
-                0x0000301c        0x4 libdriverlib.a(watchdog.c.obj)
-                0x0000301c                WatchdogReloadSet
+                0x000032e0        0x4 libdriverlib.a(watchdog.c.obj)
+                0x000032e0                WatchdogReloadSet
  .text.WatchdogIntClear
-                0x00003020        0x6 libdriverlib.a(watchdog.c.obj)
-                0x00003020                WatchdogIntClear
+                0x000032e4        0x6 libdriverlib.a(watchdog.c.obj)
+                0x000032e4                WatchdogIntClear
  .text.CPUcpsie
-                0x00003026        0x8 libdriverlib.a(cpu.c.obj)
-                0x00003026                CPUcpsie
+                0x000032ea        0x8 libdriverlib.a(cpu.c.obj)
+                0x000032ea                CPUcpsie
  .text.wizchip_cris_enter
-                0x0000302e        0x2 libwiznet.a(wizchip_conf.c.obj)
-                0x0000302e                wizchip_cris_enter
+                0x000032f2        0x2 libwiznet.a(wizchip_conf.c.obj)
+                0x000032f2                wizchip_cris_enter
  .text.wizchip_bus_readdata
-                0x00003030        0x4 libwiznet.a(wizchip_conf.c.obj)
-                0x00003030                wizchip_bus_readdata
+                0x000032f4        0x4 libwiznet.a(wizchip_conf.c.obj)
+                0x000032f4                wizchip_bus_readdata
  .text.wizchip_bus_writedata
-                0x00003034        0x4 libwiznet.a(wizchip_conf.c.obj)
-                0x00003034                wizchip_bus_writedata
+                0x000032f8        0x4 libwiznet.a(wizchip_conf.c.obj)
+                0x000032f8                wizchip_bus_writedata
  .text.wizchip_spi_readbyte
-                0x00003038        0x4 libwiznet.a(wizchip_conf.c.obj)
-                0x00003038                wizchip_spi_readbyte
+                0x000032fc        0x4 libwiznet.a(wizchip_conf.c.obj)
+                0x000032fc                wizchip_spi_readbyte
  .text.wizchip_spi_writebyte
-                0x0000303c        0x2 libwiznet.a(wizchip_conf.c.obj)
-                0x0000303c                wizchip_spi_writebyte
- *fill*         0x0000303e        0x2 
+                0x00003300        0x2 libwiznet.a(wizchip_conf.c.obj)
+                0x00003300                wizchip_spi_writebyte
+ *fill*         0x00003302        0x2 
  .text.wizchip_spi_readburst
-                0x00003040       0x1c libwiznet.a(wizchip_conf.c.obj)
-                0x00003040                wizchip_spi_readburst
+                0x00003304       0x1c libwiznet.a(wizchip_conf.c.obj)
+                0x00003304                wizchip_spi_readburst
  .text.wizchip_spi_writeburst
-                0x0000305c       0x1c libwiznet.a(wizchip_conf.c.obj)
-                0x0000305c                wizchip_spi_writeburst
+                0x00003320       0x1c libwiznet.a(wizchip_conf.c.obj)
+                0x00003320                wizchip_spi_writeburst
  .text.wizchip_cris_exit
-                0x00003078        0x2 libwiznet.a(wizchip_conf.c.obj)
-                0x00003078                wizchip_cris_exit
+                0x0000333c        0x2 libwiznet.a(wizchip_conf.c.obj)
+                0x0000333c                wizchip_cris_exit
  .text.wizchip_cs_select
-                0x0000307a        0x2 libwiznet.a(wizchip_conf.c.obj)
-                0x0000307a                wizchip_cs_select
+                0x0000333e        0x2 libwiznet.a(wizchip_conf.c.obj)
+                0x0000333e                wizchip_cs_select
  .text.wizchip_cs_deselect
-                0x0000307c        0x2 libwiznet.a(wizchip_conf.c.obj)
-                0x0000307c                wizchip_cs_deselect
- *fill*         0x0000307e        0x2 
+                0x00003340        0x2 libwiznet.a(wizchip_conf.c.obj)
+                0x00003340                wizchip_cs_deselect
+ *fill*         0x00003342        0x2 
  .text.reg_wizchip_cs_cbfunc
-                0x00003080       0x1c libwiznet.a(wizchip_conf.c.obj)
-                0x00003080                reg_wizchip_cs_cbfunc
+                0x00003344       0x1c libwiznet.a(wizchip_conf.c.obj)
+                0x00003344                reg_wizchip_cs_cbfunc
  .text.reg_wizchip_spi_cbfunc
-                0x0000309c       0x24 libwiznet.a(wizchip_conf.c.obj)
-                0x0000309c                reg_wizchip_spi_cbfunc
+                0x00003360       0x24 libwiznet.a(wizchip_conf.c.obj)
+                0x00003360                reg_wizchip_spi_cbfunc
  .text.reg_wizchip_spiburst_cbfunc
-                0x000030c0       0x24 libwiznet.a(wizchip_conf.c.obj)
-                0x000030c0                reg_wizchip_spiburst_cbfunc
+                0x00003384       0x24 libwiznet.a(wizchip_conf.c.obj)
+                0x00003384                reg_wizchip_spiburst_cbfunc
  .text.wizchip_sw_reset
-                0x000030e4       0x7a libwiznet.a(wizchip_conf.c.obj)
-                0x000030e4                wizchip_sw_reset
+                0x000033a8       0x7a libwiznet.a(wizchip_conf.c.obj)
+                0x000033a8                wizchip_sw_reset
  .text.wizchip_init
-                0x0000315e       0x7a libwiznet.a(wizchip_conf.c.obj)
-                0x0000315e                wizchip_init
+                0x00003422       0x7a libwiznet.a(wizchip_conf.c.obj)
+                0x00003422                wizchip_init
  .text.wizchip_setnetinfo
-                0x000031d8       0x5c libwiznet.a(wizchip_conf.c.obj)
-                0x000031d8                wizchip_setnetinfo
+                0x0000349c       0x5c libwiznet.a(wizchip_conf.c.obj)
+                0x0000349c                wizchip_setnetinfo
  .text.WIZCHIP_READ
-                0x00003234       0x5c libwiznet.a(w5500.c.obj)
-                0x00003234                WIZCHIP_READ
+                0x000034f8       0x5c libwiznet.a(w5500.c.obj)
+                0x000034f8                WIZCHIP_READ
  .text.WIZCHIP_WRITE
-                0x00003290       0x64 libwiznet.a(w5500.c.obj)
-                0x00003290                WIZCHIP_WRITE
+                0x00003554       0x64 libwiznet.a(w5500.c.obj)
+                0x00003554                WIZCHIP_WRITE
  .text.WIZCHIP_READ_BUF
-                0x000032f4       0x74 libwiznet.a(w5500.c.obj)
-                0x000032f4                WIZCHIP_READ_BUF
+                0x000035b8       0x74 libwiznet.a(w5500.c.obj)
+                0x000035b8                WIZCHIP_READ_BUF
  .text.WIZCHIP_WRITE_BUF
-                0x00003368       0x74 libwiznet.a(w5500.c.obj)
-                0x00003368                WIZCHIP_WRITE_BUF
+                0x0000362c       0x74 libwiznet.a(w5500.c.obj)
+                0x0000362c                WIZCHIP_WRITE_BUF
  .text.getSn_RX_RSR
-                0x000033dc       0x42 libwiznet.a(w5500.c.obj)
-                0x000033dc                getSn_RX_RSR
+                0x000036a0       0x42 libwiznet.a(w5500.c.obj)
+                0x000036a0                getSn_RX_RSR
  .text.getSn_SR
-                0x0000341e       0x2e libwiznet.a(socket.c.obj)
- .text.close    0x0000344c       0x78 libwiznet.a(socket.c.obj)
-                0x0000344c                close
- .text.socket   0x000034c4      0x150 libwiznet.a(socket.c.obj)
-                0x000034c4                socket
- .text.listen   0x00003614       0x58 libwiznet.a(socket.c.obj)
-                0x00003614                listen
+                0x000036e2       0x2e libwiznet.a(socket.c.obj)
+ .text.close    0x00003710       0x78 libwiznet.a(socket.c.obj)
+                0x00003710                close
+ .text.socket   0x00003788      0x150 libwiznet.a(socket.c.obj)
+                0x00003788                socket
+ .text.listen   0x000038d8       0x58 libwiznet.a(socket.c.obj)
+                0x000038d8                listen
  .text.disconnect
-                0x0000366c       0x78 libwiznet.a(socket.c.obj)
-                0x0000366c                disconnect
- .text          0x000036e4      0x100 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-memmove.o)
-                0x000036e4                memmove
- *fill*         0x000037e4        0x4 
- .text          0x000037e8     0x11bc /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strtod.o)
-                0x000037e8                _strtod_l
-                0x000047dc                _strtod_r
-                0x000047e8                strtod_l
-                0x00004804                strtod
-                0x00004824                strtof_l
-                0x000048d4                strtof
- .text          0x000049a4      0x630 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-gdtoa-gethex.o)
-                0x00004a48                __gethex
- .text          0x00004fd4      0x168 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strtoul.o)
-                0x00005108                _strtoul_r
-                0x0000510c                strtoul_l
-                0x00005124                strtoul
- .text          0x0000513c       0xb0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-sscanf.o)
-                0x0000513c                sscanf
-                0x0000513c                siscanf
-                0x00005194                _siscanf_r
-                0x00005194                _sscanf_r
- .text          0x000051ec      0x5bc /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strstr.o)
-                0x0000563c                strstr
- .text          0x000057a8       0xa4 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-memset.o)
-                0x000057a8                memset
- .text          0x0000584c       0x5c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-memcmp.o)
-                0x0000584c                memcmp
- *fill*         0x000058a8       0x18 
- .text          0x000058c0      0x2e0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strcmp.o)
-                0x000058c0                strcmp
- .text          0x00005ba0       0x8c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strncmp.o)
-                0x00005ba0                strncmp
- .text          0x00005c2c      0x134 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-memcpy.o)
-                0x00005c2c                memcpy
- .text          0x00005d60       0x30 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-wctomb_r.o)
-                0x00005d60                _wctomb_r
-                0x00005d74                __ascii_wctomb
- *fill*         0x00005d90       0x30 
- .text          0x00005dc0       0xd8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strlen.o)
-                0x00005dc0                strlen
- .text          0x00005e98       0x24 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strnlen.o)
-                0x00005e98                strnlen
- .text          0x00005ebc      0x114 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-snprintf.o)
-                0x00005ebc                _sniprintf_r
-                0x00005ebc                _snprintf_r
-                0x00005f40                snprintf
-                0x00005f40                sniprintf
- .text          0x00005fd0       0xa0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-memchr.o)
-                0x00005fd0                memchr
- .text          0x00006070      0x204 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-gdtoa-hexnan.o)
-                0x00006070                __match
-                0x000060a8                __hexnan
- *fill*         0x00006274        0x4 
- .text          0x00006278       0x10 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libm_a-s_nan.o)
-                0x00006278                nan
- .text          0x00006288        0xc /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libm_a-sf_nan.o)
-                0x00006288                nanf
- .text          0x00006294       0x4c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-assert.o)
-                0x00006294                __assert_func
-                0x000062d4                __assert
- .text          0x000062e0      0xb10 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-mprec.o)
-                0x000062e0                _Balloc
-                0x00006360                _Bfree
-                0x000063a8                __multadd
-                0x00006444                __s2b
-                0x000064f8                __hi0bits
-                0x0000653c                __lo0bits
-                0x0000659c                __i2b
-                0x000065c8                __multiply
-                0x00006734                __pow5mult
-                0x00006814                __lshift
-                0x000068fc                __mcmp
-                0x00006940                __mdiff
-                0x00006ab8                __ulp
-                0x00006b1c                __b2d
-                0x00006bd8                __d2b
-                0x00006c98                __ratio
-                0x00006cf8                _mprec_log10
-                0x00006d38                __copybits
-                0x00006d94                __any_on
- .text          0x00006df0        0xc /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-errno.o)
-                0x00006df0                __errno
- .text          0x00006dfc       0x94 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-stdio.o)
-                0x00006dfc                __sread
-                0x00006e20                __seofread
-                0x00006e24                __swrite
-                0x00006e64                __sseek
-                0x00006e88                __sclose
- .text          0x00006e90       0xd0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strchr.o)
-                0x00006e90                strchr
- .text          0x00006f60      0x400 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-nano-svfprintf.o)
-                0x00006f60                __ssputs_r
-                0x00007020                __ssprint_r
-                0x00007128                _svfprintf_r
-                0x00007128                _svfiprintf_r
- .text          0x00007360       0x2c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-readr.o)
-                0x00007360                _read_r
- .text          0x0000738c       0x40 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-mbtowc_r.o)
-                0x0000738c                _mbtowc_r
-                0x000073a0                __ascii_mbtowc
- .text          0x000073cc      0x438 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-nano-svfscanf.o)
-                0x000073cc                _sungetc_r
-                0x00007448                __ssrefill_r
-                0x00007480                __ssvfscanf_r
-                0x00007480                __ssvfiscanf_r
- .text          0x00007804       0x2c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-writer.o)
-                0x00007804                _write_r
- .text          0x00007830       0x24 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-closer.o)
-                0x00007830                _close_r
- .text          0x00007854      0x308 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-nano-vfscanf_i.o)
-                0x00007854                _scanf_chars
-                0x00007924                _scanf_i
- .text          0x00007b5c       0x2c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-lseekr.o)
-                0x00007b5c                _lseek_r
- .text          0x00007b88      0x224 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-findfp.o)
-                0x00007cb8                __sfp
-                0x00007d5c                __sinit
-                0x00007d7c                __sfp_lock_acquire
-                0x00007d80                __sfp_lock_release
-                0x00007d84                __fp_lock_all
-                0x00007d98                __fp_unlock_all
- .text          0x00007dac       0x10 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-abort.o)
-                0x00007dac                abort
- .text          0x00007dbc      0x1a8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-fflush.o)
-                0x00007dbc                __sflush_r
-                0x00007ee0                _fflush_r
-                0x00007f18                fflush
- .text          0x00007f64       0x28 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-callocr.o)
-                0x00007f64                _calloc_r
- .text          0x00007f8c      0x148 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-mallocr.o)
-                0x00007fd4                _malloc_r
- .text          0x000080d4       0xbc /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-freer.o)
-                0x000080d4                _free_r
- .text          0x00008190      0x16c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strtol.o)
-                0x000082c8                _strtol_r
-                0x000082cc                strtol_l
-                0x000082e4                strtol
- .text          0x000082fc       0x44 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-fwalk.o)
-                0x000082fc                _fwalk_sglue
- .text          0x00008340       0x20 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-malloc.o)
-                0x00008340                malloc
-                0x00008350                free
- .text          0x00008360      0x14c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-ungetc.o)
-                0x00008360                __submore
-                0x000083d4                _ungetc_r
-                0x00008494                ungetc
- .text          0x000084ac       0x44 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-fprintf.o)
-                0x000084ac                _fprintf_r
-                0x000084ac                _fiprintf_r
-                0x000084c8                fprintf
-                0x000084c8                fiprintf
- .text          0x000084f0       0x64 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-reallocr.o)
-                0x000084f0                _realloc_r
- .text          0x00008554      0x3a8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-nano-vfprintf_i.o)
-                0x00008554                _printf_common
-                0x00008678                _printf_i
- .text          0x000088fc       0x98 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-sccl.o)
-                0x000088fc                __sccl
- .text          0x00008994        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-mlock.o)
-                0x00008994                __malloc_lock
-                0x00008998                __malloc_unlock
- .text          0x0000899c      0x260 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-signal.o)
-                0x0000899c                _init_signal_r
-                0x000089c8                _signal_r
-                0x00008a14                _raise_r
-                0x00008a64                __sigtramp_r
-                0x00008ac4                raise
-                0x00008b18                signal
-                0x00008b64                _init_signal
-                0x00008b98                __sigtramp
- .text          0x00008bfc      0x314 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-nano-vfprintf.o)
-                0x00008c38                __sfputs_r
-                0x00008c68                __sprint_r
-                0x00008c88                _vfiprintf_r
-                0x00008c88                _vfprintf_r
-                0x00008ef4                vfiprintf
-                0x00008ef4                vfprintf
- .text          0x00008f10       0x24 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-sbrkr.o)
-                0x00008f10                _sbrk_r
- .text          0x00008f34       0x10 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-msizer.o)
-                0x00008f34                _malloc_usable_size_r
- .text          0x00008f44      0x300 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-fvwrite.o)
-                0x00008f44                __sfvwrite_r
- .text          0x00009244       0xc4 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-wsetup.o)
-                0x00009244                __swsetup_r
- .text          0x00009308       0xa0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-wbuf.o)
-                0x00009308                __swbuf_r
-                0x00009390                __swbuf
- .text          0x000093a8      0x114 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-makebuf.o)
-                0x000093a8                __smakebuf_r
-                0x0000946c                __swhatbuf_r
- .text          0x000094bc       0x30 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-signalr.o)
-                0x000094bc                _kill_r
-                0x000094e8                _getpid_r
- .text          0x000094ec       0x2c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-fstatr.o)
-                0x000094ec                _fstat_r
- .text          0x00009518       0x24 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-isattyr.o)
-                0x00009518                _isatty_r
- .text          0x0000953c      0x378 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(_arm_addsubdf3.o)
-                0x0000953c                __aeabi_drsub
-                0x00009544                __aeabi_dsub
-                0x00009544                __subdf3
-                0x00009548                __adddf3
-                0x00009548                __aeabi_dadd
-                0x000097c0                __aeabi_ui2d
-                0x000097c0                __floatunsidf
-                0x000097e0                __floatsidf
-                0x000097e0                __aeabi_i2d
-                0x00009804                __extendsfdf2
-                0x00009804                __aeabi_f2d
-                0x00009848                __aeabi_ul2d
-                0x00009848                __floatundidf
-                0x00009858                __floatdidf
-                0x00009858                __aeabi_l2d
- .text          0x000098b4      0x424 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(_arm_muldivdf3.o)
-                0x000098b4                __aeabi_dmul
-                0x000098b4                __muldf3
-                0x00009b08                __aeabi_ddiv
-                0x00009b08                __divdf3
- .text          0x00009cd8      0x110 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(_arm_cmpdf2.o)
-                0x00009cd8                __gtdf2
-                0x00009cd8                __gedf2
-                0x00009ce0                __ltdf2
-                0x00009ce0                __ledf2
-                0x00009ce8                __cmpdf2
-                0x00009ce8                __eqdf2
-                0x00009ce8                __nedf2
-                0x00009d64                __aeabi_cdrcmple
-                0x00009d74                __aeabi_cdcmple
-                0x00009d74                __aeabi_cdcmpeq
-                0x00009d84                __aeabi_dcmpeq
-                0x00009d98                __aeabi_dcmplt
-                0x00009dac                __aeabi_dcmple
-                0x00009dc0                __aeabi_dcmpge
-                0x00009dd4                __aeabi_dcmpgt
- .text          0x00009de8       0x2c /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(_arm_unorddf2.o)
-                0x00009de8                __aeabi_dcmpun
-                0x00009de8                __unorddf2
- .text          0x00009e14       0x40 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(_arm_fixunsdfsi.o)
-                0x00009e14                __fixunsdfsi
-                0x00009e14                __aeabi_d2uiz
- .text          0x00009e54       0xa0 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(_arm_truncdfsf2.o)
-                0x00009e54                __aeabi_d2f
-                0x00009e54                __truncdfsf2
- .text          0x00009ef4       0x30 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(_fixdfdi.o)
-                0x00009ef4                __aeabi_d2lz
-                0x00009ef4                __fixdfdi
- .text          0x00009f24       0x3c /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(_fixunsdfdi.o)
-                0x00009f24                __aeabi_d2ulz
-                0x00009f24                __fixunsdfdi
- .text          0x00009f60       0x10 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(close.o)
-                0x00009f60                _close
- .text          0x00009f70       0x10 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(fstat.o)
-                0x00009f70                _fstat
- .text          0x00009f80       0x10 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(getpid.o)
-                0x00009f80                _getpid
- .text          0x00009f90       0x10 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(isatty.o)
-                0x00009f90                _isatty
- .text          0x00009fa0       0x10 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(kill.o)
-                0x00009fa0                _kill
- .text          0x00009fb0       0x10 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(lseek.o)
-                0x00009fb0                _lseek
- .text          0x00009fc0       0x10 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(read.o)
-                0x00009fc0                _read
- .text          0x00009fd0       0x1c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(sbrk.o)
-                0x00009fd0                _sbrk
- .text          0x00009fec       0x10 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(write.o)
-                0x00009fec                _write
- .text          0x00009ffc        0x4 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(_exit.o)
-                0x00009ffc                _exit
+                0x00003930       0x78 libwiznet.a(socket.c.obj)
+                0x00003930                disconnect
+ .text          0x000039a8      0x100 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-memmove.o)
+                0x000039a8                memmove
+ .text          0x00003aa8     0x11bc /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strtod.o)
+                0x00003aa8                _strtod_l
+                0x00004a9c                _strtod_r
+                0x00004aa8                strtod_l
+                0x00004ac4                strtod
+                0x00004ae4                strtof_l
+                0x00004b94                strtof
+ .text          0x00004c64      0x630 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-gdtoa-gethex.o)
+                0x00004d08                __gethex
+ .text          0x00005294      0x168 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strtoul.o)
+                0x000053c8                _strtoul_r
+                0x000053cc                strtoul_l
+                0x000053e4                strtoul
+ .text          0x000053fc       0xb0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-sscanf.o)
+                0x000053fc                sscanf
+                0x000053fc                siscanf
+                0x00005454                _siscanf_r
+                0x00005454                _sscanf_r
+ .text          0x000054ac      0x5bc /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strstr.o)
+                0x000058fc                strstr
+ .text          0x00005a68       0xa4 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-memset.o)
+                0x00005a68                memset
+ .text          0x00005b0c       0x5c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-memcmp.o)
+                0x00005b0c                memcmp
+ *fill*         0x00005b68       0x18 
+ .text          0x00005b80      0x2e0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strcmp.o)
+                0x00005b80                strcmp
+ .text          0x00005e60       0x8c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strncmp.o)
+                0x00005e60                strncmp
+ .text          0x00005eec      0x134 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-memcpy.o)
+                0x00005eec                memcpy
+ .text          0x00006020       0x30 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-wctomb_r.o)
+                0x00006020                _wctomb_r
+                0x00006034                __ascii_wctomb
+ *fill*         0x00006050       0x30 
+ .text          0x00006080       0xd8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strlen.o)
+                0x00006080                strlen
+ .text          0x00006158       0x24 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strnlen.o)
+                0x00006158                strnlen
+ .text          0x0000617c      0x114 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-snprintf.o)
+                0x0000617c                _sniprintf_r
+                0x0000617c                _snprintf_r
+                0x00006200                snprintf
+                0x00006200                sniprintf
+ .text          0x00006290       0xa0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-memchr.o)
+                0x00006290                memchr
+ .text          0x00006330      0x204 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-gdtoa-hexnan.o)
+                0x00006330                __match
+                0x00006368                __hexnan
+ *fill*         0x00006534        0x4 
+ .text          0x00006538       0x10 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libm_a-s_nan.o)
+                0x00006538                nan
+ .text          0x00006548        0xc /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libm_a-sf_nan.o)
+                0x00006548                nanf
+ .text          0x00006554       0x4c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-assert.o)
+                0x00006554                __assert_func
+                0x00006594                __assert
+ .text          0x000065a0      0xb10 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-mprec.o)
+                0x000065a0                _Balloc
+                0x00006620                _Bfree
+                0x00006668                __multadd
+                0x00006704                __s2b
+                0x000067b8                __hi0bits
+                0x000067fc                __lo0bits
+                0x0000685c                __i2b
+                0x00006888                __multiply
+                0x000069f4                __pow5mult
+                0x00006ad4                __lshift
+                0x00006bbc                __mcmp
+                0x00006c00                __mdiff
+                0x00006d78                __ulp
+                0x00006ddc                __b2d
+                0x00006e98                __d2b
+                0x00006f58                __ratio
+                0x00006fb8                _mprec_log10
+                0x00006ff8                __copybits
+                0x00007054                __any_on
+ .text          0x000070b0        0xc /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-errno.o)
+                0x000070b0                __errno
+ .text          0x000070bc       0x94 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-stdio.o)
+                0x000070bc                __sread
+                0x000070e0                __seofread
+                0x000070e4                __swrite
+                0x00007124                __sseek
+                0x00007148                __sclose
+ .text          0x00007150       0xd0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strchr.o)
+                0x00007150                strchr
+ .text          0x00007220      0x400 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-nano-svfprintf.o)
+                0x00007220                __ssputs_r
+                0x000072e0                __ssprint_r
+                0x000073e8                _svfprintf_r
+                0x000073e8                _svfiprintf_r
+ .text          0x00007620       0x2c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-readr.o)
+                0x00007620                _read_r
+ .text          0x0000764c       0x40 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-mbtowc_r.o)
+                0x0000764c                _mbtowc_r
+                0x00007660                __ascii_mbtowc
+ .text          0x0000768c      0x438 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-nano-svfscanf.o)
+                0x0000768c                _sungetc_r
+                0x00007708                __ssrefill_r
+                0x00007740                __ssvfscanf_r
+                0x00007740                __ssvfiscanf_r
+ .text          0x00007ac4       0x2c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-writer.o)
+                0x00007ac4                _write_r
+ .text          0x00007af0       0x24 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-closer.o)
+                0x00007af0                _close_r
+ .text          0x00007b14      0x308 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-nano-vfscanf_i.o)
+                0x00007b14                _scanf_chars
+                0x00007be4                _scanf_i
+ .text          0x00007e1c       0x2c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-lseekr.o)
+                0x00007e1c                _lseek_r
+ .text          0x00007e48      0x224 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-findfp.o)
+                0x00007f78                __sfp
+                0x0000801c                __sinit
+                0x0000803c                __sfp_lock_acquire
+                0x00008040                __sfp_lock_release
+                0x00008044                __fp_lock_all
+                0x00008058                __fp_unlock_all
+ .text          0x0000806c       0x10 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-abort.o)
+                0x0000806c                abort
+ .text          0x0000807c      0x1a8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-fflush.o)
+                0x0000807c                __sflush_r
+                0x000081a0                _fflush_r
+                0x000081d8                fflush
+ .text          0x00008224       0x28 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-callocr.o)
+                0x00008224                _calloc_r
+ .text          0x0000824c      0x148 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-mallocr.o)
+                0x00008294                _malloc_r
+ .text          0x00008394       0xbc /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-freer.o)
+                0x00008394                _free_r
+ .text          0x00008450      0x16c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strtol.o)
+                0x00008588                _strtol_r
+                0x0000858c                strtol_l
+                0x000085a4                strtol
+ .text          0x000085bc       0x44 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-fwalk.o)
+                0x000085bc                _fwalk_sglue
+ .text          0x00008600       0x20 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-malloc.o)
+                0x00008600                malloc
+                0x00008610                free
+ .text          0x00008620      0x14c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-ungetc.o)
+                0x00008620                __submore
+                0x00008694                _ungetc_r
+                0x00008754                ungetc
+ .text          0x0000876c       0x44 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-fprintf.o)
+                0x0000876c                _fprintf_r
+                0x0000876c                _fiprintf_r
+                0x00008788                fprintf
+                0x00008788                fiprintf
+ .text          0x000087b0       0x64 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-reallocr.o)
+                0x000087b0                _realloc_r
+ .text          0x00008814      0x3a8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-nano-vfprintf_i.o)
+                0x00008814                _printf_common
+                0x00008938                _printf_i
+ .text          0x00008bbc       0x98 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-sccl.o)
+                0x00008bbc                __sccl
+ .text          0x00008c54        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-mlock.o)
+                0x00008c54                __malloc_lock
+                0x00008c58                __malloc_unlock
+ .text          0x00008c5c      0x260 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-signal.o)
+                0x00008c5c                _init_signal_r
+                0x00008c88                _signal_r
+                0x00008cd4                _raise_r
+                0x00008d24                __sigtramp_r
+                0x00008d84                raise
+                0x00008dd8                signal
+                0x00008e24                _init_signal
+                0x00008e58                __sigtramp
+ .text          0x00008ebc      0x314 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-nano-vfprintf.o)
+                0x00008ef8                __sfputs_r
+                0x00008f28                __sprint_r
+                0x00008f48                _vfiprintf_r
+                0x00008f48                _vfprintf_r
+                0x000091b4                vfiprintf
+                0x000091b4                vfprintf
+ .text          0x000091d0       0x24 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-sbrkr.o)
+                0x000091d0                _sbrk_r
+ .text          0x000091f4       0x10 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-msizer.o)
+                0x000091f4                _malloc_usable_size_r
+ .text          0x00009204      0x300 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-fvwrite.o)
+                0x00009204                __sfvwrite_r
+ .text          0x00009504       0xc4 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-wsetup.o)
+                0x00009504                __swsetup_r
+ .text          0x000095c8       0xa0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-wbuf.o)
+                0x000095c8                __swbuf_r
+                0x00009650                __swbuf
+ .text          0x00009668      0x114 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-makebuf.o)
+                0x00009668                __smakebuf_r
+                0x0000972c                __swhatbuf_r
+ .text          0x0000977c       0x30 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-signalr.o)
+                0x0000977c                _kill_r
+                0x000097a8                _getpid_r
+ .text          0x000097ac       0x2c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-fstatr.o)
+                0x000097ac                _fstat_r
+ .text          0x000097d8       0x24 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-isattyr.o)
+                0x000097d8                _isatty_r
+ .text          0x000097fc      0x378 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(_arm_addsubdf3.o)
+                0x000097fc                __aeabi_drsub
+                0x00009804                __aeabi_dsub
+                0x00009804                __subdf3
+                0x00009808                __adddf3
+                0x00009808                __aeabi_dadd
+                0x00009a80                __aeabi_ui2d
+                0x00009a80                __floatunsidf
+                0x00009aa0                __floatsidf
+                0x00009aa0                __aeabi_i2d
+                0x00009ac4                __extendsfdf2
+                0x00009ac4                __aeabi_f2d
+                0x00009b08                __aeabi_ul2d
+                0x00009b08                __floatundidf
+                0x00009b18                __floatdidf
+                0x00009b18                __aeabi_l2d
+ .text          0x00009b74      0x424 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(_arm_muldivdf3.o)
+                0x00009b74                __aeabi_dmul
+                0x00009b74                __muldf3
+                0x00009dc8                __aeabi_ddiv
+                0x00009dc8                __divdf3
+ .text          0x00009f98      0x110 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(_arm_cmpdf2.o)
+                0x00009f98                __gtdf2
+                0x00009f98                __gedf2
+                0x00009fa0                __ltdf2
+                0x00009fa0                __ledf2
+                0x00009fa8                __cmpdf2
+                0x00009fa8                __eqdf2
+                0x00009fa8                __nedf2
+                0x0000a024                __aeabi_cdrcmple
+                0x0000a034                __aeabi_cdcmple
+                0x0000a034                __aeabi_cdcmpeq
+                0x0000a044                __aeabi_dcmpeq
+                0x0000a058                __aeabi_dcmplt
+                0x0000a06c                __aeabi_dcmple
+                0x0000a080                __aeabi_dcmpge
+                0x0000a094                __aeabi_dcmpgt
+ .text          0x0000a0a8       0x2c /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(_arm_unorddf2.o)
+                0x0000a0a8                __aeabi_dcmpun
+                0x0000a0a8                __unorddf2
+ .text          0x0000a0d4       0x40 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(_arm_fixunsdfsi.o)
+                0x0000a0d4                __fixunsdfsi
+                0x0000a0d4                __aeabi_d2uiz
+ .text          0x0000a114       0xa0 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(_arm_truncdfsf2.o)
+                0x0000a114                __aeabi_d2f
+                0x0000a114                __truncdfsf2
+ .text          0x0000a1b4       0x30 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(_fixdfdi.o)
+                0x0000a1b4                __aeabi_d2lz
+                0x0000a1b4                __fixdfdi
+ .text          0x0000a1e4       0x3c /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(_fixunsdfdi.o)
+                0x0000a1e4                __aeabi_d2ulz
+                0x0000a1e4                __fixunsdfdi
+ .text          0x0000a220       0x10 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(close.o)
+                0x0000a220                _close
+ .text          0x0000a230       0x10 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(fstat.o)
+                0x0000a230                _fstat
+ .text          0x0000a240       0x10 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(getpid.o)
+                0x0000a240                _getpid
+ .text          0x0000a250       0x10 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(isatty.o)
+                0x0000a250                _isatty
+ .text          0x0000a260       0x10 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(kill.o)
+                0x0000a260                _kill
+ .text          0x0000a270       0x10 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(lseek.o)
+                0x0000a270                _lseek
+ .text          0x0000a280       0x10 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(read.o)
+                0x0000a280                _read
+ .text          0x0000a290       0x1c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(sbrk.o)
+                0x0000a290                _sbrk
+ .text          0x0000a2ac       0x10 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(write.o)
+                0x0000a2ac                _write
+ .text          0x0000a2bc        0x4 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(_exit.o)
+                0x0000a2bc                _exit
  *(.rodata*)
  .rodata.main.str1.1
-                0x0000a000      0x5c6 CMakeFiles/rotor-controller.elf.dir/src/main.c.obj
+                0x0000a2c0      0x649 CMakeFiles/rotor-controller.elf.dir/src/main.c.obj
                                  0x5b (size before relaxing)
  .rodata.sm_state_str.str1.1
-                0x0000a5c6        0x8 CMakeFiles/rotor-controller.elf.dir/src/state_machine.c.obj
+                0x0000a909        0x8 CMakeFiles/rotor-controller.elf.dir/src/state_machine.c.obj
  .rodata.sm_az_str.str1.1
-                0x0000a5c6        0xc CMakeFiles/rotor-controller.elf.dir/src/state_machine.c.obj
+                0x0000a909        0xc CMakeFiles/rotor-controller.elf.dir/src/state_machine.c.obj
  .rodata.sm_el_str.str1.1
-                0x0000a5c6        0x8 CMakeFiles/rotor-controller.elf.dir/src/state_machine.c.obj
+                0x0000a909        0x8 CMakeFiles/rotor-controller.elf.dir/src/state_machine.c.obj
  .rodata.str1.1
-                0x0000a5c6       0x53 CMakeFiles/rotor-controller.elf.dir/src/state_machine.c.obj
- *fill*         0x0000a5c6        0x2 
+                0x0000a909       0x53 CMakeFiles/rotor-controller.elf.dir/src/state_machine.c.obj
+ *fill*         0x0000a909        0x3 
  .rodata.CSWTCH.19
-                0x0000a5c8       0x1c CMakeFiles/rotor-controller.elf.dir/src/state_machine.c.obj
+                0x0000a90c       0x1c CMakeFiles/rotor-controller.elf.dir/src/state_machine.c.obj
  .rodata.net_init.str1.1
-                0x0000a5e4       0x60 CMakeFiles/rotor-controller.elf.dir/src/net.c.obj
+                0x0000a928       0x60 CMakeFiles/rotor-controller.elf.dir/src/net.c.obj
  .rodata.net_tick.str1.1
-                0x0000a5e4       0xa2 CMakeFiles/rotor-controller.elf.dir/src/net.c.obj
+                0x0000a928       0xa2 CMakeFiles/rotor-controller.elf.dir/src/net.c.obj
  .rodata.net_persist_load.str1.1
-                0x0000a5e4       0x56 CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.obj
+                0x0000a928       0x56 CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.obj
  .rodata.net_persist_save.str1.1
-                0x0000a5e4       0x29 CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.obj
+                0x0000a928       0x29 CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.obj
  .rodata.net_persist_clear.str1.1
-                0x0000a5e4       0x3b CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.obj
+                0x0000a928       0x3b CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.obj
+ .rodata.blocks_load.str1.1
+                0x0000a928       0x49 CMakeFiles/rotor-controller.elf.dir/src/blocks.c.obj
+ .rodata.blocks_save.str1.1
+                0x0000a928       0x1a CMakeFiles/rotor-controller.elf.dir/src/blocks.c.obj
  .rodata.fmt_01.constprop.0.isra.0.str1.1
-                0x0000a5e4        0x7 CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj
+                0x0000a928        0x7 CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj
  .rodata.get_bool.isra.0.str1.1
-                0x0000a5e4        0xb CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj
+                0x0000a928        0xb CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj
  .rodata.protocol_parse.str1.1
-                0x0000a5e4      0x109 CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj
+                0x0000a928      0x13b CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj
  .rodata.protocol_encode_ack.str1.1
-                0x0000a5e4       0x56 CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj
+                0x0000a928       0x56 CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj
  .rodata.protocol_encode_telemetry.str1.1
-                0x0000a5e4       0xdc CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj
+                0x0000a928       0xdc CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj
  .rodata.display_init.str1.1
-                0x0000a5e4       0x28 CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
+                0x0000a928       0x28 CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
  .rodata.display_splash.str1.1
-                0x0000a5e4        0x1 CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
+                0x0000a928        0x1 CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
  .rodata.display_tick.str1.1
-                0x0000a5e4       0x8d CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
+                0x0000a928       0x8d CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
  .rodata.str1.1
-                0x0000a5e4       0x5b CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
+                0x0000a928       0x5b CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
  .rodata.CSWTCH.33
-                0x0000a5e4       0x1c CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
+                0x0000a928       0x1c CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
  .rodata.candidates.0
-                0x0000a600       0x10 CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
+                0x0000a944       0x10 CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
  .rodata.k_row_addr
-                0x0000a610        0x4 CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
+                0x0000a954        0x4 CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
  .rodata.UARTvprintf.str1.1
-                0x0000a614       0x19 CMakeFiles/rotor-controller.elf.dir/lib/tivaware/utils/uartstdio.c.obj
+                0x0000a958       0x19 CMakeFiles/rotor-controller.elf.dir/lib/tivaware/utils/uartstdio.c.obj
  .rodata.g_ui32UARTPeriph
-                0x0000a614        0xc CMakeFiles/rotor-controller.elf.dir/lib/tivaware/utils/uartstdio.c.obj
+                0x0000a958        0xc CMakeFiles/rotor-controller.elf.dir/lib/tivaware/utils/uartstdio.c.obj
  .rodata.g_ui32UARTBase
-                0x0000a620        0xc CMakeFiles/rotor-controller.elf.dir/lib/tivaware/utils/uartstdio.c.obj
+                0x0000a964        0xc CMakeFiles/rotor-controller.elf.dir/lib/tivaware/utils/uartstdio.c.obj
  .rodata.g_pui32GPIOBaseAddrs
-                0x0000a62c       0x90 libdriverlib.a(gpio.c.obj)
+                0x0000a970       0x90 libdriverlib.a(gpio.c.obj)
  .rodata.g_pui32EnRegs
-                0x0000a6bc       0x14 libdriverlib.a(interrupt.c.obj)
+                0x0000aa00       0x14 libdriverlib.a(interrupt.c.obj)
  .rodata.str1.4
-                0x0000a6d0      0x149 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strtod.o)
+                0x0000aa14      0x149 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strtod.o)
                                  0x15 (size before relaxing)
- *fill*         0x0000a819        0x7 
- .rodata        0x0000a820       0x50 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strtod.o)
+ *fill*         0x0000ab5d        0x3 
+ .rodata        0x0000ab60       0x50 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strtod.o)
  .rodata.str1.4
-                0x0000a870       0x4c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-gdtoa-gethex.o)
- .rodata        0x0000a870      0x100 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-gdtoa-gethex.o)
-                0x0000a870                __hexdig
+                0x0000abb0       0x4c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-gdtoa-gethex.o)
+ .rodata        0x0000abb0      0x100 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-gdtoa-gethex.o)
+                0x0000abb0                __hexdig
  .rodata.str1.4
-                0x0000a970       0x12 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-locale.o)
- .rodata        0x0000a970      0x101 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-ctype_.o)
-                0x0000a970                _ctype_
+                0x0000acb0       0x12 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-locale.o)
+ .rodata        0x0000acb0      0x101 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-ctype_.o)
+                0x0000acb0                _ctype_
  .rodata.str1.4
-                0x0000aa71       0x43 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-assert.o)
+                0x0000adb1       0x43 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-assert.o)
  .rodata.str1.4
-                0x0000aa71       0x59 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-mprec.o)
- *fill*         0x0000aa71        0x7 
- .rodata        0x0000aa78      0x128 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-mprec.o)
-                0x0000aa88                __mprec_tens
-                0x0000ab50                __mprec_tinytens
-                0x0000ab78                __mprec_bigtens
+                0x0000adb1       0x59 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-mprec.o)
+ *fill*         0x0000adb1        0x7 
+ .rodata        0x0000adb8      0x128 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-mprec.o)
+                0x0000adc8                __mprec_tens
+                0x0000ae90                __mprec_tinytens
+                0x0000aeb8                __mprec_bigtens
  .rodata.str1.4
-                0x0000aba0       0x13 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-nano-svfprintf.o)
+                0x0000aee0       0x13 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-nano-svfprintf.o)
  .rodata.str1.4
-                0x0000aba0        0x4 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-nano-svfscanf.o)
+                0x0000aee0        0x4 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-nano-svfscanf.o)
  .rodata.str1.4
-                0x0000aba0       0x1f /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-nano-vfscanf_i.o)
- .rodata        0x0000aba0        0xc /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-nano-vfscanf_i.o)
+                0x0000aee0       0x1f /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-nano-vfscanf_i.o)
+ .rodata        0x0000aee0        0xc /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-nano-vfscanf_i.o)
  .rodata.str1.4
-                0x0000abac       0x25 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-nano-vfprintf_i.o)
+                0x0000aeec       0x25 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-nano-vfprintf_i.o)
  .rodata.str1.4
-                0x0000abac       0x13 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-nano-vfprintf.o)
+                0x0000aeec       0x13 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-nano-vfprintf.o)
  *(.init)
- .init          0x0000abac        0x4 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/crti.o
-                0x0000abac                _init
+ .init          0x0000aeec        0x4 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/crti.o
+                0x0000aeec                _init
  *(.fini)
- .fini          0x0000abb0        0x4 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/crti.o
-                0x0000abb0                _fini
+ .fini          0x0000aef0        0x4 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/crti.o
+                0x0000aef0                _fini
  *(.ARM.exidx*)
- .ARM.exidx     0x0000abb4        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strcmp.o)
- .ARM.exidx     0x0000abbc        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-memcpy.o)
+ .ARM.exidx     0x0000aef4        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strcmp.o)
+ .ARM.exidx     0x0000aefc        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-memcpy.o)
                                   0x8 (size before relaxing)
- .ARM.exidx     0x0000abbc        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strlen.o)
+ .ARM.exidx     0x0000aefc        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strlen.o)
                                   0x8 (size before relaxing)
- .ARM.exidx     0x0000abbc        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-memchr.o)
+ .ARM.exidx     0x0000aefc        0x0 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-memchr.o)
                                   0x8 (size before relaxing)
  *(.gnu.linkonce.armexidx.*)
-                0x0000abbc                        _etext = .
+                0x0000aefc                        _etext = .
 
-.glue_7         0x0000abbc        0x0
- .glue_7        0x0000abbc        0x0 linker stubs
+.glue_7         0x0000aefc        0x0
+ .glue_7        0x0000aefc        0x0 linker stubs
 
-.glue_7t        0x0000abbc        0x0
- .glue_7t       0x0000abbc        0x0 linker stubs
+.glue_7t        0x0000aefc        0x0
+ .glue_7t       0x0000aefc        0x0 linker stubs
 
-.vfp11_veneer   0x0000abbc        0x0
- .vfp11_veneer  0x0000abbc        0x0 linker stubs
+.vfp11_veneer   0x0000aefc        0x0
+ .vfp11_veneer  0x0000aefc        0x0 linker stubs
 
-.v4_bx          0x0000abbc        0x0
- .v4_bx         0x0000abbc        0x0 linker stubs
+.v4_bx          0x0000aefc        0x0
+ .v4_bx         0x0000aefc        0x0 linker stubs
 
-.iplt           0x0000abbc        0x0
- .iplt          0x0000abbc        0x0 CMakeFiles/rotor-controller.elf.dir/src/startup_gcc.c.obj
+.iplt           0x0000aefc        0x0
+ .iplt          0x0000aefc        0x0 CMakeFiles/rotor-controller.elf.dir/src/startup_gcc.c.obj
 
-.rel.dyn        0x0000abbc        0x0
- .rel.iplt      0x0000abbc        0x0 CMakeFiles/rotor-controller.elf.dir/src/startup_gcc.c.obj
+.rel.dyn        0x0000aefc        0x0
+ .rel.iplt      0x0000aefc        0x0 CMakeFiles/rotor-controller.elf.dir/src/startup_gcc.c.obj
 
-.data           0x20000000      0x224 load address 0x0000abbc
+.data           0x20000000      0x224 load address 0x0000aefc
                 0x20000000                        _data = .
-                0x0000abbc                        _ldata = LOADADDR (.data)
+                0x0000aefc                        _ldata = LOADADDR (.data)
  *(vtable)
  *(.data*)
  .data.g_netinfo
@@ -2388,10 +2416,10 @@ LOAD /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/crtn.o
                 0x20000218                __sglue
                 0x20000224                        _edata = .
 
-.igot.plt       0x20000224        0x0 load address 0x0000ade0
+.igot.plt       0x20000224        0x0 load address 0x0000b120
  .igot.plt      0x20000224        0x0 CMakeFiles/rotor-controller.elf.dir/src/startup_gcc.c.obj
 
-.bss            0x20000400     0x1690 load address 0x0000b000
+.bss            0x20000400     0x16e8 load address 0x0000b400
                 0x20000400                        _bss = .
  *(.bss*)
  .bss.pui32Stack
@@ -2441,44 +2469,44 @@ LOAD /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/crtn.o
                 0x2000140e        0x2 CMakeFiles/rotor-controller.elf.dir/src/net.c.obj
  .bss.g_rx_idx  0x20001410        0x2 CMakeFiles/rotor-controller.elf.dir/src/net.c.obj
  .bss.g_rx_buf  0x20001412      0x200 CMakeFiles/rotor-controller.elf.dir/src/net.c.obj
+ .bss.g_blocks  0x20001612       0x5a CMakeFiles/rotor-controller.elf.dir/src/blocks.c.obj
  .bss.g_telem_buf
-                0x20001612      0x280 CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj
+                0x2000166c      0x280 CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj
  .bss.g_ack_buf
-                0x20001892       0x80 CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj
- *fill*         0x20001912        0x2 
+                0x200018ec       0x80 CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj
  .bss.g_tick_ctr
-                0x20001914        0x4 CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
+                0x2000196c        0x4 CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
  .bss.g_present
-                0x20001918        0x1 CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
- *fill*         0x20001919        0x3 
+                0x20001970        0x1 CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
+ *fill*         0x20001971        0x3 
  .bss.g_ui32Base
-                0x2000191c        0x4 CMakeFiles/rotor-controller.elf.dir/lib/tivaware/utils/uartstdio.c.obj
- .bss._DHCP_    0x20001920        0x1 libwiznet.a(wizchip_conf.c.obj)
- .bss._DNS_     0x20001921        0x4 libwiznet.a(wizchip_conf.c.obj)
+                0x20001974        0x4 CMakeFiles/rotor-controller.elf.dir/lib/tivaware/utils/uartstdio.c.obj
+ .bss._DHCP_    0x20001978        0x1 libwiznet.a(wizchip_conf.c.obj)
+ .bss._DNS_     0x20001979        0x4 libwiznet.a(wizchip_conf.c.obj)
  .bss.sock_pack_info
-                0x20001925        0x8 libwiznet.a(socket.c.obj)
-                0x20001925                sock_pack_info
- *fill*         0x2000192d        0x1 
+                0x2000197d        0x8 libwiznet.a(socket.c.obj)
+                0x2000197d                sock_pack_info
+ *fill*         0x20001985        0x1 
  .bss.sock_remained_size
-                0x2000192e       0x10 libwiznet.a(socket.c.obj)
+                0x20001986       0x10 libwiznet.a(socket.c.obj)
  .bss.sock_is_sending
-                0x2000193e        0x2 libwiznet.a(socket.c.obj)
+                0x20001996        0x2 libwiznet.a(socket.c.obj)
  .bss.sock_io_mode
-                0x20001940        0x2 libwiznet.a(socket.c.obj)
- *fill*         0x20001942        0x2 
- .bss           0x20001944      0x13c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-findfp.o)
-                0x20001944                __sf
-                0x20001a7c                __stdio_exit_handler
- .bss           0x20001a80        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-mallocr.o)
-                0x20001a80                __malloc_sbrk_start
-                0x20001a84                __malloc_free_list
- .bss           0x20001a88        0x4 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-reent.o)
-                0x20001a88                errno
- .bss           0x20001a8c        0x4 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(sbrk.o)
+                0x20001998        0x2 libwiznet.a(socket.c.obj)
+ *fill*         0x2000199a        0x2 
+ .bss           0x2000199c      0x13c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-findfp.o)
+                0x2000199c                __sf
+                0x20001ad4                __stdio_exit_handler
+ .bss           0x20001ad8        0x8 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-mallocr.o)
+                0x20001ad8                __malloc_sbrk_start
+                0x20001adc                __malloc_free_list
+ .bss           0x20001ae0        0x4 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-reent.o)
+                0x20001ae0                errno
+ .bss           0x20001ae4        0x4 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(sbrk.o)
  *(COMMON)
-                0x20001a90                        _ebss = .
-                0x20001a90                        end = .
-                0x20001a90                        _end = .
+                0x20001ae8                        _ebss = .
+                0x20001ae8                        end = .
+                0x20001ae8                        _end = .
 OUTPUT(rotor-controller.elf elf32-littlearm)
 LOAD linker stubs
 
@@ -2503,203 +2531,205 @@ LOAD linker stubs
  .ARM.attributes
                 0x0000018e       0x34 CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.obj
  .ARM.attributes
-                0x000001c2       0x34 CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj
+                0x000001c2       0x34 CMakeFiles/rotor-controller.elf.dir/src/blocks.c.obj
  .ARM.attributes
-                0x000001f6       0x34 CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
+                0x000001f6       0x34 CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj
  .ARM.attributes
-                0x0000022a       0x34 CMakeFiles/rotor-controller.elf.dir/lib/tivaware/utils/uartstdio.c.obj
+                0x0000022a       0x34 CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
  .ARM.attributes
-                0x0000025e       0x34 libdriverlib.a(adc.c.obj)
+                0x0000025e       0x34 CMakeFiles/rotor-controller.elf.dir/lib/tivaware/utils/uartstdio.c.obj
  .ARM.attributes
-                0x00000292       0x34 libdriverlib.a(eeprom.c.obj)
+                0x00000292       0x34 libdriverlib.a(adc.c.obj)
  .ARM.attributes
-                0x000002c6       0x34 libdriverlib.a(gpio.c.obj)
+                0x000002c6       0x34 libdriverlib.a(eeprom.c.obj)
  .ARM.attributes
-                0x000002fa       0x34 libdriverlib.a(i2c.c.obj)
+                0x000002fa       0x34 libdriverlib.a(gpio.c.obj)
  .ARM.attributes
-                0x0000032e       0x34 libdriverlib.a(interrupt.c.obj)
+                0x0000032e       0x34 libdriverlib.a(i2c.c.obj)
  .ARM.attributes
-                0x00000362       0x34 libdriverlib.a(ssi.c.obj)
+                0x00000362       0x34 libdriverlib.a(interrupt.c.obj)
  .ARM.attributes
-                0x00000396       0x34 libdriverlib.a(sysctl.c.obj)
+                0x00000396       0x34 libdriverlib.a(ssi.c.obj)
  .ARM.attributes
-                0x000003ca       0x34 libdriverlib.a(systick.c.obj)
+                0x000003ca       0x34 libdriverlib.a(sysctl.c.obj)
  .ARM.attributes
-                0x000003fe       0x34 libdriverlib.a(timer.c.obj)
+                0x000003fe       0x34 libdriverlib.a(systick.c.obj)
  .ARM.attributes
-                0x00000432       0x34 libdriverlib.a(uart.c.obj)
+                0x00000432       0x34 libdriverlib.a(timer.c.obj)
  .ARM.attributes
-                0x00000466       0x34 libdriverlib.a(udma.c.obj)
+                0x00000466       0x34 libdriverlib.a(uart.c.obj)
  .ARM.attributes
-                0x0000049a       0x34 libdriverlib.a(watchdog.c.obj)
+                0x0000049a       0x34 libdriverlib.a(udma.c.obj)
  .ARM.attributes
-                0x000004ce       0x34 libdriverlib.a(cpu.c.obj)
+                0x000004ce       0x34 libdriverlib.a(watchdog.c.obj)
  .ARM.attributes
-                0x00000502       0x34 libwiznet.a(wizchip_conf.c.obj)
+                0x00000502       0x34 libdriverlib.a(cpu.c.obj)
  .ARM.attributes
-                0x00000536       0x34 libwiznet.a(w5500.c.obj)
+                0x00000536       0x34 libwiznet.a(wizchip_conf.c.obj)
  .ARM.attributes
-                0x0000056a       0x34 libwiznet.a(socket.c.obj)
+                0x0000056a       0x34 libwiznet.a(w5500.c.obj)
  .ARM.attributes
-                0x0000059e       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-memmove.o)
+                0x0000059e       0x34 libwiznet.a(socket.c.obj)
  .ARM.attributes
-                0x000005d2       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strtod.o)
+                0x000005d2       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-memmove.o)
  .ARM.attributes
-                0x00000606       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-gdtoa-gethex.o)
+                0x00000606       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strtod.o)
  .ARM.attributes
-                0x0000063a       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strtoul.o)
+                0x0000063a       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-gdtoa-gethex.o)
  .ARM.attributes
-                0x0000066e       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-sscanf.o)
+                0x0000066e       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strtoul.o)
  .ARM.attributes
-                0x000006a2       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strstr.o)
+                0x000006a2       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-sscanf.o)
  .ARM.attributes
-                0x000006d6       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-memset.o)
+                0x000006d6       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strstr.o)
  .ARM.attributes
-                0x0000070a       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-memcmp.o)
+                0x0000070a       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-memset.o)
  .ARM.attributes
-                0x0000073e       0x20 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strcmp.o)
+                0x0000073e       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-memcmp.o)
  .ARM.attributes
-                0x0000075e       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strncmp.o)
+                0x00000772       0x20 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strcmp.o)
  .ARM.attributes
-                0x00000792       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-locale.o)
+                0x00000792       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strncmp.o)
  .ARM.attributes
-                0x000007c6       0x20 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-memcpy.o)
+                0x000007c6       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-locale.o)
  .ARM.attributes
-                0x000007e6       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-wctomb_r.o)
+                0x000007fa       0x20 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-memcpy.o)
  .ARM.attributes
-                0x0000081a       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-impure.o)
+                0x0000081a       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-wctomb_r.o)
  .ARM.attributes
-                0x0000084e       0x1c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strlen.o)
+                0x0000084e       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-impure.o)
  .ARM.attributes
-                0x0000086a       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strnlen.o)
+                0x00000882       0x1c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strlen.o)
  .ARM.attributes
-                0x0000089e       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-ctype_.o)
+                0x0000089e       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strnlen.o)
  .ARM.attributes
-                0x000008d2       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-snprintf.o)
+                0x000008d2       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-ctype_.o)
  .ARM.attributes
-                0x00000906       0x1c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-memchr.o)
+                0x00000906       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-snprintf.o)
  .ARM.attributes
-                0x00000922       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-gdtoa-hexnan.o)
+                0x0000093a       0x1c /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-memchr.o)
  .ARM.attributes
-                0x00000956       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libm_a-s_nan.o)
+                0x00000956       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-gdtoa-hexnan.o)
  .ARM.attributes
-                0x0000098a       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libm_a-sf_nan.o)
+                0x0000098a       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libm_a-s_nan.o)
  .ARM.attributes
-                0x000009be       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-assert.o)
+                0x000009be       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libm_a-sf_nan.o)
  .ARM.attributes
-                0x000009f2       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-mprec.o)
+                0x000009f2       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-assert.o)
  .ARM.attributes
-                0x00000a26       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-errno.o)
+                0x00000a26       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-mprec.o)
  .ARM.attributes
-                0x00000a5a       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-stdio.o)
+                0x00000a5a       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-errno.o)
  .ARM.attributes
-                0x00000a8e       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strchr.o)
+                0x00000a8e       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-stdio.o)
  .ARM.attributes
-                0x00000ac2       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-nano-svfprintf.o)
+                0x00000ac2       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strchr.o)
  .ARM.attributes
-                0x00000af6       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-readr.o)
+                0x00000af6       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-nano-svfprintf.o)
  .ARM.attributes
-                0x00000b2a       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-mbtowc_r.o)
+                0x00000b2a       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-readr.o)
  .ARM.attributes
-                0x00000b5e       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-nano-svfscanf.o)
+                0x00000b5e       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-mbtowc_r.o)
  .ARM.attributes
-                0x00000b92       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-writer.o)
+                0x00000b92       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-nano-svfscanf.o)
  .ARM.attributes
-                0x00000bc6       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-closer.o)
+                0x00000bc6       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-writer.o)
  .ARM.attributes
-                0x00000bfa       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-nano-vfscanf_i.o)
+                0x00000bfa       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-closer.o)
  .ARM.attributes
-                0x00000c2e       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-lseekr.o)
+                0x00000c2e       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-nano-vfscanf_i.o)
  .ARM.attributes
-                0x00000c62       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-findfp.o)
+                0x00000c62       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-lseekr.o)
  .ARM.attributes
-                0x00000c96       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-abort.o)
+                0x00000c96       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-findfp.o)
  .ARM.attributes
-                0x00000cca       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-fflush.o)
+                0x00000cca       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-abort.o)
  .ARM.attributes
-                0x00000cfe       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-callocr.o)
+                0x00000cfe       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-fflush.o)
  .ARM.attributes
-                0x00000d32       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-mallocr.o)
+                0x00000d32       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-callocr.o)
  .ARM.attributes
-                0x00000d66       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-freer.o)
+                0x00000d66       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-mallocr.o)
  .ARM.attributes
-                0x00000d9a       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strtol.o)
+                0x00000d9a       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-freer.o)
  .ARM.attributes
-                0x00000dce       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-fwalk.o)
+                0x00000dce       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-strtol.o)
  .ARM.attributes
-                0x00000e02       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-reent.o)
+                0x00000e02       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-fwalk.o)
  .ARM.attributes
-                0x00000e36       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-malloc.o)
+                0x00000e36       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-reent.o)
  .ARM.attributes
-                0x00000e6a       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-ungetc.o)
+                0x00000e6a       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-malloc.o)
  .ARM.attributes
-                0x00000e9e       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-fprintf.o)
+                0x00000e9e       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-ungetc.o)
  .ARM.attributes
-                0x00000ed2       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-reallocr.o)
+                0x00000ed2       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-fprintf.o)
  .ARM.attributes
-                0x00000f06       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-nano-vfprintf_i.o)
+                0x00000f06       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-reallocr.o)
  .ARM.attributes
-                0x00000f3a       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-sccl.o)
+                0x00000f3a       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-nano-vfprintf_i.o)
  .ARM.attributes
-                0x00000f6e       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-mlock.o)
+                0x00000f6e       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-sccl.o)
  .ARM.attributes
-                0x00000fa2       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-signal.o)
+                0x00000fa2       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-mlock.o)
  .ARM.attributes
-                0x00000fd6       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-nano-vfprintf.o)
+                0x00000fd6       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-signal.o)
  .ARM.attributes
-                0x0000100a       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-sbrkr.o)
+                0x0000100a       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-nano-vfprintf.o)
  .ARM.attributes
-                0x0000103e       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-msizer.o)
+                0x0000103e       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-sbrkr.o)
  .ARM.attributes
-                0x00001072       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-fvwrite.o)
+                0x00001072       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-msizer.o)
  .ARM.attributes
-                0x000010a6       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-wsetup.o)
+                0x000010a6       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-fvwrite.o)
  .ARM.attributes
-                0x000010da       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-wbuf.o)
+                0x000010da       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-wsetup.o)
  .ARM.attributes
-                0x0000110e       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-makebuf.o)
+                0x0000110e       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-wbuf.o)
  .ARM.attributes
-                0x00001142       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-signalr.o)
+                0x00001142       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-makebuf.o)
  .ARM.attributes
-                0x00001176       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-fstatr.o)
+                0x00001176       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-signalr.o)
  .ARM.attributes
-                0x000011aa       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-isattyr.o)
+                0x000011aa       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-fstatr.o)
  .ARM.attributes
-                0x000011de       0x22 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(_arm_addsubdf3.o)
+                0x000011de       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libc_nano.a(libc_a-isattyr.o)
  .ARM.attributes
-                0x00001200       0x22 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(_arm_muldivdf3.o)
+                0x00001212       0x22 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(_arm_addsubdf3.o)
  .ARM.attributes
-                0x00001222       0x22 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(_arm_cmpdf2.o)
+                0x00001234       0x22 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(_arm_muldivdf3.o)
  .ARM.attributes
-                0x00001244       0x22 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(_arm_unorddf2.o)
+                0x00001256       0x22 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(_arm_cmpdf2.o)
  .ARM.attributes
-                0x00001266       0x22 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(_arm_fixunsdfsi.o)
+                0x00001278       0x22 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(_arm_unorddf2.o)
  .ARM.attributes
-                0x00001288       0x22 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(_arm_truncdfsf2.o)
+                0x0000129a       0x22 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(_arm_fixunsdfsi.o)
  .ARM.attributes
-                0x000012aa       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(_fixdfdi.o)
+                0x000012bc       0x22 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(_arm_truncdfsf2.o)
  .ARM.attributes
-                0x000012de       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(_fixunsdfdi.o)
+                0x000012de       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(_fixdfdi.o)
  .ARM.attributes
-                0x00001312       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(close.o)
+                0x00001312       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/thumb/v7e-m+fp/hard/libgcc.a(_fixunsdfdi.o)
  .ARM.attributes
-                0x00001346       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(fstat.o)
+                0x00001346       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(close.o)
  .ARM.attributes
-                0x0000137a       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(getpid.o)
+                0x0000137a       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(fstat.o)
  .ARM.attributes
-                0x000013ae       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(isatty.o)
+                0x000013ae       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(getpid.o)
  .ARM.attributes
-                0x000013e2       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(kill.o)
+                0x000013e2       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(isatty.o)
  .ARM.attributes
-                0x00001416       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(lseek.o)
+                0x00001416       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(kill.o)
  .ARM.attributes
-                0x0000144a       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(read.o)
+                0x0000144a       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(lseek.o)
  .ARM.attributes
-                0x0000147e       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(sbrk.o)
+                0x0000147e       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(read.o)
  .ARM.attributes
-                0x000014b2       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(write.o)
+                0x000014b2       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(sbrk.o)
  .ARM.attributes
-                0x000014e6       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(_exit.o)
+                0x000014e6       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(write.o)
+ .ARM.attributes
+                0x0000151a       0x34 /usr/lib/gcc/arm-none-eabi/14.2.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libnosys.a(_exit.o)
 
 .comment        0x00000000       0x4c
  .comment       0x00000000       0x4c CMakeFiles/rotor-controller.elf.dir/src/startup_gcc.c.obj
@@ -2711,6 +2741,7 @@ LOAD linker stubs
  .comment       0x0000004c       0x27 CMakeFiles/rotor-controller.elf.dir/src/state_machine.c.obj
  .comment       0x0000004c       0x27 CMakeFiles/rotor-controller.elf.dir/src/net.c.obj
  .comment       0x0000004c       0x27 CMakeFiles/rotor-controller.elf.dir/src/net_persist.c.obj
+ .comment       0x0000004c       0x27 CMakeFiles/rotor-controller.elf.dir/src/blocks.c.obj
  .comment       0x0000004c       0x27 CMakeFiles/rotor-controller.elf.dir/src/protocol.c.obj
  .comment       0x0000004c       0x27 CMakeFiles/rotor-controller.elf.dir/src/display.c.obj
  .comment       0x0000004c       0x27 CMakeFiles/rotor-controller.elf.dir/lib/tivaware/utils/uartstdio.c.obj

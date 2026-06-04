@@ -56,6 +56,16 @@ type Command struct {
 	AzMax *float64 `json:"az_max,omitempty"`
 	ElMin *float64 `json:"el_min,omitempty"`
 	ElMax *float64 `json:"el_max,omitempty"`
+	// set_netconfig fields (dotted-decimal strings)
+	IP      *string `json:"ip,omitempty"`
+	Subnet  *string `json:"subnet,omitempty"`
+	Gateway *string `json:"gateway,omitempty"`
+	MAC     *string `json:"mac,omitempty"`
+	// set_block fields ("az_deg" avoids collision with motion "az" string field)
+	AzDeg   *float64 `json:"az_deg,omitempty"`   // AZ in degrees
+	ElFloor *float64 `json:"el_floor,omitempty"` // min EL in degrees
+	// set_blocks fields
+	Blocks []uint8 `json:"blocks,omitempty"` // 90-entry array, degrees
 }
 
 func (c Command) Marshal() ([]byte, error) {

@@ -600,6 +600,30 @@ src/adc.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/rotor-controller.elf.dir/build.make CMakeFiles/rotor-controller.elf.dir/src/adc.c.s
 .PHONY : src/adc.c.s
 
+src/blocks.obj: src/blocks.c.obj
+.PHONY : src/blocks.obj
+
+# target to build an object file
+src/blocks.c.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rotor-controller.elf.dir/build.make CMakeFiles/rotor-controller.elf.dir/src/blocks.c.obj
+.PHONY : src/blocks.c.obj
+
+src/blocks.i: src/blocks.c.i
+.PHONY : src/blocks.i
+
+# target to preprocess a source file
+src/blocks.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rotor-controller.elf.dir/build.make CMakeFiles/rotor-controller.elf.dir/src/blocks.c.i
+.PHONY : src/blocks.c.i
+
+src/blocks.s: src/blocks.c.s
+.PHONY : src/blocks.s
+
+# target to generate assembly for a file
+src/blocks.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/rotor-controller.elf.dir/build.make CMakeFiles/rotor-controller.elf.dir/src/blocks.c.s
+.PHONY : src/blocks.c.s
+
 src/display.obj: src/display.c.obj
 .PHONY : src/display.obj
 
@@ -882,6 +906,9 @@ help:
 	@echo "... src/adc.obj"
 	@echo "... src/adc.i"
 	@echo "... src/adc.s"
+	@echo "... src/blocks.obj"
+	@echo "... src/blocks.i"
+	@echo "... src/blocks.s"
 	@echo "... src/display.obj"
 	@echo "... src/display.i"
 	@echo "... src/display.s"
