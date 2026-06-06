@@ -208,10 +208,14 @@ static void render_az(const sm_ctx_t *sm, float az)
     /* "AZ:0.400  [>> CW  ]" — 20 chars */
     char pos[6]; fmt_norm(pos, az);
     const char *motion;
-    switch (sm_get_az_motion(sm)) {
-    case SM_AZ_CW:  motion = "[>> CW  ]"; break;
-    case SM_AZ_CCW: motion = "[<< CCW ]"; break;
-    default:        motion = "[  STOP ]"; break;
+    if ((sm->estop_active || sm->estop_hw_latch) && sm_get_az_motion(sm) == SM_AZ_STOP) {
+        motion = "[E-STOP!]";
+    } else {
+        switch (sm_get_az_motion(sm)) {
+        case SM_AZ_CW:  motion = "[>> CW  ]"; break;
+        case SM_AZ_CCW: motion = "[<< CCW ]"; break;
+        default:        motion = "[  STOP ]"; break;
+        }
     }
     lcd_puts("AZ:"); lcd_puts(pos); lcd_puts("  "); lcd_puts(motion); lcd_data(' ');
 }
@@ -226,10 +230,14 @@ static void render_el(const sm_ctx_t *sm, float el)
     /* "EL:0.250  [^^ UP  ]" — 20 chars */
     char pos[6]; fmt_norm(pos, el);
     const char *motion;
-    switch (sm_get_el_motion(sm)) {
-    case SM_EL_UP:   motion = "[^^ UP  ]"; break;
-    case SM_EL_DOWN: motion = "[vv DOWN]"; break;
-    default:         motion = "[  STOP ]"; break;
+    if ((sm->estop_active || sm->estop_hw_latch) && sm_get_el_motion(sm) == SM_EL_STOP) {
+        motion = "[E-STOP!]";
+    } else {
+        switch (sm_get_el_motion(sm)) {
+        case SM_EL_UP:   motion = "[^^ UP  ]"; break;
+        case SM_EL_DOWN: motion = "[vv DOWN]"; break;
+        default:         motion = "[  STOP ]"; break;
+        }
     }
     lcd_puts("EL:"); lcd_puts(pos); lcd_puts("  "); lcd_puts(motion); lcd_data(' ');
 }

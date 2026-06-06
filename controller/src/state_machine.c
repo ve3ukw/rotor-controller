@@ -82,17 +82,28 @@ sm_output_t sm_tick(sm_ctx_t *ctx, const sm_input_t *in)
         case CMD_TYPE_EMERGENCY_STOP:
             /* Always accepted regardless of connection state. */
             if (ctx->brain_ever_connected) { ctx->link_ticks = 0; }
-            ctx->az_cmd = SM_AZ_STOP;
-            ctx->el_cmd = SM_EL_STOP;
+            ctx->az_cmd       = SM_AZ_STOP;
+            ctx->el_cmd       = SM_EL_STOP;
+            ctx->estop_active = true;
+            /* Hardware ESTOP (big red button) latches and BLOCKS all subsequent
+               motion commands until the operator sends CLEAR_FAULT.  Software
+               ESTOP (from the brain) sets estop_active but does not latch —
+               the next SET_MOTION clears it as before. */
+            if (cmd->source == CMD_SRC_LOCAL) {
+                ctx->estop_hw_latch = true;
+            }
             if (!is_faulted(ctx)) { ctx->state = SM_STATE_IDLE; }
             break;
 
         case CMD_TYPE_SET_MOTION:
             if (!ctx->brain_ever_connected) { break; }
-            ctx->link_ticks = 0;
+            /* Hardware ESTOP latch blocks motion until CLEAR_FAULT is received. */
+            if (ctx->estop_hw_latch) { break; }
+            ctx->link_ticks   = 0;
+            ctx->estop_active = false;
             if (!is_faulted(ctx)) {
                 if (ctx->state == SM_STATE_PARKING) {
-                    ctx->state = SM_STATE_IDLE;  /* brain override cancels park */
+                    ctx->state = SM_STATE_IDLE;
                 }
                 ctx->az_cmd = (sm_az_motion_t)cmd->motion.az;
                 ctx->el_cmd = (sm_el_motion_t)cmd->motion.el;
@@ -132,7 +143,9 @@ sm_output_t sm_tick(sm_ctx_t *ctx, const sm_input_t *in)
 
         case CMD_TYPE_CLEAR_FAULT:
             if (!ctx->brain_ever_connected) { break; }
-            ctx->link_ticks = 0;
+            ctx->link_ticks     = 0;
+            ctx->estop_active   = false;
+            ctx->estop_hw_latch = false;   /* operator acknowledges — motion resumes */
             /* Duty-cycle fault: clear fault flag but preserve counters.
                If rest is insufficient, motion commands will re-fault. */
             if (is_faulted(ctx)) {

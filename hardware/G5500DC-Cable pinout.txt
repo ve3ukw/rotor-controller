@@ -1,0 +1,10 @@
+Pin 1 - white/blue - elev
+Pin 2 - white/orange - cw
+Pin 3 - brown - up
+Pin 4 - orange - ccw
+Pin 5 - white/green - down
+Pin 6 - blue - az
+Pin 7 - white/brown - DC 8-13V
+Pin 8 - green - gnd
+
+

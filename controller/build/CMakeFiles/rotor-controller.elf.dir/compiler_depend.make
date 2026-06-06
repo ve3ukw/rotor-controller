@@ -50,6 +50,32 @@ CMakeFiles/rotor-controller.elf.dir/src/adc.c.obj: /home/marcel/src/rotor-contro
   /usr/lib/gcc/arm-none-eabi/14.2.1/include/stddef.h \
   /usr/lib/gcc/arm-none-eabi/14.2.1/include/stdint.h
 
+CMakeFiles/rotor-controller.elf.dir/src/blocks.c.obj: /home/marcel/src/rotor-controller/controller/src/blocks.c \
+  /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/eeprom.h \
+  /home/marcel/src/rotor-controller/controller/lib/tivaware/utils/uartstdio.h \
+  /home/marcel/src/rotor-controller/controller/src/blocks.h \
+  /home/marcel/src/rotor-controller/controller/src/debug.h \
+  /usr/include/newlib/_ansi.h \
+  /usr/include/newlib/_newlib_version.h \
+  /usr/include/newlib/machine/_default_types.h \
+  /usr/include/newlib/machine/_types.h \
+  /usr/include/newlib/machine/ieeefp.h \
+  /usr/include/newlib/newlib.h \
+  /usr/include/newlib/string.h \
+  /usr/include/newlib/strings.h \
+  /usr/include/newlib/sys/_locale.h \
+  /usr/include/newlib/sys/_types.h \
+  /usr/include/newlib/sys/cdefs.h \
+  /usr/include/newlib/sys/config.h \
+  /usr/include/newlib/sys/features.h \
+  /usr/include/newlib/sys/lock.h \
+  /usr/include/newlib/sys/reent.h \
+  /usr/include/newlib/sys/string.h \
+  /usr/lib/gcc/arm-none-eabi/14.2.1/include/stdarg.h \
+  /usr/lib/gcc/arm-none-eabi/14.2.1/include/stdbool.h \
+  /usr/lib/gcc/arm-none-eabi/14.2.1/include/stddef.h \
+  /usr/lib/gcc/arm-none-eabi/14.2.1/include/stdint.h
+
 CMakeFiles/rotor-controller.elf.dir/src/display.c.obj: /home/marcel/src/rotor-controller/controller/src/display.c \
   /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/gpio.h \
   /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/i2c.h \
@@ -102,6 +128,7 @@ CMakeFiles/rotor-controller.elf.dir/src/main.c.obj: /home/marcel/src/rotor-contr
   /home/marcel/src/rotor-controller/controller/lib/tivaware/inc/hw_memmap.h \
   /home/marcel/src/rotor-controller/controller/lib/tivaware/utils/uartstdio.h \
   /home/marcel/src/rotor-controller/controller/src/adc.h \
+  /home/marcel/src/rotor-controller/controller/src/blocks.h \
   /home/marcel/src/rotor-controller/controller/src/command.h \
   /home/marcel/src/rotor-controller/controller/src/config.h \
   /home/marcel/src/rotor-controller/controller/src/debug.h \
@@ -127,6 +154,7 @@ CMakeFiles/rotor-controller.elf.dir/src/net.c.obj: /home/marcel/src/rotor-contro
   /home/marcel/src/rotor-controller/controller/lib/w5500/Ethernet/W5500/w5500.h \
   /home/marcel/src/rotor-controller/controller/lib/w5500/Ethernet/socket.h \
   /home/marcel/src/rotor-controller/controller/lib/w5500/Ethernet/wizchip_conf.h \
+  /home/marcel/src/rotor-controller/controller/src/blocks.h \
   /home/marcel/src/rotor-controller/controller/src/command.h \
   /home/marcel/src/rotor-controller/controller/src/config.h \
   /home/marcel/src/rotor-controller/controller/src/debug.h \
@@ -274,6 +302,10 @@ CMakeFiles/rotor-controller.elf.dir/src/tick.c.obj: /home/marcel/src/rotor-contr
 
 /home/marcel/src/rotor-controller/controller/lib/w5500/Ethernet/wizchip_conf.h:
 
+/home/marcel/src/rotor-controller/controller/lib/w5500/Ethernet/socket.h:
+
+/home/marcel/src/rotor-controller/controller/lib/tivaware/inc/hw_ssi.h:
+
 /home/marcel/src/rotor-controller/controller/lib/tivaware/inc/hw_nvic.h:
 
 /usr/lib/gcc/arm-none-eabi/14.2.1/include/stdarg.h:
@@ -346,6 +378,10 @@ CMakeFiles/rotor-controller.elf.dir/src/tick.c.obj: /home/marcel/src/rotor-contr
 
 /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/uart.h:
 
+/home/marcel/src/rotor-controller/controller/lib/w5500/Ethernet/W5500/w5500.h:
+
+/usr/include/newlib/strings.h:
+
 /home/marcel/src/rotor-controller/controller/lib/tivaware/inc/hw_ints.h:
 
 /home/marcel/src/rotor-controller/controller/src/gpio_outputs.c:
@@ -360,11 +396,21 @@ CMakeFiles/rotor-controller.elf.dir/src/tick.c.obj: /home/marcel/src/rotor-contr
 
 /usr/include/newlib/sys/features.h:
 
-/usr/include/newlib/strings.h:
-
-/home/marcel/src/rotor-controller/controller/lib/w5500/Ethernet/W5500/w5500.h:
-
 /usr/include/newlib/sys/string.h:
+
+/home/marcel/src/rotor-controller/controller/src/blocks.c:
+
+/home/marcel/src/rotor-controller/controller/src/blocks.h:
+
+/home/marcel/src/rotor-controller/controller/src/gpio_outputs.h:
+
+/usr/include/newlib/machine/ieeefp.h:
+
+/home/marcel/src/rotor-controller/controller/src/debug.h:
+
+/usr/lib/gcc/arm-none-eabi/14.2.1/include/stdbool.h:
+
+/home/marcel/src/rotor-controller/controller/lib/tivaware/inc/hw_gpio.h:
 
 /home/marcel/src/rotor-controller/controller/src/display.c:
 
@@ -375,16 +421,6 @@ CMakeFiles/rotor-controller.elf.dir/src/tick.c.obj: /home/marcel/src/rotor-contr
 /home/marcel/src/rotor-controller/controller/src/config.h:
 
 /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/pin_map.h:
-
-/usr/include/newlib/machine/ieeefp.h:
-
-/home/marcel/src/rotor-controller/controller/src/debug.h:
-
-/usr/lib/gcc/arm-none-eabi/14.2.1/include/stdbool.h:
-
-/home/marcel/src/rotor-controller/controller/lib/tivaware/inc/hw_gpio.h:
-
-/home/marcel/src/rotor-controller/controller/src/gpio_outputs.h:
 
 /home/marcel/src/rotor-controller/controller/src/main.c:
 
@@ -397,7 +433,3 @@ CMakeFiles/rotor-controller.elf.dir/src/tick.c.obj: /home/marcel/src/rotor-contr
 /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/rom_map.h:
 
 /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/ssi.h:
-
-/home/marcel/src/rotor-controller/controller/lib/tivaware/inc/hw_ssi.h:
-
-/home/marcel/src/rotor-controller/controller/lib/w5500/Ethernet/socket.h:
