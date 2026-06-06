@@ -62,6 +62,16 @@ typedef struct {
     uint32_t link_ticks;
     bool     brain_ever_connected;
 
+    /* estop_active: set by software ESTOP (brain command); cleared by SET_MOTION or
+       CLEAR_FAULT.  Used for display feedback on software-initiated stops. */
+    bool     estop_active;
+
+    /* estop_hw_latch: set when hardware A9 ESTOP is triggered (CMD_SRC_LOCAL).
+       Unlike estop_active, this BLOCKS all SET_MOTION commands until the operator
+       explicitly sends CLEAR_FAULT.  Releasing the A9 button alone does not clear
+       it — the operator must actively acknowledge before motion resumes. */
+    bool     estop_hw_latch;
+
     /* Duty-cycle counters (per axis, in ticks) */
     uint32_t az_on_ticks;
     uint32_t az_rest_ticks;

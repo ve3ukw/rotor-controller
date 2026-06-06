@@ -112,20 +112,45 @@ int main(void)
         bool estop_low = (GPIOPinRead(GPIO_PORTB_BASE, GPIO_PIN_1) == 0);  /* A9 PB1 */
         bool park_low  = (GPIOPinRead(GPIO_PORTB_BASE, GPIO_PIN_0) == 0);  /* A8 PB0 */
 
+        static bool estop_was_low = false;
         if (estop_low) {
-            /* A9: emergency stop held — push every tick while low */
+            /* A9 (PB1): emergency stop held low — push every tick while asserted.
+               Priority 255 means no brain command can override while pin is held.
+               If stuck in ESTOP: check that nothing from G-5500 wiring is
+               pulling PB1 to GND — it should only be driven by the ESTOP button. */
+            if (!estop_was_low) {
+                debug_log("ESTOP: hardware A9 asserted\r\n");
+            }
             sm_command_t estop = { .type     = CMD_TYPE_EMERGENCY_STOP,
                                    .source   = CMD_SRC_LOCAL,
                                    .priority = 255 };
             sm_push_command(&sm, &estop);
+        } else if (estop_was_low) {
+            debug_log("ESTOP: hardware A9 released\r\n");
         }
+        estop_was_low = estop_low;
 
-        if (park_low && park_prev) {
-            /* A8: falling edge — trigger park once per press */
-            sm_command_t park = { .type     = CMD_TYPE_PARK,
-                                  .source   = CMD_SRC_LOCAL,
-                                  .priority = 10 };
-            sm_push_command(&sm, &park);
+        /* A8: falling edge = park trigger; held 3 s while ESTOP latched = acknowledge.
+           The 3-second hold provides a hardware-only ESTOP clear when the brain is
+           not connected (e.g. bench testing without rotor-brain running). */
+        static uint32_t park_held_ticks = 0;
+        if (!estop_low && sm.estop_hw_latch && park_low) {
+            park_held_ticks++;
+            if (park_held_ticks >= TICK_HZ * 3U) {   /* 3 seconds */
+                park_held_ticks = 0;
+                sm.estop_hw_latch = false;
+                sm.estop_active   = false;
+                debug_log("ESTOP: latch cleared via A8 hold\r\n");
+            }
+        } else {
+            if (park_low && park_prev && !sm.estop_hw_latch) {
+                /* Normal park trigger — only when not in ESTOP latch */
+                sm_command_t park = { .type     = CMD_TYPE_PARK,
+                                      .source   = CMD_SRC_LOCAL,
+                                      .priority = 10 };
+                sm_push_command(&sm, &park);
+            }
+            park_held_ticks = 0;
         }
         park_prev = !park_low;   /* track for next tick */
 
