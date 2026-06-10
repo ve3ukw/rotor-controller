@@ -21,8 +21,11 @@
 #define NET_TCP_PORT  7700U   /* command socket */
 #define NET_UDP_PORT  7701U   /* telemetry socket */
 
-/* SPI clock for W5500 (max 80 MHz; use 20 MHz for margin) */
-#define NET_SPI_HZ    20000000UL
+/* SPI clock for W5500 (max 80 MHz). At 20 MHz, register writes over the
+   flying-wire connection to the WIZ550io were corrupted (each byte stored
+   as (b>>1)|(b&0x80)), scrambling SHAR/GAR/SIPR/SUBR and Sn_MR/Sn_PORT.
+   1 MHz is rock solid and still far more than this protocol needs. */
+#define NET_SPI_HZ    1000000UL
 
 /* ── Parking position ─────────────────────────────────────────────────────
  * Normalized 0..1 coordinates assuming G-5500 full travel:
