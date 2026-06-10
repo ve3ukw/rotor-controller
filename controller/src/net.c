@@ -5,7 +5,6 @@
 #include "driverlib/gpio.h"
 #include "driverlib/pin_map.h"
 #include "driverlib/ssi.h"
-#include "inc/hw_ssi.h"     /* SSI_O_CR0, SSI_O_CR1, SSI_CR1_SSE */
 #include "driverlib/sysctl.h"
 #include "inc/hw_gpio.h"
 #include "inc/hw_memmap.h"
@@ -20,6 +19,7 @@
 #include "blocks.h"
 #include "protocol.h"
 #include "debug.h"
+#include "driverlib/sysctl.h"   /* SysCtlReset() */
 
 /* ── hardware pin assignments ─────────────────────────────────────────────── */
 
@@ -45,6 +45,13 @@
 #define INT_PORT        GPIO_PORTD_BASE
 #define INT_PIN         GPIO_PIN_6
 
+/* RDY: PB5 (input) — WIZ550io module signal, low while the module's
+   on-board auto-config (loading SHAR/SIPR/SUBR/GAR from its config EEPROM)
+   is in progress, high once it's safe to start SPI register access. */
+#define RDY_PORT_PERIPH SYSCTL_PERIPH_GPIOB
+#define RDY_PORT        GPIO_PORTB_BASE
+#define RDY_PIN         GPIO_PIN_5
+
 /* ── socket number assignments (not the same as Sn_MR_TCP/UDP types) ──────── */
 #define SOCKNUM_TCP     0
 #define SOCKNUM_UDP     1
@@ -57,12 +64,6 @@ static uint8_t g_rxbuf[8] = { 4, 2, 1, 1, 1, 1, 1, 1 };
 #define TCP_RX_SIZE     512U
 static char    g_rx_buf[TCP_RX_SIZE];
 static uint16_t g_rx_idx = 0;
-
-/* Software-tracked RX buffer pointer — bypasses getSn_RX_RD which always
-   returns the initial value (0x000B) on this chip variant because Sn_RX_RD
-   appears to be read-only in ESTABLISHED state.  We seed it once from the
-   chip on first connection, then advance it ourselves. */
-static uint16_t g_rx_rd_ptr = 0xFFFF;   /* 0xFFFF = uninitialised */
 
 /* Software-tracked TX write pointer — bypasses getSn_TX_WR which returns
    stale/wrong values on this chip variant (same class of bug as Sn_RX_RD).
@@ -188,54 +189,58 @@ static void rst_hw_init(void)
     /* INT pin as input (polled) */
     GPIOPinTypeGPIOInput(INT_PORT, INT_PIN);
 
+    SysCtlPeripheralEnable(RDY_PORT_PERIPH);
+    while (!SysCtlPeripheralReady(RDY_PORT_PERIPH)) {}
+    GPIOPinTypeGPIOInput(RDY_PORT, RDY_PIN);
+
     /* Reset pulse: assert RST low for ≥ 500 ns, then wait 2 ms for W5500 PLL. */
     GPIOPinWrite(RST_PORT, RST_PIN, 0);
     SysCtlDelay(SYSCLOCK_HZ / 3 / 1000);   /* ~1 ms */
     GPIOPinWrite(RST_PORT, RST_PIN, RST_PIN);
     SysCtlDelay(SYSCLOCK_HZ / 3 / 500);    /* ~2 ms */
+
+    /* Wait for the WIZ550io to finish loading its on-board config EEPROM
+       (SHAR/SIPR/SUBR/GAR) before issuing any SPI register writes — writes
+       that land mid-auto-config are silently lost or get clobbered when the
+       auto-config completes, which is why net_set_config()'s settings
+       weren't sticking and the module stayed at its 192.168.1.2 default.
+       Bounded wait so a module without RDY wired (or held low) doesn't hang
+       boot forever. */
+    for (uint32_t i = 0; i < 50000UL && GPIOPinRead(RDY_PORT, RDY_PIN) == 0; i++) {
+        SysCtlDelay(SYSCLOCK_HZ / 3 / 100000);  /* ~10 us per iteration */
+    }
+    debug_log("W5500 RDY=%u\r\n", (unsigned)(GPIOPinRead(RDY_PORT, RDY_PIN) ? 1 : 0));
 }
 
-/* ── RX buffer byte read in 9-bit SSI mode ───────────────────────────────
- * This chip variant inserts one dummy 0-bit before each data byte when
- * reading from the socket RX buffer block (BSB=3).  In 8-bit SSI we only
- * capture bits [1..8] → data >> 1.  Switching to 9-bit SSI captures all
- * 9 bits; the lower 8 are the correct data byte.
+/* ── TCP transmit: commit a write to g_tx_wr_ptr and wait for completion ──
+ * Callers write `len` bytes into the TX buffer at g_tx_wr_ptr via
+ * WIZCHIP_WRITE_BUF, then call this to advance the pointer and issue SEND.
  *
- * The SSI is disabled, reconfigured (8-bit → 9-bit), re-enabled, and
- * restored to 8-bit after the read — all while CS stays asserted, so the
- * W5500 treats it as one continuous transaction. */
-static uint8_t rxbuf_read_9bit(uint16_t ptr)
+ * The old code only waited for Sn_CR to self-clear, which just means the
+ * chip *accepted* the command — not that the frame has actually gone out
+ * on the wire.  Back-to-back SENDs (an ack immediately followed by another
+ * ack, or the 20 Hz telemetry blast landing right after one) could then
+ * start writing the next frame into the TX buffer while the chip was still
+ * shifting the previous one onto the wire.  The two frames interleave into
+ * one malformed line that the brain's scanner can't parse as a clean ack —
+ * exactly the "garbage / concatenated acks" the wire code already works
+ * around — so the command silently times out even though the controller
+ * believes it sent the ack.
+ *
+ * Waiting for (and clearing) Sn_IR_SENDOK makes each SEND fully complete
+ * before the next buffer write begins, eliminating the overlap.  The flag
+ * is cleared both before and after: before, in case a prior SEND's flag
+ * was never consumed (it wasn't, historically); after, so the next call
+ * doesn't see a stale flag and return immediately. */
+static void tcp_tx_send(uint16_t len)
 {
-    uint32_t data;
-
-    uint32_t addrsel = ((uint32_t)ptr << 8)
-                       + (uint32_t)(WIZCHIP_RXBUF_BLOCK(SOCKNUM_TCP) << 3)
-                       + 0x00U;  /* RWB=0 (read), OM=00 (VDM) */
-    uint8_t hdr[3] = {
-        (uint8_t)((addrsel >> 16) & 0xFFU),
-        (uint8_t)((addrsel >>  8) & 0xFFU),
-        (uint8_t)((addrsel >>  0) & 0xFFU),
-    };
-
-    spi_cs_assert();
-    spi_writeburst(hdr, 3);
-
-    uint32_t cr0 = HWREG(SPI_BASE + SSI_O_CR0);
-    HWREG(SPI_BASE + SSI_O_CR1) &= ~SSI_CR1_SSE;
-    HWREG(SPI_BASE + SSI_O_CR0)  = (cr0 & ~0x0FUL) | 0x08UL;  /* 9-bit */
-    HWREG(SPI_BASE + SSI_O_CR1) |=  SSI_CR1_SSE;
-    while (SSIDataGetNonBlocking(SPI_BASE, &data)) {}
-
-    SSIDataPut(SPI_BASE, 0x1FFUL);
-    SSIDataGet(SPI_BASE, &data);
-    uint8_t result = (uint8_t)(data & 0xFFU);
-
-    HWREG(SPI_BASE + SSI_O_CR1) &= ~SSI_CR1_SSE;
-    HWREG(SPI_BASE + SSI_O_CR0)  = (cr0 & ~0x0FUL) | 0x07UL;  /* 8-bit */
-    HWREG(SPI_BASE + SSI_O_CR1) |=  SSI_CR1_SSE;
-
-    spi_cs_deassert();
-    return result;
+    g_tx_wr_ptr += len;
+    setSn_TX_WR(SOCKNUM_TCP, g_tx_wr_ptr);
+    setSn_IR(SOCKNUM_TCP, Sn_IR_SENDOK);
+    setSn_CR(SOCKNUM_TCP, Sn_CR_SEND);
+    for (uint32_t i = 0; i < 5000UL && getSn_CR(SOCKNUM_TCP); i++) {}
+    for (uint32_t i = 0; i < 50000UL && !(getSn_IR(SOCKNUM_TCP) & Sn_IR_SENDOK); i++) {}
+    setSn_IR(SOCKNUM_TCP, Sn_IR_SENDOK);
 }
 
 /* ── public API ──────────────────────────────────────────────────────────── */
@@ -261,6 +266,8 @@ void net_init(void)
     int8_t rc = wizchip_init(g_txbuf, g_rxbuf);
     debug_log("wizchip_init rc=%d\r\n", rc);
     debug_log("Sn_SR (lib): 0x%02X  expect 0x00\r\n", getSn_SR(0));
+    debug_log("PHYCFGR=0x%02X (LNK=%u)\r\n",
+              (unsigned)getPHYCFGR(), (unsigned)(getPHYCFGR() & PHYCFGR_LNK_ON));
 
     wizchip_setnetinfo(&g_netinfo);
 
@@ -283,7 +290,6 @@ void net_set_config(const net_config_t *cfg)
     /* Reset TCP socket so it re-opens and listens on the new IP. */
     g_brain_connected = false;
     g_rx_idx          = 0;
-    g_rx_rd_ptr       = 0xFFFF;
     disconnect(SOCKNUM_TCP);
 }
 
@@ -292,60 +298,15 @@ void net_set_config(const net_config_t *cfg)
 static void tcp_receive(const sm_ctx_t *sm)
 {
     int32_t avail = getSn_RX_RSR(SOCKNUM_TCP);
+    if (avail <= 0) { return; }
 
-    bool skip_normal_read = false;
+    uint16_t space = (uint16_t)(TCP_RX_SIZE - g_rx_idx - 1u);
+    if (space == 0) { g_rx_idx = 0; return; }
+    uint16_t want = (avail < space) ? (uint16_t)avail : space;
 
-    if (avail <= 0) {
-        if (g_rx_idx > 0 && g_rx_rd_ptr != 0xFFFF &&
-            g_rx_idx < TCP_RX_SIZE - 1u) {
-            /* RSR returns 0 for the last byte(s) on this chip variant.
-               Try a speculative single-byte read. */
-            uint8_t spec = rxbuf_read_9bit(g_rx_rd_ptr);
-            if (spec == '\n' || spec == '\r') {
-                /* Genuine terminator — append and parse. */
-                g_rx_buf[g_rx_idx++] = (char)spec;
-                g_rx_rd_ptr++;
-                setSn_RX_RD(SOCKNUM_TCP, g_rx_rd_ptr);
-                setSn_CR(SOCKNUM_TCP, Sn_CR_RECV);
-                while (getSn_CR(SOCKNUM_TCP)) {}
-                skip_normal_read = true;
-            } else if (g_rx_buf[g_rx_idx - 1] == '}') {
-                g_rx_buf[g_rx_idx++] = '\n';
-                skip_normal_read = true;
-            } else {
-                return;   /* genuinely incomplete — wait for more data */
-            }
-        } else {
-            return;
-        }
-    }
-
-    if (!skip_normal_read) {
-        /* Seed software pointer from chip on first use after connection. */
-        if (g_rx_rd_ptr == 0xFFFF) {
-            g_rx_rd_ptr = getSn_RX_RD(SOCKNUM_TCP);
-            debug_log("RX ptr seed 0x%04X\r\n", g_rx_rd_ptr);
-        }
-
-        uint16_t space = (uint16_t)(TCP_RX_SIZE - g_rx_idx - 1u);
-        if (space == 0) { g_rx_idx = 0; return; }
-        uint16_t want = (avail < space) ? (uint16_t)avail : space;
-
-        /* BSB=3 (RX buffer) reads are 1-bit right-shifted on this chip variant.
-           rxbuf_read_9bit() switches SSI to 9-bit mode to capture the extra
-           dummy bit, then restores 8-bit mode. */
-        for (uint16_t i = 0; i < want; i++) {
-            ((uint8_t *)g_rx_buf + g_rx_idx)[i] =
-                rxbuf_read_9bit((uint16_t)(g_rx_rd_ptr + i));
-        }
-        g_rx_rd_ptr += want;
-
-        setSn_RX_RD(SOCKNUM_TCP, g_rx_rd_ptr);
-        setSn_CR(SOCKNUM_TCP, Sn_CR_RECV);
-        while (getSn_CR(SOCKNUM_TCP)) {}
-
-        g_rx_idx = (uint16_t)(g_rx_idx + want);
-    }
+    int32_t got = recv(SOCKNUM_TCP, (uint8_t *)g_rx_buf + g_rx_idx, want);
+    if (got <= 0) { return; }
+    g_rx_idx = (uint16_t)(g_rx_idx + got);
 
     char *line = g_rx_buf;
     char *nl;
@@ -361,6 +322,7 @@ static void tcp_receive(const sm_ctx_t *sm)
         /* Network-layer and block commands are handled here (not state machine). */
         bool netcfg_pending = false;
         bool netcfg_reset   = false;
+        bool reboot_pending  = false;
         if (ok) {
             if (cmd.type == CMD_TYPE_SET_NETCONFIG) {
                 netcfg_pending = true;   /* apply AFTER ack is sent */
@@ -370,11 +332,16 @@ static void tcp_receive(const sm_ctx_t *sm)
                 blocks_set(cmd.block.az_deg, cmd.block.el_floor_deg);
                 blocks_save();
             } else if (cmd.type == CMD_TYPE_SET_BLOCKS) {
+                /* Brain pushes all 90 blocks on every TCP connect — update RAM only.
+                   blocks_save() (24 EEPROM words, ≤96 ms) is skipped here to avoid
+                   a watchdog reset on every reconnect.  EEPROM is written only when
+                   the user explicitly changes a block via set_block / reset_blocks. */
                 blocks_set_all(cmd.blocks.el_floor);
-                blocks_save();
             } else if (cmd.type == CMD_TYPE_RESET_BLOCKS) {
                 blocks_reset();
                 blocks_save();
+            } else if (cmd.type == CMD_TYPE_REBOOT) {
+                reboot_pending = true;   /* reset AFTER ack is transmitted */
             } else {
                 sm_push_command((sm_ctx_t *)sm, &cmd);
             }
@@ -394,12 +361,9 @@ static void tcp_receive(const sm_ctx_t *sm)
             uint32_t addrsel = ((uint32_t)g_tx_wr_ptr << 8)
                                | (uint32_t)(WIZCHIP_TXBUF_BLOCK(SOCKNUM_TCP) << 3);
             WIZCHIP_WRITE_BUF(addrsel, (uint8_t *)ack, ack_len);
-            g_tx_wr_ptr += ack_len;
-            setSn_TX_WR(SOCKNUM_TCP, g_tx_wr_ptr);
             debug_log("TX ack seq=%u len=%u ptr→0x%04X\r\n",
-                      (unsigned)seq, (unsigned)ack_len, (unsigned)g_tx_wr_ptr);
-            setSn_CR(SOCKNUM_TCP, Sn_CR_SEND);
-            for (uint32_t _i = 0; _i < 5000UL && getSn_CR(SOCKNUM_TCP); _i++) {}
+                      (unsigned)seq, (unsigned)ack_len, (unsigned)(g_tx_wr_ptr + ack_len));
+            tcp_tx_send(ack_len);
         }
 
         /* Apply network config changes AFTER ack is sent so the brain receives
@@ -420,6 +384,10 @@ static void tcp_receive(const sm_ctx_t *sm)
         if (netcfg_reset) {
             net_persist_clear();   /* next boot uses config.h factory defaults */
         }
+        if (reboot_pending) {
+            debug_log("reboot: commanded by brain\r\n");
+            SysCtlReset();         /* ack already transmitted — reset now */
+        }
         line = nl + 1;
     }
 
@@ -435,11 +403,58 @@ void net_tick(const sm_ctx_t *sm, float az_raw, float el_raw, uint32_t ts_ms)
 {
     /* TCP socket lifecycle */
     uint8_t tcp_sr = getSn_SR(SOCKNUM_TCP);
+
+#ifdef DEBUG_LOG
+    {
+        static uint8_t  last_sr = 0xFF;
+        static uint32_t hb_tick = 0;
+        if (tcp_sr != last_sr) {
+            debug_log("Sn_SR change: 0x%02X -> 0x%02X\r\n",
+                      (unsigned)last_sr, (unsigned)tcp_sr);
+            last_sr = tcp_sr;
+        }
+        if (++hb_tick >= TICK_HZ) {
+            hb_tick = 0;
+            debug_log("Sn_SR=0x%02X Sn_IR=0x%02X\r\n",
+                      (unsigned)tcp_sr, (unsigned)getSn_IR(SOCKNUM_TCP));
+        }
+    }
+#endif
+
+    /* A peer disconnect (or W5500-internal timeout retransmit giveup) sets
+       Sn_IR_DISCON / Sn_IR_TIMEOUT but does not always move Sn_SR out of
+       SOCK_ESTABLISHED on its own.  Left unhandled, the socket can get stuck
+       "established" to a dead peer — no longer LISTENing, so the W5500 RSTs
+       any new connection attempt on this port ("connection refused") even
+       though Sn_SR superficially looks fine at a glance.
+
+       Only act on this for a connection we've already recognized
+       (g_brain_connected) — at the moment a new connection is accepted,
+       Sn_IR can carry leftover ARP/TCP-retry TIMEOUT noise from the
+       handshake itself, which is not a real disconnect of *this*
+       connection and is cleared separately below. */
+    if (g_brain_connected) {
+        uint8_t sn_ir = getSn_IR(SOCKNUM_TCP);
+        if (sn_ir & (Sn_IR_DISCON | Sn_IR_TIMEOUT)) {
+            setSn_IR(SOCKNUM_TCP, Sn_IR_DISCON | Sn_IR_TIMEOUT);
+            close(SOCKNUM_TCP);
+            g_brain_connected = false;
+            g_rx_idx = 0;
+            tcp_sr = getSn_SR(SOCKNUM_TCP);
+            debug_log("Sn_IR DISCON/TIMEOUT — closed, Sn_SR=0x%02X\r\n",
+                      (unsigned)tcp_sr);
+        }
+    }
+
     switch (tcp_sr) {
     case SOCK_CLOSED:
         g_brain_connected = false;
         g_rx_idx = 0;
-        g_rx_rd_ptr = 0xFFFF;
+        /* Clear any stale Sn_IR flags (e.g. DISCON/TIMEOUT from the previous
+           connection's teardown) before reopening — otherwise the very next
+           connection's ESTABLISHED tick sees the leftover flag and the
+           DISCON/TIMEOUT recovery check above closes it immediately. */
+        setSn_IR(SOCKNUM_TCP, 0xFF);
         socket(SOCKNUM_TCP, Sn_MR_TCP, NET_TCP_PORT, 0);
         /* Do NOT call listen() here — W5500 needs one tick to settle from
            the transitional state into SOCK_INIT.  The SOCK_INIT case below
@@ -457,14 +472,18 @@ void net_tick(const sm_ctx_t *sm, float az_raw, float el_raw, uint32_t ts_ms)
             getSn_DIPR(SOCKNUM_TCP, g_brain_ip);
             g_brain_connected = true;
 
+            /* Discard any TIMEOUT/DISCON noise generated by the handshake
+               itself (e.g. ARP retries while resolving the peer's MAC) so
+               the DISCON/TIMEOUT recovery check above doesn't mistake it
+               for an immediate disconnect of this brand-new connection. */
+            setSn_IR(SOCKNUM_TCP, Sn_IR_DISCON | Sn_IR_TIMEOUT);
+
             /* Seed software TX pointer from chip TX_RD, then issue a 0-byte
                SEND so the chip's internal send pointer advances to match.
                Without this, any desync between the chip's internal pointer and
                the register produces garbage bytes before the first real ack. */
             g_tx_wr_ptr = getSn_TX_RD(SOCKNUM_TCP);
-            setSn_TX_WR(SOCKNUM_TCP, g_tx_wr_ptr);
-            setSn_CR(SOCKNUM_TCP, Sn_CR_SEND);
-            for (uint32_t _i = 0; _i < 5000UL && getSn_CR(SOCKNUM_TCP); _i++) {}
+            tcp_tx_send(0);
 
             debug_log("brain %u.%u.%u.%u TX_RD=0x%04X\r\n",
                       g_brain_ip[0], g_brain_ip[1],
@@ -476,7 +495,6 @@ void net_tick(const sm_ctx_t *sm, float az_raw, float el_raw, uint32_t ts_ms)
     case SOCK_CLOSE_WAIT:
         g_brain_connected = false;
         g_rx_idx = 0;
-        g_rx_rd_ptr = 0xFFFF;   /* reseed on next connection */
         disconnect(SOCKNUM_TCP);
         break;
     default:
@@ -497,10 +515,7 @@ void net_tick(const sm_ctx_t *sm, float az_raw, float el_raw, uint32_t ts_ms)
             uint32_t addrsel = ((uint32_t)g_tx_wr_ptr << 8)
                                | (uint32_t)(WIZCHIP_TXBUF_BLOCK(SOCKNUM_TCP) << 3);
             WIZCHIP_WRITE_BUF(addrsel, (uint8_t *)frame, frame_len);
-            g_tx_wr_ptr += frame_len;
-            setSn_TX_WR(SOCKNUM_TCP, g_tx_wr_ptr);
-            setSn_CR(SOCKNUM_TCP, Sn_CR_SEND);
-            for (uint32_t _i = 0; _i < 5000UL && getSn_CR(SOCKNUM_TCP); _i++) {}
+            tcp_tx_send(frame_len);
         }
     }
 }
