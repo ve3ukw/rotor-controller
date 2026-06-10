@@ -46,6 +46,16 @@ void gpio_outputs_init(void)
     GPIOPinTypeGPIOOutput(GPIO_PORTE_BASE, PE_MOTOR_DOWN | PE_MOTOR_CW | PE_MOTOR_CCW);
     GPIOPinTypeGPIOOutput(GPIO_PORTC_BASE, PC_POL_UHF | PC_LNA_UHF | PC_RXTX_UHF);
 
+    /* Bump drive strength from the 2 mA default to the part's max 8 mA —
+       these pins drive opto-isolator LEDs, which need several mA of forward
+       current to push the output-side phototransistor into saturation. */
+    GPIOPadConfigSet(GPIO_PORTF_BASE, PF_MOTOR_UP | PF_POL_VHF,
+                     GPIO_STRENGTH_8MA, GPIO_PIN_TYPE_STD);
+    GPIOPadConfigSet(GPIO_PORTE_BASE, PE_MOTOR_DOWN | PE_MOTOR_CW | PE_MOTOR_CCW,
+                     GPIO_STRENGTH_8MA, GPIO_PIN_TYPE_STD);
+    GPIOPadConfigSet(GPIO_PORTC_BASE, PC_POL_UHF | PC_LNA_UHF | PC_RXTX_UHF,
+                     GPIO_STRENGTH_8MA, GPIO_PIN_TYPE_STD);
+
     gpio_outputs_safe();
 }
 

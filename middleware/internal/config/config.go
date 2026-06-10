@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strconv"
 )
 
@@ -25,15 +26,37 @@ type Config struct {
 	HTTPAddr         string
 	MQTTBroker       string
 	MQTTTopicPrefix  string
+	AzRange          float64 // full AZ travel in degrees (G-5500: 450)
+	ElRange          float64 // full EL travel in degrees (G-5500: 180)
 
 	// Path of the loaded config file (empty if none found).
 	FilePath string
 }
 
-// DefaultFilePath returns ~/.rotor-brain.json (cross-platform).
+// DefaultFilePath returns the platform-appropriate config file path.
+//
+// Search order:
+//  1. BRAIN_CONFIG_FILE env var (explicit override)
+//  2. rotor-brain.json next to the running binary  (drop-in, Windows-friendly)
+//  3. %APPDATA%\rotor\brain.json                   (Windows standard)
+//  4. ~/.rotor-brain.json                          (Linux / macOS)
 func DefaultFilePath() string {
 	if p := os.Getenv("BRAIN_CONFIG_FILE"); p != "" {
 		return p
+	}
+	// Check for a config file sitting next to the executable — the most
+	// convenient location on Windows (user drops exe + json in one folder).
+	if exe, err := os.Executable(); err == nil {
+		candidate := filepath.Join(filepath.Dir(exe), "rotor-brain.json")
+		if _, err := os.Stat(candidate); err == nil {
+			return candidate
+		}
+	}
+	// Platform-appropriate home location.
+	if runtime.GOOS == "windows" {
+		if appdata := os.Getenv("APPDATA"); appdata != "" {
+			return filepath.Join(appdata, "rotor", "brain.json")
+		}
 	}
 	home, err := os.UserHomeDir()
 	if err != nil {
@@ -46,13 +69,15 @@ func DefaultFilePath() string {
 func Load() *Config {
 	// 1. Hard-coded defaults
 	cfg := &Config{
-		FieldUnitHost:   "192.168.1.5",
+		FieldUnitHost:    "192.168.1.5",
 		FieldUnitTCPPort: 7700,
 		FieldUnitUDPPort: 7701,
-		UDPListenAddr:   ":7701",
-		HTTPAddr:        ":8090",
-		MQTTBroker:      "",
-		MQTTTopicPrefix: "rotor",
+		UDPListenAddr:    ":7701",
+		HTTPAddr:         ":8090",
+		MQTTBroker:       "",
+		MQTTTopicPrefix:  "rotor",
+		AzRange:          450,
+		ElRange:          180,
 	}
 
 	// 2. Config file (overrides defaults for fields present in the file)
@@ -88,6 +113,16 @@ func Load() *Config {
 	if v := os.Getenv("BRAIN_MQTT_TOPIC_PREFIX"); v != "" {
 		cfg.MQTTTopicPrefix = v
 	}
+	if v := os.Getenv("ROTOR_AZ_RANGE"); v != "" {
+		if f, err := strconv.ParseFloat(v, 64); err == nil {
+			cfg.AzRange = f
+		}
+	}
+	if v := os.Getenv("ROTOR_EL_RANGE"); v != "" {
+		if f, err := strconv.ParseFloat(v, 64); err == nil {
+			cfg.ElRange = f
+		}
+	}
 
 	return cfg
 }
@@ -117,6 +152,10 @@ func LoadBlocks() [BlockCount]uint8 {
 
 func updateFile(fn func(*File)) error {
 	path := DefaultFilePath()
+	// Create parent directory if needed (e.g. %APPDATA%\rotor\ on first run).
+	if dir := filepath.Dir(path); dir != "." {
+		_ = os.MkdirAll(dir, 0755)
+	}
 	existing, _ := loadFile(path)
 	fn(&existing)
 	data, err := json.MarshalIndent(existing, "", "  ")

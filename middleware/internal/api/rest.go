@@ -10,9 +10,9 @@ import (
 )
 
 type statusResponse struct {
-	Linked    bool             `json:"linked"`
-	AgeMs     int64            `json:"age_ms,omitempty"` // milliseconds since last telemetry
-	Telemetry *wire.Telemetry  `json:"telemetry,omitempty"`
+	Linked    bool            `json:"linked"`
+	AgeMs     int64           `json:"age_ms,omitempty"` // milliseconds since last telemetry
+	Telemetry *wire.Telemetry `json:"telemetry,omitempty"`
 }
 
 func handleStatus(st *state.Store) http.HandlerFunc {
@@ -141,6 +141,49 @@ func handleResetNetconfig(send func(wire.Command) (*wire.Ack, error)) http.Handl
 	}
 }
 
+// handleRange reports the configured AZ/EL travel range in degrees, used by
+// the web UI to validate and label the goto-coordinate inputs.
+func handleRange(azRange, elRange float64) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		writeJSON(w, http.StatusOK, map[string]float64{"az_range": azRange, "el_range": elRange})
+	}
+}
+
+// ── goto endpoint ─────────────────────────────────────────────────────────────
+
+type gotoRequest struct {
+	AzDeg float64 `json:"az_deg"`
+	ElDeg float64 `json:"el_deg"`
+}
+
+func handleGoto(gc *GotoController) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			writeJSON(w, http.StatusOK, gc.Status())
+		case http.MethodPost:
+			var req gotoRequest
+			if !decodeBody(w, r, &req) {
+				return
+			}
+			if err := gc.Start(req.AzDeg, req.ElDeg); err != nil {
+				writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
+				return
+			}
+			writeJSON(w, http.StatusOK, gc.Status())
+		default:
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		}
+	}
+}
+
+func handleGotoCancel(gc *GotoController) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		gc.Cancel()
+		writeJSON(w, http.StatusOK, gc.Status())
+	}
+}
+
 // ── block endpoints ──────────────────────────────────────────────────────────
 
 type blockSetRequest struct {
@@ -153,7 +196,7 @@ func handleBlockGet(st *state.Store) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		tbl := st.Blocks()
 		writeJSON(w, http.StatusOK, map[string]any{
-			"chunks": tbl[:],
+			"chunks":    tbl[:],
 			"chunk_deg": 5,
 		})
 	}
@@ -250,4 +293,3 @@ func methodOnly(method string, h http.Handler) http.Handler {
 		h.ServeHTTP(w, r)
 	})
 }
-

@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rotor Controller</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --green: #39ff14;
+    --bg: #0c1410;
+    --panel: #182018;
+    --amber: #ffb000;
+    --red: #ff4444;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, Segoe UI, Roboto, sans-serif;
+    background: var(--bg);
+    color: #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px;
+    gap: 16px;
+  }
+  h1 { font-size: 1.1rem; font-weight: 600; margin: 0; color: #aaa; }
+
+  /* ── LCD panel ───────────────────────────────────────────────── */
+  .lcd {
+    background: #0a1c0a;
+    border: 4px solid #222;
+    border-radius: 6px;
+    padding: 14px 16px;
+    font-family: "Courier New", monospace;
+    font-size: 1.15rem;
+    line-height: 1.6;
+    letter-spacing: 0.05em;
+    color: var(--green);
+    text-shadow: 0 0 4px rgba(57,255,20,0.5);
+    white-space: pre;
+    width: 100%;
+    max-width: 420px;
+  }
+  .lcd .row { display: block; }
+  .lcd.unlinked { color: #555; text-shadow: none; }
+  .lcd .fault { color: var(--red); text-shadow: 0 0 4px rgba(255,68,68,0.6); }
+
+  /* ── controls ────────────────────────────────────────────────── */
+  .pad {
+    display: grid;
+    grid-template-columns: repeat(3, 72px);
+    grid-template-rows: repeat(2, 56px);
+    gap: 8px;
+  }
+  .pad button {
+    font-size: 1.4rem;
+    font-weight: bold;
+    border-radius: 8px;
+    border: 1px solid #444;
+    background: var(--panel);
+    color: #eee;
+    cursor: pointer;
+    user-select: none;
+    touch-action: manipulation;
+  }
+  .pad button:active, .pad button.active {
+    background: #2a3a2a;
+    border-color: var(--green);
+    color: var(--green);
+  }
+  .pad button.stop { font-size: 0.9rem; color: var(--amber); }
+
+  .row3 { display: flex; gap: 8px; }
+
+  .extra {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .extra button {
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: 1px solid #444;
+    background: var(--panel);
+    color: #eee;
+    cursor: pointer;
+    font-size: 0.95rem;
+  }
+  .extra button.danger { color: var(--red); border-color: var(--red); }
+
+  /* ── goto panel ──────────────────────────────────────────────── */
+  .goto {
+    background: var(--panel);
+    border-radius: 8px;
+    padding: 12px 16px;
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .goto h2 { margin: 0; font-size: 0.95rem; color: #aaa; font-weight: 600; }
+  .goto-fields { display: flex; gap: 10px; align-items: center; }
+  .goto-fields label { display: flex; flex-direction: column; font-size: 0.8rem; color: #999; gap: 4px; flex: 1; }
+  .goto-fields input {
+    background: #0c1410;
+    border: 1px solid #444;
+    border-radius: 6px;
+    color: #eee;
+    padding: 8px;
+    font-size: 1rem;
+    width: 100%;
+  }
+  .goto-buttons { display: flex; gap: 8px; }
+  .goto-buttons button {
+    flex: 1;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #444;
+    background: #233023;
+    color: var(--green);
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  .goto-buttons button.cancel { color: var(--red); background: #2a1a1a; }
+  .goto-status { font-size: 0.85rem; color: #999; min-height: 1.2em; }
+
+  .conn { font-size: 0.8rem; color: #666; }
+  .conn.ok { color: var(--green); }
+  .conn.bad { color: var(--red); }
+</style>
+</head>
+<body>
+  <h1>Rotor Controller</h1>
+  <div id="lcd" class="lcd unlinked">
+<span class="row" id="row0">                    </span>
+<span class="row" id="row1">                    </span>
+<span class="row" id="row2">                    </span>
+<span class="row" id="row3">                    </span>
+  </div>
+
+  <div class="pad">
+    <div></div>
+    <button data-az="" data-el="up">▲<br>UP</button>
+    <div></div>
+
+    <button data-az="ccw" data-el="">◀<br>CCW</button>
+    <button class="stop" data-az="stop" data-el="stop">STOP</button>
+    <button data-az="cw" data-el="">▶<br>CW</button>
+  </div>
+  <div class="pad" style="grid-template-rows: 56px;">
+    <div></div>
+    <button data-az="" data-el="down">▼<br>DOWN</button>
+    <div></div>
+  </div>
+
+  <div class="extra">
+    <button id="park">PARK</button>
+    <button id="clearFault">CLEAR FAULT</button>
+    <button id="estop" class="danger">EMERGENCY STOP</button>
+  </div>
+
+  <div class="goto">
+    <h2>Go to position</h2>
+    <div class="goto-fields">
+      <label>AZ (°)
+        <input type="number" id="azDeg" min="0" step="1" placeholder="0">
+      </label>
+      <label>EL (°)
+        <input type="number" id="elDeg" min="0" step="1" placeholder="0">
+      </label>
+    </div>
+    <div class="goto-buttons">
+      <button id="gotoGo">GO</button>
+      <button id="gotoCancel" class="cancel">CANCEL</button>
+    </div>
+    <div class="goto-status" id="gotoStatus"></div>
+  </div>
+
+  <div class="conn" id="conn">connecting…</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let azRange = 450, elRange = 180;
+let lastTelemetry = null;
+let linked = false;
+
+function fmtNorm(v) {
+  v = Math.max(0, Math.min(1, v));
+  return v.toFixed(3);
+}
+
+function azMotionLabel(m) {
+  switch (m) {
+    case 'cw':  return '[>> CW  ]';
+    case 'ccw': return '[<< CCW ]';
+    default:    return '[  STOP ]';
+  }
+}
+function elMotionLabel(m) {
+  switch (m) {
+    case 'up':   return '[^^ UP  ]';
+    case 'down': return '[vv DOWN]';
+    default:     return '[  STOP ]';
+  }
+}
+
+function pad(s, n) {
+  s = String(s);
+  while (s.length < n) s += ' ';
+  return s.slice(0, n);
+}
+
+function render() {
+  const lcd = $('lcd');
+  if (!linked || !lastTelemetry) {
+    lcd.classList.add('unlinked');
+    $('row0').textContent = 'AZ: -- NO LINK --   ';
+    $('row1').textContent = 'EL: -- NO LINK --   ';
+    $('row2').textContent = '                    ';
+    $('row3').textContent = '                    ';
+    return;
+  }
+  lcd.classList.remove('unlinked');
+  const t = lastTelemetry;
+  const estop = (t.state || '').indexOf('FAULT') === 0 && t.fault_detail === 'estop';
+
+  // Row 0: AZ
+  if (t.state === 'FAULT_ADC_INVALID') {
+    $('row0').textContent = 'AZ: NO SENSOR       ';
+  } else {
+    const motion = estop ? '[E-STOP!]' : azMotionLabel(t.az_motion);
+    $('row0').textContent = pad('AZ:' + fmtNorm(t.az_raw) + '  ' + motion + ' ', 20);
+  }
+
+  // Row 1: EL
+  if (t.state === 'FAULT_ADC_INVALID') {
+    $('row1').textContent = 'EL: NO SENSOR       ';
+  } else {
+    const motion = estop ? '[E-STOP!]' : elMotionLabel(t.el_motion);
+    $('row1').textContent = pad('EL:' + fmtNorm(t.el_raw) + '  ' + motion + ' ', 20);
+  }
+
+  // Row 2: state + link
+  const stateLabels = {
+    IDLE: 'IDLE', MOVING: 'MOVING', PARKING: 'PARKING',
+    FAULT_LINK_LOST: 'FAULT:LINK', FAULT_LIMIT: 'FAULT:LIMIT',
+    FAULT_DUTY_CYCLE: 'FAULT:DUTY', FAULT_ADC_INVALID: 'NO G-5500',
+  };
+  const st12 = pad(stateLabels[t.state] || '???', 12);
+  const link8 = pad(linked ? 'LINKED' : 'NO LINK', 8);
+  const row2 = st12 + link8;
+  const row2el = $('row2');
+  row2el.textContent = pad(row2, 20);
+  row2el.className = 'row' + ((t.state || '').indexOf('FAULT') === 0 ? ' fault' : '');
+
+  // Row 3: duty + RF switches
+  const azD = String(t.duty_az_pct ?? 0).padStart(2, '0');
+  const elD = String(t.duty_el_pct ?? 0).padStart(2, '0');
+  const rf = (t.pol_vhf ? 'V' : '-') + (t.pol_uhf ? 'U' : '-') + (t.lna_uhf ? 'L' : '-') + (t.rxtx_uhf ? 'R' : '-');
+  $('row3').textContent = pad('A:' + azD + '% E:' + elD + '%  ' + rf, 20);
+
+  // Highlight active direction buttons
+  document.querySelectorAll('.pad button[data-az]').forEach(b => {
+    const az = b.dataset.az, el = b.dataset.el;
+    const azMatch = az && t.az_motion === az;
+    const elMatch = el && t.el_motion === el;
+    b.classList.toggle('active', !!(azMatch || elMatch));
+  });
+}
+
+// ── status polling (link state, range) ──────────────────────────────
+async function pollStatus() {
+  try {
+    const r = await fetch('/api/v1/status');
+    const j = await r.json();
+    linked = j.linked;
+    if (j.telemetry) lastTelemetry = j.telemetry;
+    $('conn').textContent = linked ? 'field unit linked' : 'field unit not linked';
+    $('conn').className = 'conn ' + (linked ? 'ok' : 'bad');
+    render();
+  } catch (e) {
+    $('conn').textContent = 'brain unreachable';
+    $('conn').className = 'conn bad';
+  }
+}
+
+async function pollGoto() {
+  try {
+    const r = await fetch('/api/v1/goto');
+    const j = await r.json();
+    if (j.active) {
+      $('gotoStatus').textContent = `Moving to AZ ${j.az_deg.toFixed(1)}°, EL ${j.el_deg.toFixed(1)}°…`;
+    } else if (j.error) {
+      $('gotoStatus').textContent = 'Error: ' + j.error;
+    } else {
+      $('gotoStatus').textContent = '';
+    }
+  } catch (e) { /* ignore */ }
+}
+
+// ── WebSocket telemetry (low latency) ────────────────────────────────
+function connectWS() {
+  const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+  const ws = new WebSocket(`${proto}://${location.host}/api/v1/telemetry/ws`);
+  ws.onmessage = (ev) => {
+    try {
+      lastTelemetry = JSON.parse(ev.data);
+      linked = true;
+      $('conn').textContent = 'field unit linked';
+      $('conn').className = 'conn ok';
+      render();
+    } catch (e) { /* ignore */ }
+  };
+  ws.onclose = () => setTimeout(connectWS, 2000);
+  ws.onerror = () => ws.close();
+}
+
+// ── motion buttons ────────────────────────────────────────────────────
+async function sendMotion(az, el) {
+  await fetch('/api/v1/motion', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ az: az || 'stop', el: el || 'stop' }),
+  });
+}
+
+document.querySelectorAll('.pad button[data-az]').forEach(btn => {
+  btn.addEventListener('click', () => sendMotion(btn.dataset.az, btn.dataset.el));
+});
+
+$('park').addEventListener('click', () => fetch('/api/v1/park', { method: 'POST' }));
+$('clearFault').addEventListener('click', () => fetch('/api/v1/clear_fault', { method: 'POST' }));
+$('estop').addEventListener('click', () => fetch('/api/v1/emergency_stop', { method: 'POST' }));
+
+// ── goto panel ─────────────────────────────────────────────────────────
+$('gotoGo').addEventListener('click', async () => {
+  const az = parseFloat($('azDeg').value);
+  const el = parseFloat($('elDeg').value);
+  if (isNaN(az) || isNaN(el)) { $('gotoStatus').textContent = 'Enter AZ and EL in degrees'; return; }
+  const r = await fetch('/api/v1/goto', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ az_deg: az, el_deg: el }),
+  });
+  const j = await r.json();
+  if (!r.ok) { $('gotoStatus').textContent = 'Error: ' + (j.error || 'request failed'); return; }
+  pollGoto();
+});
+$('gotoCancel').addEventListener('click', async () => {
+  await fetch('/api/v1/goto/cancel', { method: 'POST' });
+  pollGoto();
+});
+
+// ── init ───────────────────────────────────────────────────────────────
+fetch('/api/v1/range').then(r => r.json()).then(j => {
+  azRange = j.az_range;
+  elRange = j.el_range;
+  $('azDeg').max = azRange;
+  $('elDeg').max = elRange;
+  $('azDeg').placeholder = `0-${azRange}`;
+  $('elDeg').placeholder = `0-${elRange}`;
+});
+
+pollStatus();
+connectWS();
+setInterval(pollStatus, 5000);
+setInterval(pollGoto, 1000);
+</script>
+</body>
+</html>

@@ -133,6 +133,9 @@ func main() {
 		cmdPol(cfg, args[1:])
 	case "limits":
 		cmdLimits(cfg, args[1:])
+	case "reboot":
+		cmdPostVerbose(cfg, "/api/v1/reboot", nil, "reboot")
+		fmt.Println("controller rebooting — brain will reconnect automatically")
 	case "park":
 		cmdPostVerbose(cfg, "/api/v1/park", nil, "park")
 	case "estop":
@@ -736,7 +739,8 @@ Motion control:
   move <az> <el>                 Set motion  az: cw|ccw|stop  el: up|down|stop
   park                           Drive to park position
   estop                          Emergency stop
-  fault                          Clear fault
+  fault                          Clear fault / acknowledge hardware ESTOP
+  reboot                         Software-reset the field unit controller
 
 Antenna configuration:
   pol  [vhf] [uhf] [lna] [rxtx] Set RF switches (listed=on, omitted=off)

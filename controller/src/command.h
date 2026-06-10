@@ -23,6 +23,7 @@ typedef enum {
     CMD_TYPE_SET_BLOCK,        /* set el_floor (degrees) for one 5° AZ chunk     */
     CMD_TYPE_SET_BLOCKS,       /* set all 90 el_floor values at once              */
     CMD_TYPE_RESET_BLOCKS,     /* clear all AZ blocks to 0 (no restrictions)     */
+    CMD_TYPE_REBOOT,           /* software reset — brain reconnects automatically */
 } cmd_type_t;
 
 typedef enum {
