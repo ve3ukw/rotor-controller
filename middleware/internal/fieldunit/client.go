@@ -17,7 +17,7 @@ import (
 
 const (
 	reconnectDelay  = 3 * time.Second
-	heartbeatPeriod = 2 * time.Second
+	heartbeatPeriod = 1 * time.Second
 	ackTimeout      = 5 * time.Second
 )
 

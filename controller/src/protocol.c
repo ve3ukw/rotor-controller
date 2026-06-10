@@ -230,6 +230,10 @@ bool protocol_parse(const char *json, uint32_t *seq, sm_command_t *cmd)
         cmd->type = CMD_TYPE_RESET_BLOCKS;
         return true;
     }
+    if (strcmp(type, "reboot") == 0) {
+        cmd->type = CMD_TYPE_REBOOT;
+        return true;
+    }
 
     return false;   /* unknown type */
 }

@@ -2,5 +2,6 @@
 /home/marcel/src/rotor-controller/controller/build/CMakeFiles/driverlib.dir
 /home/marcel/src/rotor-controller/controller/build/CMakeFiles/rotor-controller.elf.dir
 /home/marcel/src/rotor-controller/controller/build/CMakeFiles/flash.dir
+/home/marcel/src/rotor-controller/controller/build/CMakeFiles/remote-flash.dir
 /home/marcel/src/rotor-controller/controller/build/CMakeFiles/edit_cache.dir
 /home/marcel/src/rotor-controller/controller/build/CMakeFiles/rebuild_cache.dir

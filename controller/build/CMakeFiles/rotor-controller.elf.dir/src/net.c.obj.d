@@ -16,7 +16,6 @@ CMakeFiles/rotor-controller.elf.dir/src/net.c.obj: \
  /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/gpio.h \
  /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/pin_map.h \
  /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/ssi.h \
- /home/marcel/src/rotor-controller/controller/lib/tivaware/inc/hw_ssi.h \
  /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/sysctl.h \
  /home/marcel/src/rotor-controller/controller/lib/tivaware/inc/hw_gpio.h \
  /home/marcel/src/rotor-controller/controller/lib/tivaware/inc/hw_memmap.h \

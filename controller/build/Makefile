@@ -168,6 +168,19 @@ flash/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/flash.dir/build.make CMakeFiles/flash.dir/build
 .PHONY : flash/fast
 
+#=============================================================================
+# Target rules for targets named remote-flash
+
+# Build rule for target.
+remote-flash: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 remote-flash
+.PHONY : remote-flash
+
+# fast build rule for target.
+remote-flash/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/remote-flash.dir/build.make CMakeFiles/remote-flash.dir/build
+.PHONY : remote-flash/fast
+
 lib/tivaware/driverlib/adc.obj: lib/tivaware/driverlib/adc.c.obj
 .PHONY : lib/tivaware/driverlib/adc.obj
 
@@ -849,6 +862,7 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... flash"
+	@echo "... remote-flash"
 	@echo "... driverlib"
 	@echo "... rotor-controller.elf"
 	@echo "... wiznet"

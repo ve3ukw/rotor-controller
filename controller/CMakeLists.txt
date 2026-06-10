@@ -136,5 +136,27 @@ add_custom_target(flash
         -f ${CMAKE_CURRENT_SOURCE_DIR}/openocd/tm4c123.cfg
         -c "program $<TARGET_FILE:rotor-controller.elf> verify reset exit"
     DEPENDS rotor-controller.elf
-    COMMENT "Flashing via OpenOCD"
+    COMMENT "Flashing via local OpenOCD"
+)
+
+# ── remote-flash target: cmake --build build --target remote-flash ────────────
+# Set FLASH_HOST to the Pi's hostname/IP, e.g.:
+#   cmake --build build --target remote-flash -DFLASH_HOST=antenna-pi.local
+if(NOT DEFINED FLASH_HOST)
+    set(FLASH_HOST "antenna-pi.local")
+endif()
+set(REMOTE_CFG   "~/tm4c123.cfg")   # path on the Pi
+set(REMOTE_BIN   "~/rotor-controller.bin")
+
+add_custom_target(remote-flash
+    COMMAND ${CMAKE_COMMAND} -E echo "Copying firmware to ${FLASH_HOST}..."
+    COMMAND scp
+        ${CMAKE_CURRENT_SOURCE_DIR}/openocd/tm4c123.cfg
+        ${CMAKE_CURRENT_BINARY_DIR}/rotor-controller.bin
+        ${FLASH_HOST}:~/
+    COMMAND ${CMAKE_COMMAND} -E echo "Flashing on ${FLASH_HOST}..."
+    COMMAND ssh ${FLASH_HOST}
+        "openocd -f ${REMOTE_CFG} -c 'program ${REMOTE_BIN} verify reset exit 0x0'"
+    DEPENDS rotor-controller.elf
+    COMMENT "Remote flashing via ${FLASH_HOST}"
 )

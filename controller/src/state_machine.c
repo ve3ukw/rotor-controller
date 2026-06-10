@@ -8,8 +8,10 @@
 
 /* ── safety constants ─────────────────────────────────────────────────────── */
 
-/* Link-loss: 2 s without a command or heartbeat */
-#define LINK_TIMEOUT_TICKS    (TICK_HZ * 2U)
+/* Link-loss: 10 s without a command or heartbeat.
+   Brain sends heartbeats every 2 s — the timeout must be well above that to
+   absorb OS scheduling jitter and TCP stack delays without spurious faults. */
+#define LINK_TIMEOUT_TICKS    (TICK_HZ * 10U)
 
 /* G-5500 duty cycle: 3 min on, 15 min rest */
 #define DUTY_MAX_ON_TICKS     (TICK_HZ * 60U * 3U)
@@ -160,6 +162,7 @@ sm_output_t sm_tick(sm_ctx_t *ctx, const sm_input_t *in)
         case CMD_TYPE_SET_BLOCK:
         case CMD_TYPE_SET_BLOCKS:
         case CMD_TYPE_RESET_BLOCKS:
+        case CMD_TYPE_REBOOT:
             break;  /* handled in net.c before reaching the state machine */
         }
 

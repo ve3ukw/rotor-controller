@@ -47,4 +47,5 @@ set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/driverlib.dir/DependInfo.cmake"
   "CMakeFiles/rotor-controller.elf.dir/DependInfo.cmake"
   "CMakeFiles/flash.dir/DependInfo.cmake"
+  "CMakeFiles/remote-flash.dir/DependInfo.cmake"
   )

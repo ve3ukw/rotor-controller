@@ -15,7 +15,46 @@ import (
 
 var version = "dev"
 
+func usage() {
+	fmt.Printf(`rotor-brain %s — antenna rotator brain daemon
+
+Usage:
+  rotor-brain [version]
+
+The brain connects to the field unit, exposes a REST + WebSocket API for the
+rotor CLI and other clients, and optionally publishes telemetry to MQTT.
+
+Configuration — lowest to highest precedence:
+  1. Built-in defaults
+  2. Config file   %s
+  3. Environment variables (always win)
+
+Config file (JSON, created automatically by 'rotor netconfig'):
+  {
+    "field_unit_host": "192.168.1.5"
+  }
+
+Environment variables:
+  BRAIN_FIELD_UNIT_HOST   Field unit IP address    (default: 192.168.1.5)
+  BRAIN_FIELD_UNIT_TCP_PORT  TCP port              (default: 7700)
+  BRAIN_HTTP_ADDR         REST/WebSocket listen    (default: :8090)
+  BRAIN_MQTT_BROKER       MQTT broker URL          (empty = disabled)
+  BRAIN_MQTT_TOPIC_PREFIX MQTT topic prefix        (default: rotor)
+  BRAIN_CONFIG_FILE       Config file path override
+
+Quick start (Windows PowerShell):
+  .\rotor-brain.exe                          # uses config file / defaults
+  $env:BRAIN_FIELD_UNIT_HOST="192.168.1.5"; .\rotor-brain.exe
+`, version, config.DefaultFilePath())
+}
+
 func main() {
+	for _, a := range os.Args[1:] {
+		if a == "--help" || a == "-h" || a == "help" {
+			usage()
+			return
+		}
+	}
 	if len(os.Args) > 1 && os.Args[1] == "version" {
 		fmt.Printf("rotor-brain %s\n", version)
 		return
@@ -78,7 +117,7 @@ func main() {
 	)
 
 	// HTTP server (REST + WebSocket)
-	srv := api.NewServer(cfg.HTTPAddr, st, fuClient.Send)
+	srv := api.NewServer(cfg.HTTPAddr, st, fuClient.Send, cfg.AzRange, cfg.ElRange)
 
 	// Telemetry fan-out: state store, WebSocket broadcast, MQTT
 	lastState := ""

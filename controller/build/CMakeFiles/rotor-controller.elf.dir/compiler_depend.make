@@ -148,7 +148,6 @@ CMakeFiles/rotor-controller.elf.dir/src/net.c.obj: /home/marcel/src/rotor-contro
   /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/sysctl.h \
   /home/marcel/src/rotor-controller/controller/lib/tivaware/inc/hw_gpio.h \
   /home/marcel/src/rotor-controller/controller/lib/tivaware/inc/hw_memmap.h \
-  /home/marcel/src/rotor-controller/controller/lib/tivaware/inc/hw_ssi.h \
   /home/marcel/src/rotor-controller/controller/lib/tivaware/inc/hw_types.h \
   /home/marcel/src/rotor-controller/controller/lib/tivaware/utils/uartstdio.h \
   /home/marcel/src/rotor-controller/controller/lib/w5500/Ethernet/W5500/w5500.h \
@@ -303,8 +302,6 @@ CMakeFiles/rotor-controller.elf.dir/src/tick.c.obj: /home/marcel/src/rotor-contr
 /home/marcel/src/rotor-controller/controller/lib/w5500/Ethernet/wizchip_conf.h:
 
 /home/marcel/src/rotor-controller/controller/lib/w5500/Ethernet/socket.h:
-
-/home/marcel/src/rotor-controller/controller/lib/tivaware/inc/hw_ssi.h:
 
 /home/marcel/src/rotor-controller/controller/lib/tivaware/inc/hw_nvic.h:
 

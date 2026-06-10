@@ -67,7 +67,7 @@ include CMakeFiles/flash.dir/compiler_depend.make
 include CMakeFiles/flash.dir/progress.make
 
 CMakeFiles/flash: rotor-controller.elf
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=/home/marcel/src/rotor-controller/controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Flashing via OpenOCD"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=/home/marcel/src/rotor-controller/controller/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Flashing via local OpenOCD"
 	openocd -f /home/marcel/src/rotor-controller/controller/openocd/tm4c123.cfg -c program\ /home/marcel/src/rotor-controller/controller/build/rotor-controller.elf\ verify\ reset\ exit
 
 CMakeFiles/flash.dir/codegen:

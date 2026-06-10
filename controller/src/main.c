@@ -78,12 +78,54 @@ int main(void)
        trigger a reset loop.  Watchdog is armed after all init completes. */
     SysCtlPeripheralEnable(SYSCTL_PERIPH_WDOG0);
     while (!SysCtlPeripheralReady(SYSCTL_PERIPH_WDOG0)) {}
-    WatchdogReloadSet(WATCHDOG0_BASE, SYSCLOCK_HZ / 10);  /* 100 ms */
+    WatchdogReloadSet(WATCHDOG0_BASE, SYSCLOCK_HZ / 2);   /* 500 ms — headroom for EEPROM writes (24 words × 4 ms = 96 ms max) */
     WatchdogResetEnable(WATCHDOG0_BASE);
 
     tick_init();
     adc_init();
     gpio_outputs_init();
+
+#ifdef DEBUG_LOG
+    /* LED self-test: hold the A8 park button (PB0) low at boot to cycle
+       through all 4 motor-direction outputs (AZ CW/CCW, EL UP/DOWN), 1 s on
+       / 1 s off each, so the LEDs wired in parallel with the FETs can be
+       checked visually. 1s pulses are short enough to be safe even with the
+       rotor connected. PB0 is a dedicated input (own pull-up, never
+       repurposed) and is re-checked every cycle, so releasing it falls
+       through to normal operation without needing a reset. */
+    if (GPIOPinRead(GPIO_PORTB_BASE, GPIO_PIN_0) == 0) {
+        debug_log("LED TEST: cycling AZ CW / AZ CCW / EL UP / EL DOWN, "
+                   "release A8 to exit\r\n");
+        while (GPIOPinRead(GPIO_PORTB_BASE, GPIO_PIN_0) == 0) {
+            debug_log("LED TEST: AZ CW\r\n");
+            gpio_motor_az_set(MOTOR_AZ_CW);
+            SysCtlDelay(SYSCLOCK_HZ / 3);
+            gpio_motor_az_set(MOTOR_AZ_STOP);
+            SysCtlDelay(SYSCLOCK_HZ / 3);
+
+            debug_log("LED TEST: AZ CCW\r\n");
+            gpio_motor_az_set(MOTOR_AZ_CCW);
+            SysCtlDelay(SYSCLOCK_HZ / 3);
+            gpio_motor_az_set(MOTOR_AZ_STOP);
+            SysCtlDelay(SYSCLOCK_HZ / 3);
+
+            debug_log("LED TEST: EL UP\r\n");
+            gpio_motor_el_set(MOTOR_EL_UP);
+            SysCtlDelay(SYSCLOCK_HZ / 3);
+            gpio_motor_el_set(MOTOR_EL_STOP);
+            SysCtlDelay(SYSCLOCK_HZ / 3);
+
+            debug_log("LED TEST: EL DOWN\r\n");
+            gpio_motor_el_set(MOTOR_EL_DOWN);
+            SysCtlDelay(SYSCLOCK_HZ / 3);
+            gpio_motor_el_set(MOTOR_EL_STOP);
+            SysCtlDelay(SYSCLOCK_HZ / 3);
+        }
+        gpio_outputs_safe();
+        debug_log("LED TEST: done\r\n");
+    }
+#endif
+
     net_init();          /* calls net_persist_init() which enables EEPROM peripheral */
     blocks_load();       /* load AZ block floors from EEPROM (EEPROM already up) */
     display_init();
