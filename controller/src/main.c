@@ -212,6 +212,27 @@ int main(void)
         net_tick(&sm, in.az_pos, in.el_pos, tick_count() * (1000U / TICK_HZ));
         display_tick(&sm, in.az_pos, in.el_pos);
 
+#ifdef DEBUG_LOG
+        /* 1 Hz position/state dump for bench diagnostics. Positions and
+           limits are normalized 0..1, printed ×1000 (UARTprintf has no
+           float support). */
+        {
+            static uint32_t dbg_ctr = 0;
+            if (++dbg_ctr >= TICK_HZ) {
+                dbg_ctr = 0;
+                debug_log("AZ=%d EL=%d state=%s az=%s el=%s "
+                          "az_lim=[%d,%d] el_lim=[%d,%d] estop=%d/%d\r\n",
+                          (int)(in.az_pos * 1000.0f), (int)(in.el_pos * 1000.0f),
+                          sm_state_str(sm_get_state(&sm)),
+                          sm_az_str(sm_get_az_motion(&sm)),
+                          sm_el_str(sm_get_el_motion(&sm)),
+                          (int)(sm.az_min * 1000.0f), (int)(sm.az_max * 1000.0f),
+                          (int)(sm.el_min * 1000.0f), (int)(sm.el_max * 1000.0f),
+                          (int)sm.estop_active, (int)sm.estop_hw_latch);
+            }
+        }
+#endif
+
         /* Red LED: brain TCP session active. */
         GPIOPinWrite(GPIO_PORTF_BASE, LED_RED,
             net_is_connected() ? LED_RED : 0);
