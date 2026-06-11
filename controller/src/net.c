@@ -346,6 +346,10 @@ static void tcp_receive(const sm_ctx_t *sm)
                 sm_push_command((sm_ctx_t *)sm, &cmd);
             }
             debug_log("RX seq=%u type=%u\r\n", (unsigned)seq, (unsigned)cmd.type);
+            if (cmd.type == CMD_TYPE_SET_MOTION) {
+                debug_log("  set_motion az=%u el=%u\r\n",
+                          (unsigned)cmd.motion.az, (unsigned)cmd.motion.el);
+            }
         } else {
             debug_log("RX parse err: %s\r\n", line);
         }

@@ -13,9 +13,13 @@
    absorb OS scheduling jitter and TCP stack delays without spurious faults. */
 #define LINK_TIMEOUT_TICKS    (TICK_HZ * 10U)
 
-/* G-5500 duty cycle: 3 min on, 15 min rest */
-#define DUTY_MAX_ON_TICKS     (TICK_HZ * 60U * 3U)
-#define DUTY_MIN_REST_TICKS   (TICK_HZ * 60U * 15U)
+/* G-5500 duty cycle: 3 min on, 15 min rest (manual spec).  Rather than an
+   all-or-nothing reset after a full 15 min idle, on-time leaks away during
+   rest at DUTY_RECOVERY_RATIO ticks-of-rest per tick-of-on recovered.  The
+   spec's 3:15 ratio is 1:5; we use 1:10 (half that recovery rate) for margin,
+   so sustained tracking duty must stay below ~9% to never accumulate. */
+#define DUTY_MAX_ON_TICKS      (TICK_HZ * 60U * 3U)
+#define DUTY_RECOVERY_RATIO    10U
 
 /* ── helpers ──────────────────────────────────────────────────────────────── */
 
@@ -255,25 +259,23 @@ sm_output_t sm_tick(sm_ctx_t *ctx, const sm_input_t *in)
         ctx->el_cmd = SM_EL_STOP;
     }
 
-    /* ── 7. Update duty-cycle counters ──────────────────────────────────── */
+    /* ── 7. Update duty-cycle counters (leaky bucket) ───────────────────── */
     if (ctx->az_cmd != SM_AZ_STOP) {
         ctx->az_on_ticks++;
         ctx->az_rest_ticks = 0;
-    } else {
-        if (ctx->az_rest_ticks < DUTY_MIN_REST_TICKS) {
-            ctx->az_rest_ticks++;
-        } else {
-            ctx->az_on_ticks = 0;   /* rest complete — on-time budget resets */
+    } else if (ctx->az_on_ticks > 0) {
+        if (++ctx->az_rest_ticks >= DUTY_RECOVERY_RATIO) {
+            ctx->az_rest_ticks = 0;
+            ctx->az_on_ticks--;
         }
     }
     if (ctx->el_cmd != SM_EL_STOP) {
         ctx->el_on_ticks++;
         ctx->el_rest_ticks = 0;
-    } else {
-        if (ctx->el_rest_ticks < DUTY_MIN_REST_TICKS) {
-            ctx->el_rest_ticks++;
-        } else {
-            ctx->el_on_ticks = 0;
+    } else if (ctx->el_on_ticks > 0) {
+        if (++ctx->el_rest_ticks >= DUTY_RECOVERY_RATIO) {
+            ctx->el_rest_ticks = 0;
+            ctx->el_on_ticks--;
         }
     }
 

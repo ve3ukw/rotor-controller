@@ -84,10 +84,16 @@ type Tracker struct {
 	targetAz float64
 	targetEl float64
 
-	// Last commanded directions — only send when changed
+	// Last commanded directions, and when they were last sent. Resent
+	// periodically (not just on change) so a dropped POST self-heals.
 	lastAzCmd string
 	lastElCmd string
+	lastSent  time.Time
 }
+
+// resendInterval is how often the current motion command is re-sent to the
+// brain even if unchanged, so a dropped /api/v1/motion POST self-heals.
+const resendInterval = 5 * time.Second
 
 func newTracker(cfg config) *Tracker {
 	return &Tracker{
@@ -115,11 +121,48 @@ func (t *Tracker) Position() (az, el float64) {
 }
 
 // SetTarget commands the tracker to slew to az/el (degrees).
+//
+// The G-5500's extended range (EL 0-180°) lets the antenna reach any sky
+// position in two ways: a "normal" raw pose (el ≤ 90°) or a "past-zenith"
+// raw pose (el > 90°, az offset by 180°) that points at the same true
+// compass/elevation. Given a target, pick whichever raw representation is
+// closer to the antenna's current raw position, so tracking never swings
+// the antenna up over zenith and back down just to reach an equivalent pose.
 func (t *Tracker) SetTarget(az, el float64) {
 	// Clamp to reachable range.
 	az = clamp(az, 0, t.cfg.azRange)
 	el = clamp(el, 0, t.cfg.elRange)
+
 	t.mu.Lock()
+	curAz, curEl := t.azDeg, t.elDeg
+
+	// True (compass, elevation ≤ 90°) pose of the requested target.
+	trueAz, trueEl := az, el
+	if el > 90 {
+		trueAz -= 180
+		trueEl = 180 - el
+	}
+	if trueAz < 0 {
+		trueAz += 360
+	}
+
+	// Two raw representations of that true pose.
+	normAz, normEl := trueAz, trueEl
+	zenAz := trueAz + 180
+	if zenAz > t.cfg.azRange {
+		zenAz -= 360
+	}
+	zenEl := 180 - trueEl
+
+	// Pick whichever is closer to the antenna's current raw position.
+	normDist := math.Abs(normAz-curAz) + math.Abs(normEl-curEl)
+	zenDist := math.Abs(zenAz-curAz) + math.Abs(zenEl-curEl)
+	if zenDist < normDist {
+		az, el = zenAz, zenEl
+	} else {
+		az, el = normAz, normEl
+	}
+
 	t.targetAz = az
 	t.targetEl = el
 	t.mu.Unlock()
@@ -212,6 +255,7 @@ func (t *Tracker) step() {
 
 	t.mu.Lock()
 	changed := azCmd != t.lastAzCmd || elCmd != t.lastElCmd
+	due := time.Since(t.lastSent) >= resendInterval
 	t.lastAzCmd = azCmd
 	t.lastElCmd = elCmd
 	if azCmd == "stop" && elCmd == "stop" {
@@ -220,9 +264,13 @@ func (t *Tracker) step() {
 		t.targetEl = math.NaN()
 		log.Printf("hamlib: target reached (AZ %.1f° EL %.1f°)", az, el)
 	}
+	if changed || due {
+		t.lastSent = time.Now()
+	}
 	t.mu.Unlock()
 
-	if changed {
+	if changed || due {
+		log.Printf("hamlib: send az=%s el=%s (azErr=%.1f° elErr=%.1f°)", azCmd, elCmd, azErr, elErr)
 		t.sendMotion(azCmd, elCmd)
 	}
 }
@@ -414,7 +462,7 @@ It subscribes to rotor-brain for live telemetry and forwards position/movement
 commands from rotctld clients back to the brain.
 
 Usage:
-  rotor-hamlib [--help]
+  rotor-hamlib [--help|--version]
 
 Environment:
   HAMLIB_LISTEN      TCP listen address    (default: :4533)
@@ -442,10 +490,16 @@ Example (run alongside rotor-brain):
 
 // ── main ──────────────────────────────────────────────────────────────────────
 
+var version = "dev"
+
 func main() {
 	for _, a := range os.Args[1:] {
 		if a == "--help" || a == "-h" {
 			usage()
+			return
+		}
+		if a == "--version" || a == "version" {
+			fmt.Printf("rotor-hamlib %s\n", version)
 			return
 		}
 	}
@@ -453,8 +507,8 @@ func main() {
 	log.SetFlags(log.Ltime | log.Lmicroseconds)
 
 	cfg := loadConfig()
-	log.Printf("rotor-hamlib starting — listen %s  brain %s  AZ %.0f°  EL %.0f°  tol %.1f°",
-		cfg.listen, cfg.brainURL, cfg.azRange, cfg.elRange, cfg.tolerance)
+	log.Printf("rotor-hamlib %s starting — listen %s  brain %s  AZ %.0f°  EL %.0f°  tol %.1f°",
+		version, cfg.listen, cfg.brainURL, cfg.azRange, cfg.elRange, cfg.tolerance)
 
 	tracker := newTracker(cfg)
 	go tracker.Run()
