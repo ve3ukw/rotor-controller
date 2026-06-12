@@ -33,4 +33,5 @@ CMakeFiles/rotor-controller.elf.dir/src/net.c.obj: \
  /home/marcel/src/rotor-controller/controller/src/protocol.h \
  /home/marcel/src/rotor-controller/controller/src/debug.h \
  /home/marcel/src/rotor-controller/controller/lib/tivaware/utils/uartstdio.h \
- /usr/lib/gcc/arm-none-eabi/14.2.1/include/stdarg.h
+ /usr/lib/gcc/arm-none-eabi/14.2.1/include/stdarg.h \
+ /home/marcel/src/rotor-controller/controller/lib/tivaware/driverlib/watchdog.h
