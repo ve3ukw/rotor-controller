@@ -26,7 +26,6 @@
 static bool is_faulted(const sm_ctx_t *ctx)
 {
     return ctx->state == SM_STATE_FAULT_LINK_LOST    ||
-           ctx->state == SM_STATE_FAULT_LIMIT        ||
            ctx->state == SM_STATE_FAULT_DUTY_CYCLE   ||
            ctx->state == SM_STATE_FAULT_ADC_INVALID;
 }
@@ -45,7 +44,11 @@ void sm_init(sm_ctx_t *ctx)
     memset(ctx, 0, sizeof(*ctx));
     ctx->state  = SM_STATE_IDLE;
     ctx->az_min = 0.0f;  ctx->az_max = 1.0f;
-    ctx->el_min = 0.0f;  ctx->el_max = 1.0f;
+    /* G-5500 EL range is 0-180° raw, where raw 0 and raw 180 both represent
+       true elevation 0° (horizon) — raw 90 is zenith. A pass below ~5° true
+       elevation is rarely a usable link, so keep both ends of the raw range
+       off-limits: el_min=5°/180°, el_max=175°/180°. */
+    ctx->el_min = 5.0f / 180.0f;  ctx->el_max = 175.0f / 180.0f;
 }
 
 void sm_push_command(sm_ctx_t *ctx, const sm_command_t *cmd)
@@ -229,26 +232,22 @@ sm_output_t sm_tick(sm_ctx_t *ctx, const sm_input_t *in)
         }
     }
 
-    /* ── 6. Soft-limit check ────────────────────────────────────────────── */
+    /* ── 6. Soft-limit check ──────────────────────────────────────────────
+     * Reaching a soft limit stops only the affected axis — it is expected
+     * behaviour at the edge of the operating range, not a fault.  The other
+     * axis continues moving, and this axis resumes as soon as it is
+     * commanded back away from the limit. */
     if (ctx->az_cmd == SM_AZ_CW  && in->az_pos >= ctx->az_max) {
         ctx->az_cmd = SM_AZ_STOP;
-        enter_fault(ctx, SM_STATE_FAULT_LIMIT);
-        goto build_output;
     }
     if (ctx->az_cmd == SM_AZ_CCW && in->az_pos <= ctx->az_min) {
         ctx->az_cmd = SM_AZ_STOP;
-        enter_fault(ctx, SM_STATE_FAULT_LIMIT);
-        goto build_output;
     }
     if (ctx->el_cmd == SM_EL_UP   && in->el_pos >= ctx->el_max) {
         ctx->el_cmd = SM_EL_STOP;
-        enter_fault(ctx, SM_STATE_FAULT_LIMIT);
-        goto build_output;
     }
     if (ctx->el_cmd == SM_EL_DOWN && in->el_pos <= ctx->el_min) {
         ctx->el_cmd = SM_EL_STOP;
-        enter_fault(ctx, SM_STATE_FAULT_LIMIT);
-        goto build_output;
     }
 
     /* ── 6b. AZ block el_floor enforcement ───────────────────────────────
@@ -321,7 +320,6 @@ const char *sm_state_str(sm_state_t s)
     case SM_STATE_MOVING:            return "MOVING";
     case SM_STATE_PARKING:           return "PARKING";
     case SM_STATE_FAULT_LINK_LOST:   return "FAULT_LINK_LOST";
-    case SM_STATE_FAULT_LIMIT:       return "FAULT_LIMIT";
     case SM_STATE_FAULT_DUTY_CYCLE:  return "FAULT_DUTY_CYCLE";
     case SM_STATE_FAULT_ADC_INVALID: return "FAULT_ADC_INVALID";
     default:                         return "UNKNOWN";

@@ -146,6 +146,13 @@ func (t *Tracker) SetTarget(az, el float64) {
 		trueAz += 360
 	}
 
+	// Below ~5° elevation is rarely a usable link, and the firmware enforces
+	// a matching soft limit (el_min/el_max = 5°/175° raw) — hold at 5° true
+	// elevation rather than chasing the target to the horizon.
+	if trueEl < 5 {
+		trueEl = 5
+	}
+
 	// Two raw representations of that true pose.
 	normAz, normEl := trueAz, trueEl
 	zenAz := trueAz + 180
