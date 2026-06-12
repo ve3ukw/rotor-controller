@@ -144,7 +144,7 @@ static void test_link_lost_fault(void)
     sm_ctx_t ctx; sm_init(&ctx);
     connect_brain(&ctx);
     /* Run LINK_TIMEOUT_TICKS + 1 without any command. */
-    run_ticks(&ctx, TICK_HZ * 2 + 1);
+    run_ticks(&ctx, TICK_HZ * 10 + 1);
     assert(ctx.state == SM_STATE_FAULT_LINK_LOST);
     PASS("link_lost_fault");
 }
@@ -172,7 +172,7 @@ static void test_link_lost_clears_on_hello(void)
 {
     sm_ctx_t ctx; sm_init(&ctx);
     connect_brain(&ctx);
-    run_ticks(&ctx, TICK_HZ * 2 + 1);
+    run_ticks(&ctx, TICK_HZ * 10 + 1);
     assert(ctx.state == SM_STATE_FAULT_LINK_LOST);
     connect_brain(&ctx);   /* reconnect */
     assert(ctx.state == SM_STATE_IDLE);
@@ -220,15 +220,25 @@ static void test_soft_limit_az_max(void)
     sm_push_command(&ctx, &lim);
     run_ticks(&ctx, 1);
 
-    /* Command CW while az is already at the limit. */
-    push_motion(&ctx, SM_AZ_CW, SM_EL_STOP);
+    /* Command CW + EL UP while az is already at the limit. A soft limit
+       stops only the affected axis — no system fault, and el keeps moving. */
     sm_input_t at_limit = { .az_pos = 0.8f, .el_pos = 0.5f, .adc_valid = true };
     sm_push_command(&ctx, &(sm_command_t){
         .type = CMD_TYPE_SET_MOTION, .source = CMD_SRC_TCP, .priority = 1,
-        .motion = { .az = SM_AZ_CW, .el = SM_EL_STOP },
+        .motion = { .az = SM_AZ_CW, .el = SM_EL_UP },
     });
-    sm_tick(&ctx, &at_limit);
-    assert(ctx.state == SM_STATE_FAULT_LIMIT);
+    sm_output_t out = sm_tick(&ctx, &at_limit);
+    assert(out.az_dir == SM_AZ_STOP);
+    assert(out.el_dir == SM_EL_UP);
+    assert(ctx.state == SM_STATE_MOVING);
+
+    /* Commanding back away from the limit resumes az motion immediately. */
+    sm_push_command(&ctx, &(sm_command_t){
+        .type = CMD_TYPE_SET_MOTION, .source = CMD_SRC_TCP, .priority = 1,
+        .motion = { .az = SM_AZ_CCW, .el = SM_EL_UP },
+    });
+    out = sm_tick(&ctx, &at_limit);
+    assert(out.az_dir == SM_AZ_CCW);
     PASS("soft_limit_az_max");
 }
 

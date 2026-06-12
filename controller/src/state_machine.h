@@ -22,7 +22,6 @@ typedef enum {
     SM_STATE_MOVING,
     SM_STATE_PARKING,           /* autonomously moving to park position */
     SM_STATE_FAULT_LINK_LOST,
-    SM_STATE_FAULT_LIMIT,
     SM_STATE_FAULT_DUTY_CYCLE,
     SM_STATE_FAULT_ADC_INVALID,
 } sm_state_t;

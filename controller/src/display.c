@@ -252,7 +252,6 @@ static void render_state(const sm_ctx_t *sm)
     case SM_STATE_MOVING:            st12 = "MOVING      "; break;
     case SM_STATE_PARKING:           st12 = "PARKING     "; break;
     case SM_STATE_FAULT_LINK_LOST:   st12 = "FAULT:LINK  "; break;
-    case SM_STATE_FAULT_LIMIT:       st12 = "FAULT:LIMIT "; break;
     case SM_STATE_FAULT_DUTY_CYCLE:  st12 = "FAULT:DUTY  "; break;
     case SM_STATE_FAULT_ADC_INVALID: st12 = "NO G-5500   "; break;
     default:                         st12 = "???         "; break;
