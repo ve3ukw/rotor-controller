@@ -167,10 +167,10 @@
     <h2>Go to position</h2>
     <div class="goto-fields">
       <label>AZ (°)
-        <input type="number" id="azDeg" min="0" step="1" placeholder="0">
+        <input type="number" id="azDeg" min="0" step="1" placeholder="current">
       </label>
       <label>EL (°)
-        <input type="number" id="elDeg" min="0" step="1" placeholder="0">
+        <input type="number" id="elDeg" min="0" step="1" placeholder="current">
       </label>
     </div>
     <div class="goto-buttons">
@@ -188,9 +188,9 @@ let azRange = 450, elRange = 180;
 let lastTelemetry = null;
 let linked = false;
 
-function fmtNorm(v) {
+function fmtDeg(v, range) {
   v = Math.max(0, Math.min(1, v));
-  return v.toFixed(3);
+  return Math.round(v * range) + '°';
 }
 
 function azMotionLabel(m) {
@@ -233,7 +233,7 @@ function render() {
     $('row0').textContent = 'AZ: NO SENSOR       ';
   } else {
     const motion = estop ? '[E-STOP!]' : azMotionLabel(t.az_motion);
-    $('row0').textContent = pad('AZ:' + fmtNorm(t.az_raw) + '  ' + motion + ' ', 20);
+    $('row0').textContent = pad('AZ:' + fmtDeg(t.az_raw, azRange) + '  ' + motion + ' ', 20);
   }
 
   // Row 1: EL
@@ -241,13 +241,13 @@ function render() {
     $('row1').textContent = 'EL: NO SENSOR       ';
   } else {
     const motion = estop ? '[E-STOP!]' : elMotionLabel(t.el_motion);
-    $('row1').textContent = pad('EL:' + fmtNorm(t.el_raw) + '  ' + motion + ' ', 20);
+    $('row1').textContent = pad('EL:' + fmtDeg(t.el_raw, elRange) + '  ' + motion + ' ', 20);
   }
 
   // Row 2: state + link
   const stateLabels = {
     IDLE: 'IDLE', MOVING: 'MOVING', PARKING: 'PARKING',
-    FAULT_LINK_LOST: 'FAULT:LINK', FAULT_LIMIT: 'FAULT:LIMIT',
+    FAULT_LINK_LOST: 'FAULT:LINK',
     FAULT_DUTY_CYCLE: 'FAULT:DUTY', FAULT_ADC_INVALID: 'NO G-5500',
   };
   const st12 = pad(stateLabels[t.state] || '???', 12);
@@ -312,7 +312,8 @@ function connectWS() {
       linked = true;
       $('conn').textContent = 'field unit linked';
       $('conn').className = 'conn ok';
-      render();
+      // Render is throttled via setInterval below — telemetry arrives at
+      // ~20 Hz but full-degree display doesn't need to redraw that often.
     } catch (e) { /* ignore */ }
   };
   ws.onclose = () => setTimeout(connectWS, 2000);
@@ -338,9 +339,17 @@ $('estop').addEventListener('click', () => fetch('/api/v1/emergency_stop', { met
 
 // ── goto panel ─────────────────────────────────────────────────────────
 $('gotoGo').addEventListener('click', async () => {
-  const az = parseFloat($('azDeg').value);
-  const el = parseFloat($('elDeg').value);
-  if (isNaN(az) || isNaN(el)) { $('gotoStatus').textContent = 'Enter AZ and EL in degrees'; return; }
+  const azStr = $('azDeg').value.trim();
+  const elStr = $('elDeg').value.trim();
+  if (azStr === '' && elStr === '') { $('gotoStatus').textContent = 'Enter AZ and/or EL in degrees'; return; }
+  if ((azStr === '' || elStr === '') && !lastTelemetry) {
+    $('gotoStatus').textContent = 'No telemetry yet — cannot fill in the omitted axis';
+    return;
+  }
+  // An omitted axis holds at its current position.
+  const az = azStr === '' ? lastTelemetry.az_raw * azRange : parseFloat(azStr);
+  const el = elStr === '' ? lastTelemetry.el_raw * elRange : parseFloat(elStr);
+  if (isNaN(az) || isNaN(el)) { $('gotoStatus').textContent = 'Enter AZ and/or EL in degrees'; return; }
   const r = await fetch('/api/v1/goto', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -361,12 +370,13 @@ fetch('/api/v1/range').then(r => r.json()).then(j => {
   elRange = j.el_range;
   $('azDeg').max = azRange;
   $('elDeg').max = elRange;
-  $('azDeg').placeholder = `0-${azRange}`;
-  $('elDeg').placeholder = `0-${elRange}`;
+  $('azDeg').placeholder = `current (0-${azRange})`;
+  $('elDeg').placeholder = `current (0-${elRange})`;
 });
 
 pollStatus();
 connectWS();
+setInterval(render, 500);
 setInterval(pollStatus, 5000);
 setInterval(pollGoto, 1000);
 </script>

@@ -126,7 +126,7 @@ func main() {
 
 	switch args[0] {
 	case "status":
-		cmdStatus(cfg)
+		cmdStatus(cfg, args[1:])
 	case "move":
 		cmdMove(cfg, args[1:])
 	case "pol":
@@ -142,6 +142,8 @@ func main() {
 		cmdPostVerbose(cfg, "/api/v1/emergency_stop", nil, "emergency_stop")
 	case "fault":
 		cmdPostVerbose(cfg, "/api/v1/clear_fault", nil, "clear_fault")
+	case "goto":
+		cmdGoto(cfg, args[1:])
 	case "block":
 		cmdBlock(cfg, args[1:])
 	case "netconfig":
@@ -157,7 +159,14 @@ func main() {
 
 // ── status ────────────────────────────────────────────────────────────────────
 
-func cmdStatus(c cfg) {
+func cmdStatus(c cfg, args []string) {
+	deg := false
+	for _, a := range args {
+		if a == "--deg" || a == "-deg" {
+			deg = true
+		}
+	}
+
 	debugf("fetching status from %s", c.brainURL)
 	var resp statusResp
 	getJSON(c, "/api/v1/status", &resp)
@@ -180,8 +189,13 @@ func cmdStatus(c cfg) {
 		fmt.Printf("  (%s)", t.FaultDetail)
 	}
 	fmt.Println()
-	fmt.Printf("AZ         : %.4f  (%6.1f°)\n", t.AzRaw, t.AzRaw*c.azRange)
-	fmt.Printf("EL         : %.4f  (%6.1f°)\n", t.ElRaw, t.ElRaw*c.elRange)
+	if deg {
+		fmt.Printf("AZ         : %6.1f°\n", t.AzRaw*c.azRange)
+		fmt.Printf("EL         : %6.1f°\n", t.ElRaw*c.elRange)
+	} else {
+		fmt.Printf("AZ         : %.4f  (%6.1f°)\n", t.AzRaw, t.AzRaw*c.azRange)
+		fmt.Printf("EL         : %.4f  (%6.1f°)\n", t.ElRaw, t.ElRaw*c.elRange)
+	}
 	fmt.Printf("Motion     : az=%-4s  el=%s\n", t.AzMotion, t.ElMotion)
 	fmt.Printf("RF switches: VHF=%-3s  UHF=%-3s  LNA=%-3s  RXTX=%s\n",
 		onOff(t.PolVHF), onOff(t.PolUHF), onOff(t.LnaUHF), onOff(t.RxTxUHF))
@@ -208,6 +222,88 @@ func cmdMove(c cfg, args []string) {
 	}
 	debugf("set_motion az=%s el=%s", az, el)
 	cmdPost(c, "/api/v1/motion", map[string]string{"az": az, "el": el})
+}
+
+// ── goto ──────────────────────────────────────────────────────────────────────
+
+func cmdGoto(c cfg, args []string) {
+	if len(args) == 1 && args[0] == "cancel" {
+		cmdPost(c, "/api/v1/goto/cancel", nil)
+		fmt.Println("goto cancelled")
+		return
+	}
+
+	usage := fmt.Sprintf("goto <az-deg> <el-deg>\n"+
+		"  az : 0-%.0f°   (also: az=<deg> / azimuth=<deg>)\n"+
+		"  el : 0-%.0f°   (also: el=<deg> / elevation=<deg>)\n"+
+		"  Either axis may be omitted (by name) to leave it at its current position.\n"+
+		"  examples: rotor goto 180 45\n"+
+		"            rotor goto az=155\n"+
+		"            rotor goto elevation=90\n"+
+		"            rotor goto el=10 az=270\n"+
+		"  rotor goto cancel   — stop an in-progress goto", c.azRange, c.elRange)
+
+	var azDeg, elDeg float64
+	var haveAz, haveEl bool
+
+	named := false
+	for _, a := range args {
+		if strings.Contains(a, "=") {
+			named = true
+			break
+		}
+	}
+
+	if named {
+		for _, a := range args {
+			parts := strings.SplitN(a, "=", 2)
+			if len(parts) != 2 {
+				fatalf("invalid argument %q\n\n%s", a, usage)
+			}
+			key, val := strings.ToLower(parts[0]), parts[1]
+			v, err := strconv.ParseFloat(val, 64)
+			if err != nil {
+				fatalf("invalid value %q for %s — must be a number in degrees\n\n%s", val, key, usage)
+			}
+			switch key {
+			case "az", "azimuth":
+				azDeg, haveAz = v, true
+			case "el", "elevation":
+				elDeg, haveEl = v, true
+			default:
+				fatalf("unknown axis %q (az | el)\n\n%s", key, usage)
+			}
+		}
+	} else {
+		if len(args) != 2 {
+			fatalf("%s", usage)
+		}
+		var err1, err2 error
+		azDeg, err1 = strconv.ParseFloat(args[0], 64)
+		elDeg, err2 = strconv.ParseFloat(args[1], 64)
+		if err1 != nil || err2 != nil {
+			fatalf("az/el must be numbers in degrees\n\n%s", usage)
+		}
+		haveAz, haveEl = true, true
+	}
+
+	if !haveAz || !haveEl {
+		var resp statusResp
+		getJSON(c, "/api/v1/status", &resp)
+		if resp.Telemetry == nil {
+			fatalf("cannot read current position to fill in the omitted axis (no telemetry)")
+		}
+		if !haveAz {
+			azDeg = resp.Telemetry.AzRaw * c.azRange
+		}
+		if !haveEl {
+			elDeg = resp.Telemetry.ElRaw * c.elRange
+		}
+	}
+
+	debugf("goto az=%.1f° el=%.1f°", azDeg, elDeg)
+	cmdPost(c, "/api/v1/goto", map[string]float64{"az_deg": azDeg, "el_deg": elDeg})
+	fmt.Printf("driving to AZ %.1f°  EL %.1f° — use 'rotor monitor' to watch progress\n", azDeg, elDeg)
 }
 
 // ── pol ───────────────────────────────────────────────────────────────────────
@@ -519,14 +615,21 @@ func cmdNetconfig(c cfg, args []string) {
 func cmdMonitor(c cfg, args []string) {
 	// Parse -rate flag (Hz). Default 1 Hz; use 20 for raw stream.
 	var rateHz float64 = 1.0
-	for i := 0; i < len(args)-1; i++ {
-		if args[i] == "-rate" || args[i] == "--rate" {
+	deg := false
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "-rate", "--rate":
+			if i+1 >= len(args) {
+				fatalf("missing value for %s", args[i])
+			}
 			v, err := strconv.ParseFloat(args[i+1], 64)
 			if err != nil || v <= 0 {
 				fatalf("invalid -rate %q (must be a positive number)", args[i+1])
 			}
 			rateHz = v
-			break
+			i++
+		case "--deg", "-deg":
+			deg = true
 		}
 	}
 	period := time.Duration(float64(time.Second) / rateHz)
@@ -540,8 +643,13 @@ func cmdMonitor(c cfg, args []string) {
 	}
 	defer conn.Close()
 	fmt.Fprintf(os.Stderr, "connected — %.4g Hz display (ctrl-c to stop)\n", rateHz)
-	fmt.Println("time           state       AZ          EL          az-mot  el-mot  V U L R  az% el%")
-	fmt.Println(strings.Repeat("-", 92))
+	if deg {
+		fmt.Println("time           state       AZ      EL      az-mot  el-mot  V U L R  az% el%")
+		fmt.Println(strings.Repeat("-", 80))
+	} else {
+		fmt.Println("time           state       AZ          EL          az-mot  el-mot  V U L R  az% el%")
+		fmt.Println(strings.Repeat("-", 92))
+	}
 
 	// Accumulator for averaged fields within each display period.
 	var (
@@ -595,13 +703,22 @@ func cmdMonitor(c cfg, args []string) {
 			switches := fmt.Sprintf("%s %s %s %s",
 				flag(last.PolVHF, "V"), flag(last.PolUHF, "U"),
 				flag(last.LnaUHF, "L"), flag(last.RxTxUHF, "R"))
-			fmt.Printf("%s  %-10s  %.4f(%5.1f°)  %.4f(%5.1f°)  %-6s  %-6s  %s  %2d %2d\n",
-				time.Now().Format("15:04:05.000"),
-				last.State,
-				az, az*c.azRange,
-				el, el*c.elRange,
-				last.AzMotion, last.ElMotion,
-				switches, azDuty, elDuty)
+			if deg {
+				fmt.Printf("%s  %-10s  %6.1f°  %6.1f°  %-6s  %-6s  %s  %2d %2d\n",
+					time.Now().Format("15:04:05.000"),
+					last.State,
+					az*c.azRange, el*c.elRange,
+					last.AzMotion, last.ElMotion,
+					switches, azDuty, elDuty)
+			} else {
+				fmt.Printf("%s  %-10s  %.4f(%5.1f°)  %.4f(%5.1f°)  %-6s  %-6s  %s  %2d %2d\n",
+					time.Now().Format("15:04:05.000"),
+					last.State,
+					az, az*c.azRange,
+					el, el*c.elRange,
+					last.AzMotion, last.ElMotion,
+					switches, azDuty, elDuty)
+			}
 
 			// Reset accumulators.
 			azSum, elSum = 0, 0
@@ -735,9 +852,12 @@ Usage:
   rotor [-v] [--brain URL] <command> [args]
 
 Motion control:
-  status                         Current position, state, and RF switches
+  status [--deg]                 Current position, state, and RF switches
   move <az> <el>                 Set motion  az: cw|ccw|stop  el: up|down|stop
-  park                           Drive to park position
+  goto <az-deg> <el-deg>         Drive to an absolute AZ/EL position (degrees)
+  goto az=<deg> [el=<deg>]       Drive one or both axes (other axis unchanged)
+  goto cancel                    Stop an in-progress goto
+  park                           Drive to park position (predefined AZ/EL)
   estop                          Emergency stop
   fault                          Clear fault / acknowledge hardware ESTOP
   reboot                         Software-reset the field unit controller
@@ -762,7 +882,7 @@ Network:
   netconfig reset                Revert to factory defaults on next boot
 
 Monitoring:
-  monitor [-rate Hz]             Stream live telemetry (default 1 Hz averaged; 20 for raw)
+  monitor [-rate Hz] [--deg]     Stream live telemetry (default 1 Hz averaged; 20 for raw)
   version                        Print version
 
 Global flags (before command):

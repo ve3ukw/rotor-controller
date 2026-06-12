@@ -10,9 +10,17 @@ import (
 	"rotor-controller/brain/internal/wire"
 )
 
-// gotoTolerance matches the field unit's PARK_TOLERANCE (config.h):
-// normalized 0..1 deadband, ~2.25° AZ / ~0.9° EL.
-const gotoTolerance = 0.005
+// gotoToleranceDeg/gotoHysteresisDeg define a per-axis deadband (in true
+// degrees, converted to normalized units via azRange/elRange below). A
+// multi-element Yagi has a beamwidth far wider than this, so a few degrees
+// of slop costs nothing — but the field unit's AZ position reading jitters
+// by a few degrees on its own, which without a deadband causes the goto
+// loop to hunt back and forth (cw/ccw/cw/...) forever, burning duty cycle.
+// gotoToleranceDeg stops the axis once within range; gotoHysteresisDeg
+// (wider) is required before a stopped axis resumes correcting, so jitter
+// around the edge of the tolerance band doesn't restart motion.
+const gotoToleranceDeg = 5.0
+const gotoHysteresisDeg = 10.0
 
 // gotoPollInterval controls how often the controller checks position and
 // (re)issues motion commands.
@@ -88,9 +96,33 @@ func (g *GotoController) Cancel() {
 	_, _ = g.send(wire.Command{Type: "set_motion", Az: wire.StrPtr("stop"), El: wire.StrPtr("stop")})
 }
 
+// axisCmd decides the motion command for one axis given its signed error
+// (target - position, normalized 0..1). If the axis is currently stopped, it
+// must clear the wider hysteresis band before motion resumes; if already
+// moving, it stops as soon as it's within the tighter tolerance band.
+func axisCmd(err, tol, hyst float64, last string, posCmd, negCmd string) string {
+	threshold := tol
+	if last == "stop" {
+		threshold = hyst
+	}
+	switch {
+	case err > threshold:
+		return posCmd
+	case -err > threshold:
+		return negCmd
+	default:
+		return "stop"
+	}
+}
+
 func (g *GotoController) run(ctx context.Context, azTarget, elTarget float64) {
 	ticker := time.NewTicker(gotoPollInterval)
 	defer ticker.Stop()
+
+	azTol := gotoToleranceDeg / g.azRange
+	azHyst := gotoHysteresisDeg / g.azRange
+	elTol := gotoToleranceDeg / g.elRange
+	elHyst := gotoHysteresisDeg / g.elRange
 
 	lastAz, lastEl := "", ""
 	for {
@@ -105,19 +137,8 @@ func (g *GotoController) run(ctx context.Context, azTarget, elTarget float64) {
 			continue
 		}
 
-		azCmd := "stop"
-		if azTarget-t.AzRaw > gotoTolerance {
-			azCmd = "cw"
-		} else if t.AzRaw-azTarget > gotoTolerance {
-			azCmd = "ccw"
-		}
-
-		elCmd := "stop"
-		if elTarget-t.ElRaw > gotoTolerance {
-			elCmd = "up"
-		} else if t.ElRaw-elTarget > gotoTolerance {
-			elCmd = "down"
-		}
+		azCmd := axisCmd(azTarget-t.AzRaw, azTol, azHyst, lastAz, "cw", "ccw")
+		elCmd := axisCmd(elTarget-t.ElRaw, elTol, elHyst, lastEl, "up", "down")
 
 		if azCmd != lastAz || elCmd != lastEl {
 			if _, err := g.send(wire.Command{Type: "set_motion", Az: wire.StrPtr(azCmd), El: wire.StrPtr(elCmd)}); err != nil {
