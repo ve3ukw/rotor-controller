@@ -20,6 +20,7 @@
 #include "protocol.h"
 #include "debug.h"
 #include "driverlib/sysctl.h"   /* SysCtlReset() */
+#include "driverlib/watchdog.h"
 
 /* ── hardware pin assignments ─────────────────────────────────────────────── */
 
@@ -238,8 +239,17 @@ static void tcp_tx_send(uint16_t len)
     setSn_TX_WR(SOCKNUM_TCP, g_tx_wr_ptr);
     setSn_IR(SOCKNUM_TCP, Sn_IR_SENDOK);
     setSn_CR(SOCKNUM_TCP, Sn_CR_SEND);
-    for (uint32_t i = 0; i < 5000UL && getSn_CR(SOCKNUM_TCP); i++) {}
-    for (uint32_t i = 0; i < 50000UL && !(getSn_IR(SOCKNUM_TCP) & Sn_IR_SENDOK); i++) {}
+    /* These polling loops are bounded but, over a flaky link where SENDOK
+       never arrives, can take long enough (thousands of slow SPI register
+       reads) to blow past the 500ms watchdog deadline before the main loop
+       gets back to its kick. Kick periodically here so a slow link causes a
+       dropped/retried send, not a full MCU reset. */
+    for (uint32_t i = 0; i < 5000UL && getSn_CR(SOCKNUM_TCP); i++) {
+        if ((i % 500UL) == 0UL) { WatchdogIntClear(WATCHDOG0_BASE); }
+    }
+    for (uint32_t i = 0; i < 50000UL && !(getSn_IR(SOCKNUM_TCP) & Sn_IR_SENDOK); i++) {
+        if ((i % 500UL) == 0UL) { WatchdogIntClear(WATCHDOG0_BASE); }
+    }
     setSn_IR(SOCKNUM_TCP, Sn_IR_SENDOK);
 }
 

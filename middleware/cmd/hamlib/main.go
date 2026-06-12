@@ -396,10 +396,14 @@ func (t *Tracker) handleConn(conn net.Conn) {
 			}
 			az, err1 := strconv.ParseFloat(parts[1], 64)
 			el, err2 := strconv.ParseFloat(parts[2], 64)
-			if err1 != nil || err2 != nil || az < 0 || az > t.cfg.azRange || el < 0 || el > t.cfg.elRange {
+			if err1 != nil || err2 != nil {
 				fmt.Fprintf(conn, "RPRT -1\n")
 				continue
 			}
+			// SetTarget clamps az/el to the reachable range, so a
+			// below-horizon elevation (satellite not yet risen) parks the
+			// antenna at the horizon (el=0) instead of being rejected and
+			// leaving a stale target active.
 			t.SetTarget(az, el)
 			fmt.Fprintf(conn, "RPRT 0\n")
 
