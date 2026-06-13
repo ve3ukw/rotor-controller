@@ -43,6 +43,9 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+
+	"rotor-controller/brain/internal/calib"
+	brainconfig "rotor-controller/brain/internal/config"
 )
 
 // ── config ────────────────────────────────────────────────────────────────────
@@ -72,9 +75,17 @@ func loadConfig() config {
 type Tracker struct {
 	cfg config
 
+	// cal holds the AZ/EL pot gain calibration and AZ true-north offset,
+	// fetched from the brain at startup. azAxis/elAxis convert raw ADC
+	// fractions (0..1) to mechanical degrees.
+	cal    brainconfig.Calibration
+	azAxis calib.Axis
+	elAxis calib.Axis
+
 	mu sync.RWMutex
 
-	// Current state (from brain WebSocket telemetry)
+	// Current state (from brain WebSocket telemetry). azDeg/elDeg are
+	// mechanical degrees (gain-corrected, NOT az-offset-corrected).
 	azDeg  float64
 	elDeg  float64
 	state  string
@@ -95,12 +106,35 @@ type Tracker struct {
 // brain even if unchanged, so a dropped /api/v1/motion POST self-heals.
 const resendInterval = 5 * time.Second
 
-func newTracker(cfg config) *Tracker {
+func newTracker(cfg config, cal brainconfig.Calibration) *Tracker {
 	return &Tracker{
 		cfg:      cfg,
+		cal:      cal,
+		azAxis:   calib.Axis{RawMin: cal.AzRawMin, RawMax: cal.AzRawMax, Range: cfg.azRange},
+		elAxis:   calib.Axis{RawMin: cal.ElRawMin, RawMax: cal.ElRawMax, Range: cfg.elRange},
 		targetAz: math.NaN(),
 		targetEl: math.NaN(),
 	}
+}
+
+// fetchCalibration retrieves the AZ/EL pot gain calibration and AZ
+// true-north offset from the brain. If the brain is unreachable or returns
+// an error, falls back to uncalibrated 1:1 (raw == mechanical degrees,
+// AZ offset 0) so hamlib still starts and behaves as it did before
+// calibration support was added.
+func fetchCalibration(brainURL string) brainconfig.Calibration {
+	resp, err := http.Get(brainURL + "/api/v1/calibration")
+	if err != nil {
+		log.Printf("hamlib: fetch calibration: %v — using uncalibrated 1:1", err)
+		return brainconfig.DefaultCalibration()
+	}
+	defer resp.Body.Close()
+	var cal brainconfig.Calibration
+	if err := json.NewDecoder(resp.Body).Decode(&cal); err != nil {
+		log.Printf("hamlib: decode calibration: %v — using uncalibrated 1:1", err)
+		return brainconfig.DefaultCalibration()
+	}
+	return cal
 }
 
 // Run starts the telemetry subscriber and the control loop. Blocks forever.
@@ -113,11 +147,13 @@ func (t *Tracker) Run() {
 	}
 }
 
-// Position returns current az/el in degrees.
+// Position returns current az/el in degrees. az is a true compass bearing
+// (0..360, 0=N); el is the mechanical EL degree (0..elRange), matching the
+// rest of the system (`rotor status --deg`, goto).
 func (t *Tracker) Position() (az, el float64) {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
-	return t.azDeg, t.elDeg
+	return calib.TrueBearing(t.azDeg, t.cal.AzOffsetDeg), t.elDeg
 }
 
 // SetTarget commands the tracker to slew to az/el (degrees).
@@ -128,13 +164,18 @@ func (t *Tracker) Position() (az, el float64) {
 // compass/elevation. Given a target, pick whichever raw representation is
 // closer to the antenna's current raw position, so tracking never swings
 // the antenna up over zenith and back down just to reach an equivalent pose.
-func (t *Tracker) SetTarget(az, el float64) {
-	// Clamp to reachable range.
-	az = clamp(az, 0, t.cfg.azRange)
-	el = clamp(el, 0, t.cfg.elRange)
+func (t *Tracker) SetTarget(azBearing, elDeg float64) {
+	// Clamp EL to reachable range.
+	el := clamp(elDeg, 0, t.cfg.elRange)
 
 	t.mu.Lock()
 	curAz, curEl := t.azDeg, t.elDeg
+
+	// Convert the client's compass bearing to a mechanical AZ degree,
+	// picking whichever of the two mechanical representations (base or
+	// base+360, due to the 450°/360° overlap) is closer to the antenna's
+	// current mechanical position.
+	az := calib.MechDegForBearing(azBearing, t.cal.AzOffsetDeg, t.cfg.azRange, curAz)
 
 	// True (compass, elevation ≤ 90°) pose of the requested target.
 	trueAz, trueEl := az, el
@@ -173,7 +214,7 @@ func (t *Tracker) SetTarget(az, el float64) {
 	t.targetAz = az
 	t.targetEl = el
 	t.mu.Unlock()
-	log.Printf("hamlib: track → AZ %.1f°  EL %.1f°", az, el)
+	log.Printf("hamlib: track → AZ %.1f° mech (bearing %.1f°)  EL %.1f°", az, azBearing, el)
 }
 
 // Stop cancels tracking and commands all motion to stop.
@@ -308,8 +349,8 @@ func (t *Tracker) subscribeWS() {
 			}
 			if json.Unmarshal(msg, &telem) == nil && telem.State != "" {
 				t.mu.Lock()
-				t.azDeg = telem.AzRaw * t.cfg.azRange
-				t.elDeg = telem.ElRaw * t.cfg.elRange
+				t.azDeg = t.azAxis.MechDeg(telem.AzRaw)
+				t.elDeg = t.elAxis.MechDeg(telem.ElRaw)
 				t.state = telem.State
 				t.mu.Unlock()
 			}
@@ -442,16 +483,14 @@ func (t *Tracker) handleConn(conn net.Conn) {
 				linked, state)
 
 		case "1": // dump_caps (minimal)
-			t.mu.RLock()
-			az, el := t.azDeg, t.elDeg
-			t.mu.RUnlock()
+			az, el := t.Position()
 			fmt.Fprintf(conn,
 				"Rot Model: Yaesu G-5500\n"+
-					"Min Az: 0.000000\nMax Az: %.6f\n"+
+					"Min Az: 0.000000\nMax Az: 360.000000\n"+
 					"Min El: 0.000000\nMax El: %.6f\n"+
 					"Current Az: %.6f\nCurrent El: %.6f\n"+
 					"RPRT 0\n",
-				t.cfg.azRange, t.cfg.elRange, az, el)
+				t.cfg.elRange, az, el)
 
 		case "q", "Q": // quit
 			return
@@ -521,7 +560,11 @@ func main() {
 	log.Printf("rotor-hamlib %s starting — listen %s  brain %s  AZ %.0f°  EL %.0f°  tol %.1f°",
 		version, cfg.listen, cfg.brainURL, cfg.azRange, cfg.elRange, cfg.tolerance)
 
-	tracker := newTracker(cfg)
+	cal := fetchCalibration(cfg.brainURL)
+	log.Printf("hamlib: calibration: AZ raw %.4f..%.4f offset %.1f°  EL raw %.4f..%.4f",
+		cal.AzRawMin, cal.AzRawMax, cal.AzOffsetDeg, cal.ElRawMin, cal.ElRawMax)
+
+	tracker := newTracker(cfg, cal)
 	go tracker.Run()
 
 	ln, err := net.Listen("tcp", cfg.listen)

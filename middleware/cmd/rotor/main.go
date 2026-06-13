@@ -10,6 +10,7 @@
 //	move  <az> <el>      Set motion  az: cw|ccw|stop  el: up|down|stop
 //	pol   [vhf uhf lna rxtx]  Set RF switches (listed = on, omitted = off)
 //	limits --az-min F --az-max F --el-min F --el-max F
+//	calib                Show/set AZ/EL pot calibration (gain + AZ north offset)
 //	park                 Drive to park position
 //	estop                Emergency stop
 //	fault                Clear fault
@@ -35,6 +36,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"rotor-controller/brain/internal/calib"
 	"rotor-controller/brain/internal/config"
 )
 
@@ -133,6 +135,8 @@ func main() {
 		cmdPol(cfg, args[1:])
 	case "limits":
 		cmdLimits(cfg, args[1:])
+	case "calib":
+		cmdCalib(cfg, args[1:])
 	case "reboot":
 		cmdPostVerbose(cfg, "/api/v1/reboot", nil, "reboot")
 		fmt.Println("controller rebooting — brain will reconnect automatically")
@@ -189,12 +193,15 @@ func cmdStatus(c cfg, args []string) {
 		fmt.Printf("  (%s)", t.FaultDetail)
 	}
 	fmt.Println()
+	azAxis, elAxis, azOffset := fetchCalibAxes(c)
+	azBearing := calib.TrueBearing(azAxis.MechDeg(t.AzRaw), azOffset)
+	elDeg := elAxis.MechDeg(t.ElRaw)
 	if deg {
-		fmt.Printf("AZ         : %6.1f°\n", t.AzRaw*c.azRange)
-		fmt.Printf("EL         : %6.1f°\n", t.ElRaw*c.elRange)
+		fmt.Printf("AZ         : %6.1f°\n", azBearing)
+		fmt.Printf("EL         : %6.1f°\n", elDeg)
 	} else {
-		fmt.Printf("AZ         : %.4f  (%6.1f°)\n", t.AzRaw, t.AzRaw*c.azRange)
-		fmt.Printf("EL         : %.4f  (%6.1f°)\n", t.ElRaw, t.ElRaw*c.elRange)
+		fmt.Printf("AZ         : %.4f  (%6.1f°)\n", t.AzRaw, azBearing)
+		fmt.Printf("EL         : %.4f  (%6.1f°)\n", t.ElRaw, elDeg)
 	}
 	fmt.Printf("Motion     : az=%-4s  el=%s\n", t.AzMotion, t.ElMotion)
 	fmt.Printf("RF switches: VHF=%-3s  UHF=%-3s  LNA=%-3s  RXTX=%s\n",
@@ -234,14 +241,14 @@ func cmdGoto(c cfg, args []string) {
 	}
 
 	usage := fmt.Sprintf("goto <az-deg> <el-deg>\n"+
-		"  az : 0-%.0f°   (also: az=<deg> / azimuth=<deg>)\n"+
-		"  el : 0-%.0f°   (also: el=<deg> / elevation=<deg>)\n"+
+		"  az : 0-359.9°  compass bearing, 0=N  (also: az=<deg> / azimuth=<deg>)\n"+
+		"  el : 0-%.0f°    mechanical, matches 'rotor status --deg' (also: el=<deg> / elevation=<deg>)\n"+
 		"  Either axis may be omitted (by name) to leave it at its current position.\n"+
 		"  examples: rotor goto 180 45\n"+
 		"            rotor goto az=155\n"+
 		"            rotor goto elevation=90\n"+
 		"            rotor goto el=10 az=270\n"+
-		"  rotor goto cancel   — stop an in-progress goto", c.azRange, c.elRange)
+		"  rotor goto cancel   — stop an in-progress goto", c.elRange)
 
 	var azDeg, elDeg float64
 	var haveAz, haveEl bool
@@ -293,11 +300,12 @@ func cmdGoto(c cfg, args []string) {
 		if resp.Telemetry == nil {
 			fatalf("cannot read current position to fill in the omitted axis (no telemetry)")
 		}
+		azAxis, elAxis, azOffset := fetchCalibAxes(c)
 		if !haveAz {
-			azDeg = resp.Telemetry.AzRaw * c.azRange
+			azDeg = calib.TrueBearing(azAxis.MechDeg(resp.Telemetry.AzRaw), azOffset)
 		}
 		if !haveEl {
-			elDeg = resp.Telemetry.ElRaw * c.elRange
+			elDeg = elAxis.MechDeg(resp.Telemetry.ElRaw)
 		}
 	}
 
@@ -341,34 +349,190 @@ func cmdPol(c cfg, args []string) {
 
 // ── limits ────────────────────────────────────────────────────────────────────
 
+type limitsResp struct {
+	AzMin      float64 `json:"az_min"`
+	AzMax      float64 `json:"az_max"`
+	ElMin      float64 `json:"el_min"`
+	ElMax      float64 `json:"el_max"`
+	Configured bool    `json:"configured"`
+}
+
+// calibResp mirrors the brain's /api/v1/calibration response.
+type calibResp struct {
+	AzRawMin    float64 `json:"az_raw_min"`
+	AzRawMax    float64 `json:"az_raw_max"`
+	AzOffsetDeg float64 `json:"az_offset_deg"`
+	ElRawMin    float64 `json:"el_raw_min"`
+	ElRawMax    float64 `json:"el_raw_max"`
+}
+
+// fetchCalibAxes fetches the current calibration and returns the gain-corrected
+// AZ/EL axes plus the AZ true-north offset.
+func fetchCalibAxes(c cfg) (azAxis, elAxis calib.Axis, azOffsetDeg float64) {
+	var cal calibResp
+	getJSON(c, "/api/v1/calibration", &cal)
+	azAxis = calib.Axis{RawMin: cal.AzRawMin, RawMax: cal.AzRawMax, Range: c.azRange}
+	elAxis = calib.Axis{RawMin: cal.ElRawMin, RawMax: cal.ElRawMax, Range: c.elRange}
+	return azAxis, elAxis, cal.AzOffsetDeg
+}
+
 func cmdLimits(c cfg, args []string) {
-	lim := map[string]*float64{
+	flags := map[string]*float64{
 		"az-min": nil, "az-max": nil,
 		"el-min": nil, "el-max": nil,
 	}
 	for i := 0; i < len(args)-1; i++ {
 		key := strings.TrimPrefix(args[i], "--")
-		if _, ok := lim[key]; ok {
+		if _, ok := flags[key]; ok {
 			v, err := strconv.ParseFloat(args[i+1], 64)
 			if err != nil {
-				fatalf("invalid value for --%s: %q", key, args[i+1])
+				fatalf("invalid value for --%s: %q (degrees)", key, args[i+1])
 			}
-			lim[key] = &v
+			flags[key] = &v
 			i++
 		}
 	}
-	for k, v := range lim {
-		if v == nil {
-			fatalf("--%s is required", k)
+
+	var cur limitsResp
+	getJSON(c, "/api/v1/limits", &cur)
+	azAxis, elAxis, _ := fetchCalibAxes(c)
+
+	if flags["az-min"] == nil && flags["az-max"] == nil && flags["el-min"] == nil && flags["el-max"] == nil {
+		src := "configured"
+		if !cur.Configured {
+			src = "firmware defaults — not yet customized"
 		}
+		fmt.Printf("AZ limits  : %6.1f° .. %6.1f°  (mechanical, %s)\n", azAxis.MechDeg(cur.AzMin), azAxis.MechDeg(cur.AzMax), src)
+		fmt.Printf("EL limits  : %6.1f° .. %6.1f°  (mechanical, %s)\n", elAxis.MechDeg(cur.ElMin), elAxis.MechDeg(cur.ElMax), src)
+		return
 	}
+
+	azMin, azMax := azAxis.MechDeg(cur.AzMin), azAxis.MechDeg(cur.AzMax)
+	elMin, elMax := elAxis.MechDeg(cur.ElMin), elAxis.MechDeg(cur.ElMax)
+	if v := flags["az-min"]; v != nil {
+		azMin = *v
+	}
+	if v := flags["az-max"]; v != nil {
+		azMax = *v
+	}
+	if v := flags["el-min"]; v != nil {
+		elMin = *v
+	}
+	if v := flags["el-max"]; v != nil {
+		elMax = *v
+	}
+
 	body := map[string]float64{
-		"az_min": *lim["az-min"],
-		"az_max": *lim["az-max"],
-		"el_min": *lim["el-min"],
-		"el_max": *lim["el-max"],
+		"az_min": azAxis.Raw(azMin),
+		"az_max": azAxis.Raw(azMax),
+		"el_min": elAxis.Raw(elMin),
+		"el_max": elAxis.Raw(elMax),
 	}
 	cmdPost(c, "/api/v1/limits", body)
+	fmt.Printf("limits set: AZ %.1f° .. %.1f°   EL %.1f° .. %.1f°  (mechanical)\n", azMin, azMax, elMin, elMax)
+}
+
+// ── calib ─────────────────────────────────────────────────────────────────────
+
+func cmdCalib(c cfg, args []string) {
+	usage := `rotor calib                    Show current calibration
+  rotor calib az-min           Set AZ raw-min to the current AZ reading
+                                (do this with the rotor at its AZ mechanical minimum stop)
+  rotor calib az-max           Set AZ raw-max to the current AZ reading (at AZ max stop)
+  rotor calib az-north         Set the AZ offset so the current position reads as 0° (true N)
+  rotor calib el-min           Set EL raw-min to the current EL reading (at EL min stop)
+  rotor calib el-max           Set EL raw-max to the current EL reading (at EL max stop)
+  rotor calib reset            Clear all calibration (back to uncalibrated 1:1 raw==degrees)
+
+  rotor calib --az-raw-min F --az-raw-max F --az-offset-deg F --el-raw-min F --el-raw-max F
+                                Set raw values directly (any subset)`
+
+	var cur calibResp
+	getJSON(c, "/api/v1/calibration", &cur)
+
+	printCalib := func(cal calibResp) {
+		fmt.Printf("AZ raw     : %.4f .. %.4f  (mechanical 0-%.0f°)\n", cal.AzRawMin, cal.AzRawMax, c.azRange)
+		fmt.Printf("AZ offset  : %.1f°  (mechanical degree that reads as true N)\n", cal.AzOffsetDeg)
+		fmt.Printf("EL raw     : %.4f .. %.4f  (mechanical 0-%.0f°)\n", cal.ElRawMin, cal.ElRawMax, c.elRange)
+	}
+
+	if len(args) == 0 {
+		printCalib(cur)
+		return
+	}
+
+	switch args[0] {
+	case "reset":
+		def := config.DefaultCalibration()
+		body := calibResp{AzRawMin: def.AzRawMin, AzRawMax: def.AzRawMax, AzOffsetDeg: def.AzOffsetDeg, ElRawMin: def.ElRawMin, ElRawMax: def.ElRawMax}
+		cmdPost(c, "/api/v1/calibration", body)
+		fmt.Println("calibration reset to uncalibrated 1:1 raw==degrees")
+		return
+
+	case "az-min", "az-max", "az-north", "el-min", "el-max":
+		var resp statusResp
+		getJSON(c, "/api/v1/status", &resp)
+		if resp.Telemetry == nil {
+			fatalf("cannot read current position (no telemetry)")
+		}
+		body := cur
+		switch args[0] {
+		case "az-min":
+			body.AzRawMin = resp.Telemetry.AzRaw
+		case "az-max":
+			body.AzRawMax = resp.Telemetry.AzRaw
+		case "az-north":
+			azAxis := calib.Axis{RawMin: cur.AzRawMin, RawMax: cur.AzRawMax, Range: c.azRange}
+			body.AzOffsetDeg = azAxis.MechDeg(resp.Telemetry.AzRaw)
+		case "el-min":
+			body.ElRawMin = resp.Telemetry.ElRaw
+		case "el-max":
+			body.ElRawMax = resp.Telemetry.ElRaw
+		}
+		cmdPost(c, "/api/v1/calibration", body)
+		printCalib(body)
+		return
+	}
+
+	// Direct numeric flags.
+	flags := map[string]*float64{
+		"az-raw-min": nil, "az-raw-max": nil, "az-offset-deg": nil,
+		"el-raw-min": nil, "el-raw-max": nil,
+	}
+	for i := 0; i < len(args)-1; i++ {
+		key := strings.TrimPrefix(args[i], "--")
+		if _, ok := flags[key]; ok {
+			v, err := strconv.ParseFloat(args[i+1], 64)
+			if err != nil {
+				fatalf("invalid value for --%s: %q\n\n%s", key, args[i+1], usage)
+			}
+			flags[key] = &v
+			i++
+		}
+	}
+	if flags["az-raw-min"] == nil && flags["az-raw-max"] == nil && flags["az-offset-deg"] == nil &&
+		flags["el-raw-min"] == nil && flags["el-raw-max"] == nil {
+		fatalf("unknown calib command %q\n\n%s", args[0], usage)
+	}
+
+	body := cur
+	if v := flags["az-raw-min"]; v != nil {
+		body.AzRawMin = *v
+	}
+	if v := flags["az-raw-max"]; v != nil {
+		body.AzRawMax = *v
+	}
+	if v := flags["az-offset-deg"]; v != nil {
+		body.AzOffsetDeg = *v
+	}
+	if v := flags["el-raw-min"]; v != nil {
+		body.ElRawMin = *v
+	}
+	if v := flags["el-raw-max"]; v != nil {
+		body.ElRawMax = *v
+	}
+	cmdPost(c, "/api/v1/calibration", body)
+	printCalib(body)
 }
 
 // ── block ─────────────────────────────────────────────────────────────────────
@@ -633,6 +797,7 @@ func cmdMonitor(c cfg, args []string) {
 		}
 	}
 	period := time.Duration(float64(time.Second) / rateHz)
+	azAxis, elAxis, azOffset := fetchCalibAxes(c)
 
 	wsURL := httpToWS(c.brainURL) + "/api/v1/telemetry/ws"
 	fmt.Fprintf(os.Stderr, "connecting to %s …\n", wsURL)
@@ -703,19 +868,21 @@ func cmdMonitor(c cfg, args []string) {
 			switches := fmt.Sprintf("%s %s %s %s",
 				flag(last.PolVHF, "V"), flag(last.PolUHF, "U"),
 				flag(last.LnaUHF, "L"), flag(last.RxTxUHF, "R"))
+			azBearing := calib.TrueBearing(azAxis.MechDeg(az), azOffset)
+			elDeg := elAxis.MechDeg(el)
 			if deg {
 				fmt.Printf("%s  %-10s  %6.1f°  %6.1f°  %-6s  %-6s  %s  %2d %2d\n",
 					time.Now().Format("15:04:05.000"),
 					last.State,
-					az*c.azRange, el*c.elRange,
+					azBearing, elDeg,
 					last.AzMotion, last.ElMotion,
 					switches, azDuty, elDuty)
 			} else {
 				fmt.Printf("%s  %-10s  %.4f(%5.1f°)  %.4f(%5.1f°)  %-6s  %-6s  %s  %2d %2d\n",
 					time.Now().Format("15:04:05.000"),
 					last.State,
-					az, az*c.azRange,
-					el, el*c.elRange,
+					az, azBearing,
+					el, elDeg,
 					last.AzMotion, last.ElMotion,
 					switches, azDuty, elDuty)
 			}
@@ -865,8 +1032,17 @@ Motion control:
 Antenna configuration:
   pol  [vhf] [uhf] [lna] [rxtx] Set RF switches (listed=on, omitted=off)
   pol  off                       All switches off
-  limits --az-min F --az-max F --el-min F --el-max F
-                                 Set soft travel limits (normalized 0..1)
+  limits                         Show current soft travel limits (mechanical degrees)
+  limits --az-min D --az-max D --el-min D --el-max D
+                                 Set soft travel limits (mechanical degrees, any
+                                 subset; omitted axes keep their current value).
+                                 Persisted — re-applied after a reflash/reboot.
+  calib                          Show current AZ/EL pot calibration
+  calib az-min|az-max|el-min|el-max
+                                 Capture current reading as that axis's raw
+                                 end-stop (rotor must be at the mechanical stop)
+  calib az-north                 Set AZ offset so current heading reads 0° (true N)
+  calib reset                    Clear calibration (back to uncalibrated 1:1)
 
 Obstacle avoidance (AZ-segmented EL floors):
   block show                     List blocked sectors (non-zero floors only)

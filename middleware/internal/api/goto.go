@@ -6,20 +6,25 @@ import (
 	"sync"
 	"time"
 
+	"rotor-controller/brain/internal/calib"
+	"rotor-controller/brain/internal/config"
 	"rotor-controller/brain/internal/state"
 	"rotor-controller/brain/internal/wire"
 )
 
 // gotoToleranceDeg/gotoHysteresisDeg define a per-axis deadband (in true
 // degrees, converted to normalized units via azRange/elRange below). A
-// multi-element Yagi has a beamwidth far wider than this, so a few degrees
-// of slop costs nothing — but the field unit's AZ position reading jitters
-// by a few degrees on its own, which without a deadband causes the goto
-// loop to hunt back and forth (cw/ccw/cw/...) forever, burning duty cycle.
+// multi-element Yagi has a beamwidth far wider than this, so a couple of
+// degrees of slop costs nothing — but the field unit's AZ position reading
+// jitters on its own, which without a deadband causes the goto loop to hunt
+// back and forth (cw/ccw/cw/...) forever, burning duty cycle.
 // gotoToleranceDeg stops the axis once within range; gotoHysteresisDeg
 // (wider) is required before a stopped axis resumes correcting, so jitter
-// around the edge of the tolerance band doesn't restart motion.
-const gotoToleranceDeg = 5.0
+// around the edge of the tolerance band doesn't restart motion. Keep
+// gotoToleranceDeg comfortably below the UI's smallest "nudge" increment
+// (5°), or a same-size nudge request can land inside the deadband and
+// report done without moving the antenna at all.
+const gotoToleranceDeg = 2.0
 const gotoHysteresisDeg = 10.0
 
 // gotoPollInterval controls how often the controller checks position and
@@ -61,11 +66,27 @@ func (g *GotoController) Status() GotoStatus {
 	return GotoStatus{Active: g.active, AzDeg: g.azDeg, ElDeg: g.elDeg, Error: g.err}
 }
 
-// Start begins driving toward (azDeg, elDeg), cancelling any goto in progress.
+// Start begins driving toward (azDeg, elDeg), cancelling any goto in
+// progress. azDeg is a true compass bearing (0..360, 0=N); elDeg is the
+// mechanical EL degree (0..elRange), matching `rotor status --deg`.
 func (g *GotoController) Start(azDeg, elDeg float64) error {
-	if azDeg < 0 || azDeg > g.azRange || elDeg < 0 || elDeg > g.elRange {
-		return fmt.Errorf("az_deg 0-%.0f, el_deg 0-%.0f (got az=%.1f el=%.1f)", g.azRange, g.elRange, azDeg, elDeg)
+	if azDeg < 0 || azDeg >= 360 || elDeg < 0 || elDeg > g.elRange {
+		return fmt.Errorf("az_deg 0-359.9 (compass bearing), el_deg 0-%.0f (got az=%.1f el=%.1f)", g.elRange, azDeg, elDeg)
 	}
+
+	t, linked, _ := g.st.Snapshot()
+	if !linked || t == nil {
+		return fmt.Errorf("field unit not linked — cannot resolve target position")
+	}
+
+	c := g.st.Calibration()
+	azAxis := calib.Axis{RawMin: c.AzRawMin, RawMax: c.AzRawMax, Range: g.azRange}
+	elAxis := calib.Axis{RawMin: c.ElRawMin, RawMax: c.ElRawMax, Range: g.elRange}
+
+	curMechDeg := azAxis.MechDeg(t.AzRaw)
+	targetMechDeg := calib.MechDegForBearing(azDeg, c.AzOffsetDeg, g.azRange, curMechDeg)
+	azTarget := azAxis.Raw(targetMechDeg)
+	elTarget := elAxis.Raw(elDeg)
 
 	g.mu.Lock()
 	if g.cancel != nil {
@@ -79,7 +100,7 @@ func (g *GotoController) Start(azDeg, elDeg float64) error {
 	g.err = ""
 	g.mu.Unlock()
 
-	go g.run(ctx, azDeg/g.azRange, elDeg/g.elRange)
+	go g.run(ctx, azTarget, elTarget, c)
 	return nil
 }
 
@@ -115,14 +136,16 @@ func axisCmd(err, tol, hyst float64, last string, posCmd, negCmd string) string 
 	}
 }
 
-func (g *GotoController) run(ctx context.Context, azTarget, elTarget float64) {
+func (g *GotoController) run(ctx context.Context, azTarget, elTarget float64, c config.Calibration) {
 	ticker := time.NewTicker(gotoPollInterval)
 	defer ticker.Stop()
 
-	azTol := gotoToleranceDeg / g.azRange
-	azHyst := gotoHysteresisDeg / g.azRange
-	elTol := gotoToleranceDeg / g.elRange
-	elHyst := gotoHysteresisDeg / g.elRange
+	azSpan := c.AzRawMax - c.AzRawMin
+	elSpan := c.ElRawMax - c.ElRawMin
+	azTol := gotoToleranceDeg / g.azRange * azSpan
+	azHyst := gotoHysteresisDeg / g.azRange * azSpan
+	elTol := gotoToleranceDeg / g.elRange * elSpan
+	elHyst := gotoHysteresisDeg / g.elRange * elSpan
 
 	lastAz, lastEl := "", ""
 	for {
