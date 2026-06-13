@@ -6,10 +6,16 @@ import (
 	"sync"
 	"time"
 
+	"rotor-controller/brain/internal/config"
 	"rotor-controller/brain/internal/wire"
 )
 
 const BlockCount = 90 // 90 × 5° = 450° AZ range
+
+// Limits holds the soft travel limits, normalized 0..1.
+type Limits struct {
+	AzMin, AzMax, ElMin, ElMax float64
+}
 
 // Store is a concurrency-safe snapshot of the latest field unit status.
 type Store struct {
@@ -18,9 +24,13 @@ type Store struct {
 	updatedAt time.Time
 	linked    bool
 	blocks    [BlockCount]uint8 // AZ el_floor table, degrees, index = floor(az_deg/5)
+	limits    *Limits           // soft travel limits, nil = not yet customized
+	calib     config.Calibration
 }
 
-func NewStore() *Store { return &Store{} }
+func NewStore() *Store {
+	return &Store{calib: config.DefaultCalibration()}
+}
 
 func (s *Store) UpdateTelemetry(t *wire.Telemetry) {
 	s.mu.Lock()
@@ -73,4 +83,36 @@ func (s *Store) Blocks() [BlockCount]uint8 {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.blocks
+}
+
+// SetLimits stores the configured soft travel limits.
+func (s *Store) SetLimits(l Limits) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.limits = &l
+}
+
+// Limits returns the configured soft travel limits, or nil if never set.
+func (s *Store) Limits() *Limits {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	if s.limits == nil {
+		return nil
+	}
+	v := *s.limits
+	return &v
+}
+
+// SetCalibration replaces the pot gain/offset calibration.
+func (s *Store) SetCalibration(c config.Calibration) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.calib = c
+}
+
+// Calibration returns the current pot gain/offset calibration.
+func (s *Store) Calibration() config.Calibration {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.calib
 }

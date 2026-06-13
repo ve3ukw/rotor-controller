@@ -15,7 +15,37 @@ type File struct {
 	FieldUnitHost string  `json:"field_unit_host,omitempty"`
 	HTTPAddr      string  `json:"http_addr,omitempty"`
 	MQTTBroker    string  `json:"mqtt_broker,omitempty"`
-	Blocks        []uint8 `json:"blocks,omitempty"` // 90-entry AZ el_floor table
+	Blocks        []uint8      `json:"blocks,omitempty"`      // 90-entry AZ el_floor table
+	Limits        *Limits      `json:"limits,omitempty"`      // soft travel limits, normalized 0..1
+	Calibration   *Calibration `json:"calibration,omitempty"` // pot gain/offset calibration
+}
+
+// Limits holds the soft travel limits, normalized 0..1 (matches the
+// firmware's set_limits command fields).
+type Limits struct {
+	AzMin float64 `json:"az_min"`
+	AzMax float64 `json:"az_max"`
+	ElMin float64 `json:"el_min"`
+	ElMax float64 `json:"el_max"`
+}
+
+// Calibration holds the pot gain/offset calibration for both axes.
+// RawMin/RawMax are the raw telemetry fractions (0..1) measured at each
+// axis's mechanical end stops; AzOffsetDeg is the AZ mechanical degree
+// (0..450) that corresponds to true north (0° compass bearing).
+// Zero-value (all unset) is equivalent to uncalibrated 1:1 raw==degrees.
+type Calibration struct {
+	AzRawMin    float64 `json:"az_raw_min"`
+	AzRawMax    float64 `json:"az_raw_max"`
+	AzOffsetDeg float64 `json:"az_offset_deg"`
+	ElRawMin    float64 `json:"el_raw_min"`
+	ElRawMax    float64 `json:"el_raw_max"`
+}
+
+// DefaultCalibration is the uncalibrated identity mapping (raw fraction ==
+// mechanical degrees / range, AZ offset 0).
+func DefaultCalibration() Calibration {
+	return Calibration{AzRawMin: 0, AzRawMax: 1, AzOffsetDeg: 0, ElRawMin: 0, ElRawMax: 1}
 }
 
 type Config struct {
@@ -148,6 +178,32 @@ func LoadBlocks() [BlockCount]uint8 {
 		copy(out[:], f.Blocks)
 	}
 	return out
+}
+
+// SaveLimits updates the soft travel limits in the config file.
+func SaveLimits(l Limits) error {
+	return updateFile(func(f *File) { f.Limits = &l })
+}
+
+// LoadLimits returns the stored soft travel limits, or nil if never set.
+func LoadLimits() *Limits {
+	f, _ := loadFile(DefaultFilePath())
+	return f.Limits
+}
+
+// SaveCalibration updates the pot gain/offset calibration in the config file.
+func SaveCalibration(c Calibration) error {
+	return updateFile(func(f *File) { f.Calibration = &c })
+}
+
+// LoadCalibration returns the stored calibration, or the uncalibrated
+// identity mapping if never set.
+func LoadCalibration() Calibration {
+	f, _ := loadFile(DefaultFilePath())
+	if f.Calibration != nil {
+		return *f.Calibration
+	}
+	return DefaultCalibration()
 }
 
 func updateFile(fn func(*File)) error {

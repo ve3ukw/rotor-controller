@@ -86,6 +86,20 @@ func main() {
 	storedBlocks := config.LoadBlocks()
 	st.SetBlocks(storedBlocks)
 
+	// Load stored soft limits (if customized) so we can re-push them on
+	// connect — this survives a firmware reflash, which resets sm_init()
+	// defaults.
+	if storedLimits := config.LoadLimits(); storedLimits != nil {
+		st.SetLimits(state.Limits{
+			AzMin: storedLimits.AzMin, AzMax: storedLimits.AzMax,
+			ElMin: storedLimits.ElMin, ElMax: storedLimits.ElMax,
+		})
+	}
+
+	// Load stored pot gain/offset calibration (purely brain-side; nothing
+	// to push to the field unit).
+	st.SetCalibration(config.LoadCalibration())
+
 	var fuClient *fieldunit.Client
 	fuClient = fieldunit.NewClient(fuAddr,
 		func(linked bool) {
@@ -104,6 +118,22 @@ func main() {
 						log.Printf("blocks: pushed 90 sectors to field unit")
 					}
 				}()
+				// Push customized soft limits, if any, so a field unit that
+				// rebooted (and reset to sm_init() defaults) picks them up.
+				if l := st.Limits(); l != nil {
+					go func() {
+						cmd := wire.Command{
+							Type:  "set_limits",
+							AzMin: wire.F64Ptr(l.AzMin), AzMax: wire.F64Ptr(l.AzMax),
+							ElMin: wire.F64Ptr(l.ElMin), ElMax: wire.F64Ptr(l.ElMax),
+						}
+						if _, err := fuClient.Send(cmd); err != nil {
+							log.Printf("limits: push failed: %v", err)
+						} else {
+							log.Printf("limits: pushed custom soft limits to field unit")
+						}
+					}()
+				}
 			} else {
 				log.Printf("fieldunit: link DOWN")
 			}

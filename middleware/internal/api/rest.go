@@ -3,8 +3,10 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
+	"rotor-controller/brain/internal/config"
 	"rotor-controller/brain/internal/state"
 	"rotor-controller/brain/internal/wire"
 )
@@ -47,6 +49,17 @@ type limitsRequest struct {
 	ElMax float64 `json:"el_max"`
 }
 
+type limitsResponse struct {
+	AzMin      float64 `json:"az_min"`
+	AzMax      float64 `json:"az_max"`
+	ElMin      float64 `json:"el_min"`
+	ElMax      float64 `json:"el_max"`
+	Configured bool    `json:"configured"` // false = showing firmware defaults, never customized
+}
+
+// firmwareDefaultLimits mirrors sm_init() in controller/src/state_machine.c.
+var firmwareDefaultLimits = limitsResponse{AzMin: 0, AzMax: 1, ElMin: 5.0 / 180.0, ElMax: 175.0 / 180.0}
+
 func handleMotion(send func(wire.Command) (*wire.Ack, error)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req motionRequest
@@ -79,10 +92,34 @@ func handlePolarization(send func(wire.Command) (*wire.Ack, error)) http.Handler
 	}
 }
 
-func handleLimits(send func(wire.Command) (*wire.Ack, error)) http.HandlerFunc {
+// handleLimitsGet reports the configured soft travel limits, or the
+// firmware's built-in defaults if they've never been customized.
+func handleLimitsGet(st *state.Store) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if l := st.Limits(); l != nil {
+			writeJSON(w, http.StatusOK, limitsResponse{
+				AzMin: l.AzMin, AzMax: l.AzMax, ElMin: l.ElMin, ElMax: l.ElMax, Configured: true,
+			})
+			return
+		}
+		writeJSON(w, http.StatusOK, firmwareDefaultLimits)
+	}
+}
+
+// handleLimitsSet pushes new soft travel limits to the field unit and
+// persists them so they're re-applied on every future connect (e.g. after
+// a firmware reflash resets sm_init() defaults).
+func handleLimitsSet(st *state.Store, send func(wire.Command) (*wire.Ack, error)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req limitsRequest
 		if !decodeBody(w, r, &req) {
+			return
+		}
+		if req.AzMin < 0 || req.AzMax > 1 || req.AzMin >= req.AzMax ||
+			req.ElMin < 0 || req.ElMax > 1 || req.ElMin >= req.ElMax {
+			writeJSON(w, http.StatusBadRequest, map[string]string{
+				"error": "limits must satisfy 0 <= min < max <= 1 for each axis",
+			})
 			return
 		}
 		cmd := wire.Command{
@@ -92,7 +129,21 @@ func handleLimits(send func(wire.Command) (*wire.Ack, error)) http.HandlerFunc {
 			ElMin: wire.F64Ptr(req.ElMin),
 			ElMax: wire.F64Ptr(req.ElMax),
 		}
-		forwardCmd(w, cmd, send)
+		ack, err := send(cmd)
+		if err != nil {
+			writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": err.Error()})
+			return
+		}
+		if !ack.Ok {
+			writeJSON(w, http.StatusBadRequest, ack)
+			return
+		}
+		l := state.Limits{AzMin: req.AzMin, AzMax: req.AzMax, ElMin: req.ElMin, ElMax: req.ElMax}
+		st.SetLimits(l)
+		if err := config.SaveLimits(config.Limits(l)); err != nil {
+			log.Printf("limits: save to config failed: %v", err)
+		}
+		writeJSON(w, http.StatusOK, ack)
 	}
 }
 
@@ -146,6 +197,57 @@ func handleResetNetconfig(send func(wire.Command) (*wire.Ack, error)) http.Handl
 func handleRange(azRange, elRange float64) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, map[string]float64{"az_range": azRange, "el_range": elRange})
+	}
+}
+
+// ── calibration endpoints ────────────────────────────────────────────────────
+
+// calibRequest mirrors config.Calibration; any field omitted in a partial
+// update keeps its current value (handled by the caller, which fetches the
+// current calibration via GET first).
+type calibRequest struct {
+	AzRawMin    float64 `json:"az_raw_min"`
+	AzRawMax    float64 `json:"az_raw_max"`
+	AzOffsetDeg float64 `json:"az_offset_deg"`
+	ElRawMin    float64 `json:"el_raw_min"`
+	ElRawMax    float64 `json:"el_raw_max"`
+}
+
+func handleCalibrationGet(st *state.Store) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		c := st.Calibration()
+		writeJSON(w, http.StatusOK, calibRequest{
+			AzRawMin: c.AzRawMin, AzRawMax: c.AzRawMax, AzOffsetDeg: c.AzOffsetDeg,
+			ElRawMin: c.ElRawMin, ElRawMax: c.ElRawMax,
+		})
+	}
+}
+
+// handleCalibrationSet replaces the full calibration (the CLI fetches the
+// current values via GET and fills in any fields it isn't changing). It is
+// purely a brain-side display/command-translation construct — nothing is
+// sent to the field unit.
+func handleCalibrationSet(st *state.Store) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req calibRequest
+		if !decodeBody(w, r, &req) {
+			return
+		}
+		if req.AzRawMax == req.AzRawMin || req.ElRawMax == req.ElRawMin {
+			writeJSON(w, http.StatusBadRequest, map[string]string{
+				"error": "raw-min and raw-max must differ for each axis",
+			})
+			return
+		}
+		c := config.Calibration{
+			AzRawMin: req.AzRawMin, AzRawMax: req.AzRawMax, AzOffsetDeg: req.AzOffsetDeg,
+			ElRawMin: req.ElRawMin, ElRawMax: req.ElRawMax,
+		}
+		st.SetCalibration(c)
+		if err := config.SaveCalibration(c); err != nil {
+			log.Printf("calibration: save to config failed: %v", err)
+		}
+		writeJSON(w, http.StatusOK, req)
 	}
 }
 

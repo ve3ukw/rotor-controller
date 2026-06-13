@@ -88,6 +88,7 @@
     color: #eee;
     cursor: pointer;
     font-size: 0.95rem;
+    touch-action: manipulation;
   }
   .extra button.danger { color: var(--red); border-color: var(--red); }
 
@@ -124,9 +125,26 @@
     color: var(--green);
     font-size: 1rem;
     cursor: pointer;
+    touch-action: manipulation;
   }
   .goto-buttons button.cancel { color: var(--red); background: #2a1a1a; }
+  .goto-buttons button:disabled, .nudge-row button:disabled { opacity: 0.5; cursor: default; }
   .goto-status { font-size: 0.85rem; color: #999; min-height: 1.2em; }
+
+  /* ── nudge buttons ───────────────────────────────────────────── */
+  .nudge-row { display: flex; gap: 8px; align-items: center; }
+  .nudge-row .nudge-label { font-size: 0.8rem; color: #999; width: 24px; }
+  .nudge-row button {
+    flex: 1;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #444;
+    background: var(--panel);
+    color: #eee;
+    font-size: 0.9rem;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
 
   .conn { font-size: 0.8rem; color: #666; }
   .conn.ok { color: var(--green); }
@@ -173,6 +191,20 @@
         <input type="number" id="elDeg" min="0" step="1" placeholder="current">
       </label>
     </div>
+    <div class="nudge-row">
+      <span class="nudge-label">AZ</span>
+      <button data-nudge-axis="az" data-nudge-delta="10">+10</button>
+      <button data-nudge-axis="az" data-nudge-delta="5">+5</button>
+      <button data-nudge-axis="az" data-nudge-delta="-5">-5</button>
+      <button data-nudge-axis="az" data-nudge-delta="-10">-10</button>
+    </div>
+    <div class="nudge-row">
+      <span class="nudge-label">EL</span>
+      <button data-nudge-axis="el" data-nudge-delta="10">+10</button>
+      <button data-nudge-axis="el" data-nudge-delta="5">+5</button>
+      <button data-nudge-axis="el" data-nudge-delta="-5">-5</button>
+      <button data-nudge-axis="el" data-nudge-delta="-10">-10</button>
+    </div>
     <div class="goto-buttons">
       <button id="gotoGo">GO</button>
       <button id="gotoCancel" class="cancel">CANCEL</button>
@@ -185,12 +217,30 @@
 <script>
 const $ = (id) => document.getElementById(id);
 let azRange = 450, elRange = 180;
+let azCal = { rawMin: 0, rawMax: 1, offset: 0 };
+let elCal = { rawMin: 0, rawMax: 1 };
 let lastTelemetry = null;
 let linked = false;
 
-function fmtDeg(v, range) {
-  v = Math.max(0, Math.min(1, v));
-  return Math.round(v * range) + '°';
+// mechDeg converts a raw ADC fraction (0..1) to mechanical degrees, applying
+// the pot's gain calibration (raw_min/raw_max may not exactly span the
+// rotor's full mechanical travel).
+function mechDeg(raw, cal, range) {
+  const span = cal.rawMax - cal.rawMin;
+  if (span === 0) return raw * range;
+  return (raw - cal.rawMin) / span * range;
+}
+
+// trueBearing converts an AZ mechanical degree to a true compass bearing
+// (0..360, 0=N), applying the AZ orientation offset.
+function trueBearing(deg, offset) {
+  let b = (deg - offset) % 360;
+  if (b < 0) b += 360;
+  return b;
+}
+
+function fmtDeg(v) {
+  return Math.round(v) + '°';
 }
 
 function azMotionLabel(m) {
@@ -233,7 +283,8 @@ function render() {
     $('row0').textContent = 'AZ: NO SENSOR       ';
   } else {
     const motion = estop ? '[E-STOP!]' : azMotionLabel(t.az_motion);
-    $('row0').textContent = pad('AZ:' + fmtDeg(t.az_raw, azRange) + '  ' + motion + ' ', 20);
+    const azBearing = trueBearing(mechDeg(t.az_raw, azCal, azRange), azCal.offset);
+    $('row0').textContent = pad('AZ:' + fmtDeg(azBearing) + '  ' + motion + ' ', 20);
   }
 
   // Row 1: EL
@@ -241,7 +292,7 @@ function render() {
     $('row1').textContent = 'EL: NO SENSOR       ';
   } else {
     const motion = estop ? '[E-STOP!]' : elMotionLabel(t.el_motion);
-    $('row1').textContent = pad('EL:' + fmtDeg(t.el_raw, elRange) + '  ' + motion + ' ', 20);
+    $('row1').textContent = pad('EL:' + fmtDeg(mechDeg(t.el_raw, elCal, elRange)) + '  ' + motion + ' ', 20);
   }
 
   // Row 2: state + link
@@ -338,18 +389,28 @@ $('clearFault').addEventListener('click', () => fetch('/api/v1/clear_fault', { m
 $('estop').addEventListener('click', () => fetch('/api/v1/emergency_stop', { method: 'POST' }));
 
 // ── goto panel ─────────────────────────────────────────────────────────
-$('gotoGo').addEventListener('click', async () => {
-  const azStr = $('azDeg').value.trim();
-  const elStr = $('elDeg').value.trim();
-  if (azStr === '' && elStr === '') { $('gotoStatus').textContent = 'Enter AZ and/or EL in degrees'; return; }
-  if ((azStr === '' || elStr === '') && !lastTelemetry) {
-    $('gotoStatus').textContent = 'No telemetry yet — cannot fill in the omitted axis';
-    return;
+
+// withButton disables btn for the duration of fn() and shows immediate
+// feedback, so a tap that's slow to round-trip doesn't look like a no-op
+// and invite repeated tapping.
+async function withButton(btn, fn) {
+  btn.disabled = true;
+  try {
+    await fn();
+  } finally {
+    btn.disabled = false;
   }
-  // An omitted axis holds at its current position.
-  const az = azStr === '' ? lastTelemetry.az_raw * azRange : parseFloat(azStr);
-  const el = elStr === '' ? lastTelemetry.el_raw * elRange : parseFloat(elStr);
-  if (isNaN(az) || isNaN(el)) { $('gotoStatus').textContent = 'Enter AZ and/or EL in degrees'; return; }
+}
+
+function currentAzBearing() {
+  return trueBearing(mechDeg(lastTelemetry.az_raw, azCal, azRange), azCal.offset);
+}
+function currentElDeg() {
+  return mechDeg(lastTelemetry.el_raw, elCal, elRange);
+}
+
+async function sendGoto(az, el) {
+  $('gotoStatus').textContent = 'Sending…';
   const r = await fetch('/api/v1/goto', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -358,20 +419,59 @@ $('gotoGo').addEventListener('click', async () => {
   const j = await r.json();
   if (!r.ok) { $('gotoStatus').textContent = 'Error: ' + (j.error || 'request failed'); return; }
   pollGoto();
-});
-$('gotoCancel').addEventListener('click', async () => {
+}
+
+$('gotoGo').addEventListener('click', () => withButton($('gotoGo'), async () => {
+  const azStr = $('azDeg').value.trim();
+  const elStr = $('elDeg').value.trim();
+  if (azStr === '' && elStr === '') { $('gotoStatus').textContent = 'Enter AZ and/or EL in degrees'; return; }
+  if ((azStr === '' || elStr === '') && !lastTelemetry) {
+    $('gotoStatus').textContent = 'No telemetry yet — cannot fill in the omitted axis';
+    return;
+  }
+  // An omitted axis holds at its current position.
+  const az = azStr === '' ? currentAzBearing() : parseFloat(azStr);
+  const el = elStr === '' ? currentElDeg() : parseFloat(elStr);
+  if (isNaN(az) || isNaN(el)) { $('gotoStatus').textContent = 'Enter AZ and/or EL in degrees'; return; }
+  await sendGoto(az, el);
+}));
+
+$('gotoCancel').addEventListener('click', () => withButton($('gotoCancel'), async () => {
+  $('gotoStatus').textContent = 'Cancelling…';
   await fetch('/api/v1/goto/cancel', { method: 'POST' });
   pollGoto();
+}));
+
+// ── nudge buttons ────────────────────────────────────────────────────
+document.querySelectorAll('.nudge-row button').forEach(btn => {
+  btn.addEventListener('click', () => withButton(btn, async () => {
+    if (!lastTelemetry) { $('gotoStatus').textContent = 'No telemetry yet'; return; }
+    const axis = btn.dataset.nudgeAxis;
+    const delta = parseFloat(btn.dataset.nudgeDelta);
+    let az = currentAzBearing();
+    let el = currentElDeg();
+    if (axis === 'az') {
+      az = ((az + delta) % 360 + 360) % 360;
+    } else {
+      el = Math.max(0, Math.min(elRange, el + delta));
+    }
+    await sendGoto(az, el);
+  }));
 });
 
 // ── init ───────────────────────────────────────────────────────────────
 fetch('/api/v1/range').then(r => r.json()).then(j => {
   azRange = j.az_range;
   elRange = j.el_range;
-  $('azDeg').max = azRange;
+  $('azDeg').max = 360;
   $('elDeg').max = elRange;
-  $('azDeg').placeholder = `current (0-${azRange})`;
+  $('azDeg').placeholder = `current (0-360)`;
   $('elDeg').placeholder = `current (0-${elRange})`;
+});
+
+fetch('/api/v1/calibration').then(r => r.json()).then(j => {
+  azCal = { rawMin: j.az_raw_min, rawMax: j.az_raw_max, offset: j.az_offset_deg };
+  elCal = { rawMin: j.el_raw_min, rawMax: j.el_raw_max };
 });
 
 pollStatus();
