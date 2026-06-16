@@ -49,6 +49,8 @@ void sm_init(sm_ctx_t *ctx)
        elevation is rarely a usable link, so keep both ends of the raw range
        off-limits: el_min=5°/180°, el_max=175°/180°. */
     ctx->el_min = 5.0f / 180.0f;  ctx->el_max = 175.0f / 180.0f;
+    ctx->park_az = PARK_AZ_NORM;
+    ctx->park_el = PARK_EL_NORM;
 }
 
 void sm_push_command(sm_ctx_t *ctx, const sm_command_t *cmd)
@@ -150,6 +152,13 @@ sm_output_t sm_tick(sm_ctx_t *ctx, const sm_input_t *in)
             ctx->el_max = cmd->limits.el_max;
             break;
 
+        case CMD_TYPE_SET_PARK:
+            if (!ctx->brain_ever_connected) { break; }
+            ctx->link_ticks = 0;
+            ctx->park_az = cmd->park.az_norm;
+            ctx->park_el = cmd->park.el_norm;
+            break;
+
         case CMD_TYPE_CLEAR_FAULT:
             if (!ctx->brain_ever_connected) { break; }
             ctx->link_ticks     = 0;
@@ -186,8 +195,8 @@ sm_output_t sm_tick(sm_ctx_t *ctx, const sm_input_t *in)
 
     /* ── 2.5. Parking position controller ──────────────────────────────── */
     if (ctx->state == SM_STATE_PARKING && !is_faulted(ctx)) {
-        float az_err = PARK_AZ_NORM - in->az_pos;
-        float el_err = PARK_EL_NORM - in->el_pos;
+        float az_err = ctx->park_az - in->az_pos;
+        float el_err = ctx->park_el - in->el_pos;
         float az_abs = (az_err < 0.0f) ? -az_err : az_err;
         float el_abs = (el_err < 0.0f) ? -el_err : el_err;
 

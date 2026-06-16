@@ -24,8 +24,9 @@ type Store struct {
 	updatedAt time.Time
 	linked    bool
 	blocks    [BlockCount]uint8 // AZ el_floor table, degrees, index = floor(az_deg/5)
-	limits    *Limits           // soft travel limits, nil = not yet customized
+	limits    *Limits              // soft travel limits, nil = not yet customized
 	calib     config.Calibration
+	park      *config.ParkPosition // nil = using firmware compile-time defaults
 }
 
 func NewStore() *Store {
@@ -101,6 +102,29 @@ func (s *Store) Limits() *Limits {
 	}
 	v := *s.limits
 	return &v
+}
+
+// SetPark stores the configured park target. Pass nil to clear (revert to firmware defaults).
+func (s *Store) SetPark(p *config.ParkPosition) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if p == nil {
+		s.park = nil
+		return
+	}
+	cp := *p
+	s.park = &cp
+}
+
+// Park returns the configured park target, or nil if never customized.
+func (s *Store) Park() *config.ParkPosition {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	if s.park == nil {
+		return nil
+	}
+	cp := *s.park
+	return &cp
 }
 
 // SetCalibration replaces the pot gain/offset calibration.

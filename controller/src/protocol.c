@@ -122,6 +122,12 @@ bool protocol_parse(const char *json, uint32_t *seq, sm_command_t *cmd)
         cmd->type = CMD_TYPE_PARK;
         return true;
     }
+    if (strcmp(type, "set_park") == 0) {
+        cmd->type = CMD_TYPE_SET_PARK;
+        if (!get_float(json, "az_raw", &cmd->park.az_norm)) { return false; }
+        if (!get_float(json, "el_raw", &cmd->park.el_norm)) { return false; }
+        return true;
+    }
     if (strcmp(type, "set_motion") == 0) {
         cmd->type = CMD_TYPE_SET_MOTION;
         char az[8] = {0}, el[8] = {0};

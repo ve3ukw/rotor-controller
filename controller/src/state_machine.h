@@ -57,6 +57,9 @@ typedef struct {
     float az_min, az_max;
     float el_min, el_max;
 
+    /* Park position — defaults from config.h, overwritten by set_park command */
+    float park_az, park_el;
+
     /* Link-loss watchdog */
     uint32_t link_ticks;
     bool     brain_ever_connected;

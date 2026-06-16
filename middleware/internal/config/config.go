@@ -15,9 +15,10 @@ type File struct {
 	FieldUnitHost string  `json:"field_unit_host,omitempty"`
 	HTTPAddr      string  `json:"http_addr,omitempty"`
 	MQTTBroker    string  `json:"mqtt_broker,omitempty"`
-	Blocks        []uint8      `json:"blocks,omitempty"`      // 90-entry AZ el_floor table
-	Limits        *Limits      `json:"limits,omitempty"`      // soft travel limits, normalized 0..1
-	Calibration   *Calibration `json:"calibration,omitempty"` // pot gain/offset calibration
+	Blocks        []uint8       `json:"blocks,omitempty"`       // 90-entry AZ el_floor table
+	Limits        *Limits       `json:"limits,omitempty"`       // soft travel limits, normalized 0..1
+	Calibration   *Calibration  `json:"calibration,omitempty"`  // pot gain/offset calibration
+	Park          *ParkPosition `json:"park,omitempty"`         // park target, normalized 0..1
 }
 
 // Limits holds the soft travel limits, normalized 0..1 (matches the
@@ -40,6 +41,32 @@ type Calibration struct {
 	AzOffsetDeg float64 `json:"az_offset_deg"`
 	ElRawMin    float64 `json:"el_raw_min"`
 	ElRawMax    float64 `json:"el_raw_max"`
+}
+
+// ParkPosition holds the park target as raw normalized fractions (0..1),
+// matching the firmware's set_park command. Brain converts to/from
+// calibrated degrees at the REST/CLI layer.
+type ParkPosition struct {
+	AzRaw float64 `json:"az_raw"`
+	ElRaw float64 `json:"el_raw"`
+}
+
+// DefaultParkPosition mirrors the compile-time defaults in controller/src/config.h
+// (PARK_AZ_NORM=0.400, PARK_EL_NORM=0.250).
+func DefaultParkPosition() ParkPosition {
+	return ParkPosition{AzRaw: 0.400, ElRaw: 0.250}
+}
+
+// SavePark updates the park target in the config file.
+func SavePark(p ParkPosition) error {
+	return updateFile(func(f *File) { f.Park = &p })
+}
+
+// LoadPark returns the stored park target, or nil if never customized
+// (firmware defaults apply).
+func LoadPark() *ParkPosition {
+	f, _ := loadFile(DefaultFilePath())
+	return f.Park
 }
 
 // DefaultCalibration is the uncalibrated identity mapping (raw fraction ==

@@ -141,7 +141,11 @@ func main() {
 		cmdPostVerbose(cfg, "/api/v1/reboot", nil, "reboot")
 		fmt.Println("controller rebooting — brain will reconnect automatically")
 	case "park":
-		cmdPostVerbose(cfg, "/api/v1/park", nil, "park")
+		if len(args) > 1 && args[1] == "config" {
+			cmdParkConfig(cfg, args[2:])
+		} else {
+			cmdPostVerbose(cfg, "/api/v1/park", nil, "park")
+		}
 	case "estop":
 		cmdPostVerbose(cfg, "/api/v1/emergency_stop", nil, "emergency_stop")
 	case "fault":
@@ -533,6 +537,52 @@ func cmdCalib(c cfg, args []string) {
 	}
 	cmdPost(c, "/api/v1/calibration", body)
 	printCalib(body)
+}
+
+// ── park config ───────────────────────────────────────────────────────────────
+
+type parkConfigResp struct {
+	AzDeg      float64 `json:"az_deg"`
+	ElDeg      float64 `json:"el_deg"`
+	Configured bool    `json:"configured"`
+}
+
+func cmdParkConfig(c cfg, args []string) {
+	var azDeg, elDeg *float64
+	for i := 0; i < len(args)-1; i++ {
+		v, err := strconv.ParseFloat(args[i+1], 64)
+		if err != nil {
+			continue
+		}
+		switch args[i] {
+		case "--az":
+			azDeg = &v
+			i++
+		case "--el":
+			elDeg = &v
+			i++
+		}
+	}
+
+	if azDeg == nil && elDeg == nil {
+		var resp parkConfigResp
+		getJSON(c, "/api/v1/park/config", &resp)
+		src := "configured"
+		if !resp.Configured {
+			src = "firmware defaults — not yet customized"
+		}
+		fmt.Printf("Park AZ    : %6.1f°  (compass bearing, %s)\n", resp.AzDeg, src)
+		fmt.Printf("Park EL    : %6.1f°  (mechanical, %s)\n", resp.ElDeg, src)
+		return
+	}
+
+	if azDeg == nil || elDeg == nil {
+		fatalf("required: --az <compass-bearing> --el <mechanical-degrees>\n" +
+			"  example: rotor park config --az 10 --el 5")
+	}
+
+	cmdPost(c, "/api/v1/park/config", map[string]float64{"az_deg": *azDeg, "el_deg": *elDeg})
+	fmt.Printf("park position set: AZ %.1f° (compass)  EL %.1f° (mechanical) — persisted across reflash\n", *azDeg, *elDeg)
 }
 
 // ── block ─────────────────────────────────────────────────────────────────────
@@ -1024,7 +1074,9 @@ Motion control:
   goto <az-deg> <el-deg>         Drive to an absolute AZ/EL position (degrees)
   goto az=<deg> [el=<deg>]       Drive one or both axes (other axis unchanged)
   goto cancel                    Stop an in-progress goto
-  park                           Drive to park position (predefined AZ/EL)
+  park                           Drive to park position (configured AZ/EL)
+  park config                    Show configured park position (compass AZ, mech EL)
+  park config --az D --el D      Set park position; persisted across reflash/reboot
   estop                          Emergency stop
   fault                          Clear fault / acknowledge hardware ESTOP
   reboot                         Software-reset the field unit controller

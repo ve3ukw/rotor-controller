@@ -48,6 +48,8 @@ func NewServer(addr string, st *state.Store, send func(wire.Command) (*wire.Ack,
 	mux.Handle("GET /api/v1/calibration", methodOnly("GET", handleCalibrationGet(st)))
 	mux.Handle("POST /api/v1/calibration", methodOnly("POST", handleCalibrationSet(st)))
 	mux.Handle("POST /api/v1/park", methodOnly("POST", handleSimple("park", send)))
+	mux.Handle("GET /api/v1/park/config", methodOnly("GET", handleParkConfigGet(st, azRange, elRange)))
+	mux.Handle("POST /api/v1/park/config", methodOnly("POST", handleParkConfigSet(st, send, azRange, elRange)))
 	mux.Handle("POST /api/v1/netconfig", methodOnly("POST", handleNetconfig(send)))
 	mux.Handle("POST /api/v1/netconfig/reset", methodOnly("POST", handleResetNetconfig(send)))
 	mux.Handle("POST /api/v1/reboot", methodOnly("POST", handleSimple("reboot", send)))
