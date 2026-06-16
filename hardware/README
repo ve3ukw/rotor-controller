@@ -1,0 +1,8 @@
+The controller is built on the TI TM4C123 Launch Pad Evaluation Board combined with the GPIO Breakout Booster Pack
+- https://www.ti.com/tool/EK-TM4C123GXL
+- BOOSTXL-IOBKOUT
+Ethernet interface is a Wiznet W5500 - make sure you get a proper one. I had lots of issues with a clone.
+
+all of this can be sources easily from DigiKey or Mouser
+
+Alternatively, use the TI TM4C1294XL board - this one includes the ethernet interface. Some code adaptations will be required.
