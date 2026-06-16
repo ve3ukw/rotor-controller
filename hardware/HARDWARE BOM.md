@@ -19,8 +19,7 @@ and indicative quantities rather than line-item costs.
 | 1   | TI BOOSTXL-IOBKOUT              | GPIO Breakout BoosterPack — screw terminals, ESD protection, op-amp buffers| TI store, Mouser, Digi-Key                 |
 | 1   | WIZnet WIZ550io                 | Ethernet module — W5500 + transformer + RJ45 + factory MAC + auto-init     | WIZnet shop, Mouser, Digi-Key — see notes |
 | 1   | 5 V / 1 A DC supply             | External wall wart, 5.5 × 2.1 mm barrel plug typical                       | Any quality brand; feeds VBUS via barrel jack adapter |
-| 1   | 4x20 LCD Module with I2C        | (optional) **4×20 (4 lines × 20 columns) character LCD** with              |                                             |
-|     |                                 | an I²C backpack                                                            |                                             |
+| 1   | 4x20 LCD Module with I2C        | (optional) **4×20 (4 lines × 20 columns) character LCD** with an I²C backpack |                                              |
 
 ### Power-feed notes
 
