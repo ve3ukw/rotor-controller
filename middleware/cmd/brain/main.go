@@ -100,6 +100,11 @@ func main() {
 	// to push to the field unit).
 	st.SetCalibration(config.LoadCalibration())
 
+	// Load stored park position so we can re-push it on connect.
+	if storedPark := config.LoadPark(); storedPark != nil {
+		st.SetPark(storedPark)
+	}
+
 	var fuClient *fieldunit.Client
 	fuClient = fieldunit.NewClient(fuAddr,
 		func(linked bool) {
@@ -131,6 +136,21 @@ func main() {
 							log.Printf("limits: push failed: %v", err)
 						} else {
 							log.Printf("limits: pushed custom soft limits to field unit")
+						}
+					}()
+				}
+				// Push customized park position, if any.
+				if p := st.Park(); p != nil {
+					go func() {
+						cmd := wire.Command{
+							Type:      "set_park",
+							ParkAzRaw: wire.F64Ptr(p.AzRaw),
+							ParkElRaw: wire.F64Ptr(p.ElRaw),
+						}
+						if _, err := fuClient.Send(cmd); err != nil {
+							log.Printf("park: push failed: %v", err)
+						} else {
+							log.Printf("park: pushed custom park position to field unit")
 						}
 					}()
 				}

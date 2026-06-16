@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 
+	"rotor-controller/brain/internal/calib"
 	"rotor-controller/brain/internal/config"
 	"rotor-controller/brain/internal/state"
 	"rotor-controller/brain/internal/wire"
@@ -197,6 +198,82 @@ func handleResetNetconfig(send func(wire.Command) (*wire.Ack, error)) http.Handl
 func handleRange(azRange, elRange float64) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, map[string]float64{"az_range": azRange, "el_range": elRange})
+	}
+}
+
+// ── park config endpoints ────────────────────────────────────────────────────
+
+// firmwareDefaultPark mirrors PARK_AZ_NORM / PARK_EL_NORM in controller/src/config.h.
+var firmwareDefaultPark = config.DefaultParkPosition()
+
+type parkConfigRequest struct {
+	AzDeg float64 `json:"az_deg"` // true compass bearing (0-360)
+	ElDeg float64 `json:"el_deg"` // mechanical EL degrees (0-elRange)
+}
+
+type parkConfigResponse struct {
+	AzDeg      float64 `json:"az_deg"`
+	ElDeg      float64 `json:"el_deg"`
+	Configured bool    `json:"configured"` // false = showing firmware defaults
+}
+
+func handleParkConfigGet(st *state.Store, azRange, elRange float64) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		c := st.Calibration()
+		azAxis := calib.Axis{RawMin: c.AzRawMin, RawMax: c.AzRawMax, Range: azRange}
+		elAxis := calib.Axis{RawMin: c.ElRawMin, RawMax: c.ElRawMax, Range: elRange}
+		p := st.Park()
+		configured := p != nil
+		if p == nil {
+			def := firmwareDefaultPark
+			p = &def
+		}
+		writeJSON(w, http.StatusOK, parkConfigResponse{
+			AzDeg:      calib.TrueBearing(azAxis.MechDeg(p.AzRaw), c.AzOffsetDeg),
+			ElDeg:      elAxis.MechDeg(p.ElRaw),
+			Configured: configured,
+		})
+	}
+}
+
+func handleParkConfigSet(st *state.Store, send func(wire.Command) (*wire.Ack, error), azRange, elRange float64) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req parkConfigRequest
+		if !decodeBody(w, r, &req) {
+			return
+		}
+		if req.AzDeg < 0 || req.AzDeg >= 360 || req.ElDeg < 0 || req.ElDeg > elRange {
+			writeJSON(w, http.StatusBadRequest, map[string]string{
+				"error": fmt.Sprintf("az_deg 0-359.9 (compass bearing), el_deg 0-%.0f (got az=%.1f el=%.1f)", elRange, req.AzDeg, req.ElDeg),
+			})
+			return
+		}
+		c := st.Calibration()
+		azAxis := calib.Axis{RawMin: c.AzRawMin, RawMax: c.AzRawMax, Range: azRange}
+		elAxis := calib.Axis{RawMin: c.ElRawMin, RawMax: c.ElRawMax, Range: elRange}
+
+		// Use current mechanical AZ to pick the right 360/450 overlap candidate.
+		t, _, _ := st.Snapshot()
+		curMechDeg := 0.0
+		if t != nil {
+			curMechDeg = azAxis.MechDeg(t.AzRaw)
+		}
+		azRaw := azAxis.Raw(calib.MechDegForBearing(req.AzDeg, c.AzOffsetDeg, azRange, curMechDeg))
+		elRaw := elAxis.Raw(req.ElDeg)
+
+		p := config.ParkPosition{AzRaw: azRaw, ElRaw: elRaw}
+		st.SetPark(&p)
+		if err := config.SavePark(p); err != nil {
+			log.Printf("park: save to config failed: %v", err)
+		}
+		if _, err := send(wire.Command{
+			Type:      "set_park",
+			ParkAzRaw: wire.F64Ptr(azRaw),
+			ParkElRaw: wire.F64Ptr(elRaw),
+		}); err != nil {
+			log.Printf("park: push to field unit failed: %v", err)
+		}
+		writeJSON(w, http.StatusOK, parkConfigResponse{AzDeg: req.AzDeg, ElDeg: req.ElDeg, Configured: true})
 	}
 }
 

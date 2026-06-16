@@ -18,6 +18,7 @@ typedef enum {
     CMD_TYPE_CLEAR_FAULT,
     CMD_TYPE_EMERGENCY_STOP,
     CMD_TYPE_PARK,          /* move to pre-defined parking position      */
+    CMD_TYPE_SET_PARK,      /* update the park target (az_norm, el_norm) */
     CMD_TYPE_SET_NETCONFIG,    /* override IP/subnet/gateway/MAC in EEPROM      */
     CMD_TYPE_RESET_NETCONFIG,  /* clear EEPROM override → factory defaults       */
     CMD_TYPE_SET_BLOCK,        /* set el_floor (degrees) for one 5° AZ chunk     */
@@ -58,6 +59,11 @@ typedef struct {
     bool    has_mac;    /* false = keep current MAC */
 } cmd_netconfig_t;
 
+typedef struct {
+    float az_norm;   /* normalized 0..1 */
+    float el_norm;
+} cmd_park_t;
+
 /* For CMD_TYPE_SET_BLOCK: set one 5° AZ chunk's minimum elevation. */
 typedef struct {
     float   az_deg;        /* AZ in degrees — chunk is floor(az_deg/5) × 5 */
@@ -78,6 +84,7 @@ typedef struct {
         cmd_motion_t       motion;
         cmd_polarization_t pol;
         cmd_limits_t       limits;
+        cmd_park_t         park;
         cmd_netconfig_t    netconfig;
         cmd_block_t        block;
         cmd_blocks_t       blocks;

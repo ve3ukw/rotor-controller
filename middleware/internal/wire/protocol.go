@@ -56,6 +56,9 @@ type Command struct {
 	AzMax *float64 `json:"az_max,omitempty"`
 	ElMin *float64 `json:"el_min,omitempty"`
 	ElMax *float64 `json:"el_max,omitempty"`
+	// set_park fields
+	ParkAzRaw *float64 `json:"az_raw,omitempty"`
+	ParkElRaw *float64 `json:"el_raw,omitempty"`
 	// set_netconfig fields (dotted-decimal strings)
 	IP      *string `json:"ip,omitempty"`
 	Subnet  *string `json:"subnet,omitempty"`
