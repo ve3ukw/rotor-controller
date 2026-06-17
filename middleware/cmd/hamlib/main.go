@@ -51,20 +51,24 @@ import (
 // ── config ────────────────────────────────────────────────────────────────────
 
 type config struct {
-	listen    string
-	brainURL  string
-	azRange   float64
-	elRange   float64
-	tolerance float64
+	listen       string
+	brainURL     string
+	azRange      float64
+	elRange      float64
+	tolerance    float64
+	azOffsetDeg  float64 // added to tracker's AZ command before steering (positive = more CW)
+	elOffsetDeg  float64 // added to tracker's EL command before steering (positive = more UP)
 }
 
 func loadConfig() config {
 	return config{
-		listen:    envStr("HAMLIB_LISTEN", ":4533"),
-		brainURL:  envStr("HAMLIB_BRAIN_URL", "http://localhost:8090"),
-		azRange:   envFloat("HAMLIB_AZ_RANGE", 450),
-		elRange:   envFloat("HAMLIB_EL_RANGE", 180),
-		tolerance: envFloat("HAMLIB_TOLERANCE", 2.0),
+		listen:      envStr("HAMLIB_LISTEN", ":4533"),
+		brainURL:    envStr("HAMLIB_BRAIN_URL", "http://localhost:8090"),
+		azRange:     envFloat("HAMLIB_AZ_RANGE", 450),
+		elRange:     envFloat("HAMLIB_EL_RANGE", 180),
+		tolerance:   envFloat("HAMLIB_TOLERANCE", 2.0),
+		azOffsetDeg: envFloat("HAMLIB_AZ_OFFSET", 0),
+		elOffsetDeg: envFloat("HAMLIB_EL_OFFSET", 0),
 	}
 }
 
@@ -147,13 +151,15 @@ func (t *Tracker) Run() {
 	}
 }
 
-// Position returns current az/el in degrees. az is a true compass bearing
-// (0..360, 0=N); el is the mechanical EL degree (0..elRange), matching the
-// rest of the system (`rotor status --deg`, goto).
+// Position returns current az/el in degrees, with pointing offsets removed
+// so the tracking software sees the antenna at the bearing it commanded.
+// az is a true compass bearing (0..360, 0=N); el is mechanical degrees.
 func (t *Tracker) Position() (az, el float64) {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
-	return calib.TrueBearing(t.azDeg, t.cal.AzOffsetDeg), t.elDeg
+	az = math.Mod(calib.TrueBearing(t.azDeg, t.cal.AzOffsetDeg)-t.cfg.azOffsetDeg+360, 360)
+	el = t.elDeg - t.cfg.elOffsetDeg
+	return
 }
 
 // SetTarget commands the tracker to slew to az/el (degrees).
@@ -165,6 +171,12 @@ func (t *Tracker) Position() (az, el float64) {
 // closer to the antenna's current raw position, so tracking never swings
 // the antenna up over zenith and back down just to reach an equivalent pose.
 func (t *Tracker) SetTarget(azBearing, elDeg float64) {
+	// Apply pointing correction offsets before all other math.
+	// Positive azOffsetDeg rotates the antenna further CW than the tracker says;
+	// positive elOffsetDeg tilts it further up.
+	azBearing = math.Mod(azBearing+t.cfg.azOffsetDeg+360, 360)
+	elDeg += t.cfg.elOffsetDeg
+
 	// Clamp EL to reachable range.
 	el := clamp(elDeg, 0, t.cfg.elRange)
 
@@ -514,12 +526,22 @@ commands from rotctld clients back to the brain.
 Usage:
   rotor-hamlib [--help|--version]
 
+Pointing offsets (tune these to compensate for mechanical alignment error):
+  --az-offset <deg>  AZ correction; positive = rotate antenna further CW than tracker says
+  --el-offset <deg>  EL correction; positive = tilt antenna further up than tracker says
+  (same via env: HAMLIB_AZ_OFFSET, HAMLIB_EL_OFFSET — CLI flags win)
+
+  To find your offsets: track a known signal source, watch the S-meter,
+  nudge until it peaks, note the delta from the tracker's commanded position.
+
 Environment:
   HAMLIB_LISTEN      TCP listen address    (default: :4533)
   HAMLIB_BRAIN_URL   Brain API base URL    (default: http://localhost:8090)
   HAMLIB_AZ_RANGE    Full AZ travel °      (default: 450  — Yaesu G-5500)
   HAMLIB_EL_RANGE    Full EL travel °      (default: 180  — Yaesu G-5500)
   HAMLIB_TOLERANCE   Stop tolerance °      (default: 2.0)
+  HAMLIB_AZ_OFFSET   AZ correction °       (default: 0)
+  HAMLIB_EL_OFFSET   EL correction °       (default: 0)
 
 Supported rotctld commands:
   p          Get position  → az\nel\nRPRT 0
@@ -543,12 +565,13 @@ Example (run alongside rotor-brain):
 var version = "dev"
 
 func main() {
-	for _, a := range os.Args[1:] {
-		if a == "--help" || a == "-h" {
+	args := os.Args[1:]
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--help", "-h":
 			usage()
 			return
-		}
-		if a == "--version" || a == "version" {
+		case "--version", "version":
 			fmt.Printf("rotor-hamlib %s\n", version)
 			return
 		}
@@ -557,8 +580,28 @@ func main() {
 	log.SetFlags(log.Ltime | log.Lmicroseconds)
 
 	cfg := loadConfig()
+	// CLI flags override env vars.
+	for i := 0; i < len(args)-1; i++ {
+		v, err := strconv.ParseFloat(args[i+1], 64)
+		switch args[i] {
+		case "--az-offset":
+			if err == nil {
+				cfg.azOffsetDeg = v
+				i++
+			}
+		case "--el-offset":
+			if err == nil {
+				cfg.elOffsetDeg = v
+				i++
+			}
+		}
+	}
+
 	log.Printf("rotor-hamlib %s starting — listen %s  brain %s  AZ %.0f°  EL %.0f°  tol %.1f°",
 		version, cfg.listen, cfg.brainURL, cfg.azRange, cfg.elRange, cfg.tolerance)
+	if cfg.azOffsetDeg != 0 || cfg.elOffsetDeg != 0 {
+		log.Printf("hamlib: pointing offsets: AZ %+.1f°  EL %+.1f°", cfg.azOffsetDeg, cfg.elOffsetDeg)
+	}
 
 	cal := fetchCalibration(cfg.brainURL)
 	log.Printf("hamlib: calibration: AZ raw %.4f..%.4f offset %.1f°  EL raw %.4f..%.4f",
