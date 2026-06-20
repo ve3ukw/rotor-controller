@@ -12,6 +12,11 @@
 //
 //	rotor-serial -m gs232b -r COM5 [-s 9600]
 //
+// Ham Radio Deluxe specifically needs --terminator crlf (confirmed): its
+// rotor reader blocks waiting for a trailing LF that real GS-232B hardware
+// (bare CR) never sends, so position queries appear to hang for minutes
+// instead of polling steadily.
+//
 // Environment:
 //
 //	SERIAL_BRAIN_URL   Brain API base URL   (default: http://localhost:8090)
@@ -20,6 +25,7 @@
 //	SERIAL_TOLERANCE   Stop tolerance °      (default: 2.0)
 //	SERIAL_AZ_OFFSET   AZ correction °       (default: 0)
 //	SERIAL_EL_OFFSET   EL correction °       (default: 0)
+//	SERIAL_TERMINATOR  Reply line ending     (default: cr; "crlf" for HRD)
 package main
 
 import (
@@ -49,6 +55,7 @@ type config struct {
 	azOffsetDeg float64
 	elOffsetDeg float64
 	verbose     bool
+	terminator  string // "cr" (default, matches real GS-232B) or "crlf"
 }
 
 func loadConfig() config {
@@ -60,7 +67,15 @@ func loadConfig() config {
 		tolerance:   envFloat("SERIAL_TOLERANCE", 2.0),
 		azOffsetDeg: envFloat("SERIAL_AZ_OFFSET", 0),
 		elOffsetDeg: envFloat("SERIAL_EL_OFFSET", 0),
+		terminator:  envStr("SERIAL_TERMINATOR", "cr"),
 	}
+}
+
+func terminatorBytes(name string) string {
+	if name == "crlf" {
+		return "\r\n"
+	}
+	return "\r"
 }
 
 // ── serial line framing ───────────────────────────────────────────────────────
@@ -142,6 +157,11 @@ func main() {
 			}
 		case "-v", "--verbose":
 			cfg.verbose = true
+		case "--terminator":
+			if i+1 < len(args) {
+				cfg.terminator = args[i+1]
+				i++
+			}
 		}
 	}
 
@@ -157,8 +177,8 @@ func main() {
 	}
 
 	log.SetFlags(log.Ltime | log.Lmicroseconds)
-	log.Printf("rotor-serial %s starting — model %s  port %s @ %d baud  brain %s",
-		version, proto.Name(), cfg.device, cfg.baud, cfg.brainURL)
+	log.Printf("rotor-serial %s starting — model %s  port %s @ %d baud  brain %s  terminator=%s",
+		version, proto.Name(), cfg.device, cfg.baud, cfg.brainURL, cfg.terminator)
 	if cfg.azOffsetDeg != 0 || cfg.elOffsetDeg != 0 {
 		log.Printf("serial: pointing offsets: AZ %+.1f°  EL %+.1f°", cfg.azOffsetDeg, cfg.elOffsetDeg)
 	}
@@ -189,13 +209,15 @@ func main() {
 	go trk.Run()
 
 	log.Printf("serial: ready — waiting for %s commands on %s", proto.Name(), cfg.device)
-	serve(port, proto, trk, cfg.verbose)
+	serve(port, proto, trk, cfg.verbose, terminatorBytes(cfg.terminator))
 }
 
 // serve reads CR/LF-terminated commands from the serial port, dispatches
-// them to proto, and writes back any reply (CR-terminated, no LF — matches
-// the GS-232B wire format confirmed against real controller traffic).
-func serve(port io.ReadWriter, proto Protocol, trk *tracker.Tracker, verbose bool) {
+// them to proto, and writes back any reply followed by terminator (default
+// CR-only, matching the GS-232B wire format confirmed against real
+// controller traffic — but some "Yaesu" client implementations expect CRLF,
+// hence --terminator).
+func serve(port io.ReadWriter, proto Protocol, trk *tracker.Tracker, verbose bool, terminator string) {
 	scanner := bufio.NewScanner(port)
 	scanner.Split(scanCRorLF)
 	for scanner.Scan() {
@@ -210,7 +232,7 @@ func serve(port io.ReadWriter, proto Protocol, trk *tracker.Tracker, verbose boo
 		if reply == nil {
 			continue
 		}
-		reply = append(reply, '\r')
+		reply = append(reply, terminator...)
 		if verbose {
 			log.Printf("serial: -> %q", string(reply))
 		}
@@ -252,6 +274,8 @@ Options:
   --brain <url>             Brain API base URL        (default: http://localhost:8090)
   --az-offset <deg>         AZ correction; positive = rotate antenna further CW
   --el-offset <deg>         EL correction; positive = tilt antenna further up
+  --terminator <cr|crlf>    Reply line ending          (default: cr — real GS-232B
+                            hardware uses bare CR; some client implementations expect CRLF)
   -v, --verbose             Log every raw command/reply on the serial line
   --help                    Show this help
   --version                 Show version
@@ -260,13 +284,19 @@ Supported models:
   gs232b   Yaesu GS-232B — the de facto standard "Yaesu" rotator protocol
 
 Environment (same effect as the flags above; flags win):
-  SERIAL_BRAIN_URL   SERIAL_AZ_RANGE   SERIAL_EL_RANGE
+  SERIAL_BRAIN_URL   SERIAL_AZ_RANGE   SERIAL_EL_RANGE   SERIAL_TERMINATOR
   SERIAL_TOLERANCE   SERIAL_AZ_OFFSET  SERIAL_EL_OFFSET
 
 Example (Windows, paired with VSPD):
   rotor-serial -m gs232b -r COM5 -s 9600
   # in VSPD, pair COM5 <-> COM6, then point Ham Radio Deluxe's rotor
   # control at COM6, model "Yaesu GS-232B"
+
+Ham Radio Deluxe specifically (confirmed working):
+  rotor-serial -m gs232b -r COM5 -s 19200 --terminator crlf
+  # HRD's rotor reader waits for CRLF, not the bare CR real GS-232B hardware
+  # uses — without --terminator crlf its position queries hang for minutes
+  # at a time instead of polling steadily.
 `)
 }
 
