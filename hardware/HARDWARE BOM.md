@@ -17,8 +17,9 @@ and indicative quantities rather than line-item costs.
 |----:|---------------------------------|-----------------------------------------------------------------------------|--------------------------------------------|
 | 1   | TI EK-TM4C123GXL                | Tiva C LaunchPad — TM4C123GH6PM (Cortex-M4F @ 80 MHz, 256 KB flash)        | TI store, Mouser, Digi-Key, Farnell        |
 | 1   | TI BOOSTXL-IOBKOUT              | GPIO Breakout BoosterPack — screw terminals, ESD protection, op-amp buffers| TI store, Mouser, Digi-Key                 |
-| 1   | WIZnet WIZ550io                 | Ethernet module — W5500 + transformer + RJ45 + factory MAC + auto-init    | WIZnet shop, Mouser, Digi-Key — see notes |
+| 1   | WIZnet WIZ550io                 | Ethernet module — W5500 + transformer + RJ45 + factory MAC + auto-init     | WIZnet shop, Mouser, Digi-Key — see notes |
 | 1   | 5 V / 1 A DC supply             | External wall wart, 5.5 × 2.1 mm barrel plug typical                       | Any quality brand; feeds VBUS via barrel jack adapter |
+| 1   | 4x20 LCD Module with I2C        | (optional) **4×20 (4 lines × 20 columns) character LCD** with an I²C backpack |                                              |
 
 ### Power-feed notes
 
@@ -232,7 +233,55 @@ individually or as kits.
 
 ---
 
-## 10. Suppliers
+## 10. Optional — local LCD status display
+
+A small character LCD on the field unit's enclosure gives you a
+local readout of az/el and link status without needing to look at
+a web browser or run `rotor status`. Optional but genuinely useful
+during installation, debugging, and any time the network is down.
+
+This build uses a **4×20 (4 lines × 20 columns) character LCD** with
+an I²C backpack. The firmware drives this display format; smaller
+modules (e.g. 16×2) would need a firmware-side change to the layout.
+
+| Qty | Part                          | Description                              |
+|----:|-------------------------------|------------------------------------------|
+| 1   | 4×20 character LCD            | HD44780-compatible, with I²C backpack    |
+| —   | 4 × jumper wires              | SDA / SCL / VCC / GND from the BoosterPack|
+
+Wiring uses I²C on PA6 (SCL) and PA7 (SDA) — pins kept free in the
+GPIO map for exactly this kind of expansion.
+
+### Power: 3.3 V vs 5 V backpacks
+
+I²C backpacks for HD44780 LCDs come in two flavours, and the choice
+affects how you wire the power rail:
+
+- **3.3 V backpacks** — newer modules run the whole LCD from 3.3 V.
+  **This is the cleaner choice**: share the BoosterPack's 3.3 V
+  rail, no level shifting concerns, no cross-rail wiring. If your
+  backpack has a 3.3 V option (often a solder jumper labelled
+  "3.3 V" or "VCC SEL"), use it.
+
+- **5 V backpacks** — the classic PCF8574-based modules (the cheap
+  ones with a soldered-on backpack, usually addressed at 0x27) need
+  5 V for the LCD controller. Power them from the LaunchPad's +5 V
+  rail (available on the BoosterPack header). The backpack itself
+  handles the 3.3 V ↔ 5 V level shifting on SDA and SCL internally,
+  so the I²C signals on the bus stay at 3.3 V logic levels — safe
+  for the MCU.
+
+**How to tell which you have:** check the backpack's silkscreen or
+datasheet for "VCC: 3.3 V-5 V" or a voltage selector jumper. If it
+says "VCC: 5 V" only, it's a 5 V backpack.
+
+### Field unit runs without it
+
+The LCD is one-way (telemetry display only) and the firmware does
+not depend on its presence — you can build the field unit without
+an LCD and it operates identically. Leave PA6/PA7 unconnected.
+
+## 11. Suppliers
 
 For a project of this scale a single mixed order from one distributor
 is most economical:
