@@ -543,7 +543,15 @@ fail to "stop," not to "no command."
 
 ---
 
-## 6. Ground topology
+## 6. Optional local LCD
+
+An optional 4×20 I²C character LCD can be wired to PA6 (SCL) and
+PA7 (SDA) for a local status display on the field unit's
+enclosure. The LCD is read-only from the firmware's perspective —
+the field unit operates identically whether or not an LCD is
+connected. See the BOM for module selection and power-rail notes.
+
+## 7. Ground topology
 
 The field unit has effectively three ground domains that meet at
 controlled points:
@@ -577,7 +585,7 @@ hardware than the v1 build justifies.
 
 ---
 
-## 7. Notes on NMI-locked pins (PF0 and PD7)
+## 8. Notes on NMI-locked pins (PF0 and PD7)
 
 Two pins used by this design — PF0 (B1, VHF polarization) and PD7
 (B7, W5500 /RST) — are NMI-locked on the TM4C123 by default. The
@@ -601,7 +609,7 @@ default-off, so no additional perfboard pull is needed.
 
 ---
 
-## 8. Layout notes for the perfboard
+## 9. Layout notes for the perfboard
 
 A few practical notes for laying these out on perfboard:
 
@@ -626,7 +634,7 @@ A few practical notes for laying these out on perfboard:
 
 ---
 
-## 9. Future PCB notes
+## 10. Future PCB notes
 
 When this moves to a PCB (v2), the changes from this perfboard layout
 are mostly:
