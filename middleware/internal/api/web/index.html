@@ -146,6 +146,38 @@
     touch-action: manipulation;
   }
 
+  /* ── RF / polarization panel ────────────────────────────────────── */
+  .rf {
+    background: var(--panel);
+    border-radius: 8px;
+    padding: 12px 16px;
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .rf h2 { margin: 0; font-size: 0.95rem; color: #aaa; font-weight: 600; }
+  .rf-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+  .rf-buttons button {
+    flex: 1;
+    min-width: 80px;
+    padding: 10px 8px;
+    border-radius: 6px;
+    border: 1px solid #444;
+    background: #0c1410;
+    color: #eee;
+    font-size: 0.85rem;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  .rf-buttons button.on {
+    background: #2a3a2a;
+    border-color: var(--green);
+    color: var(--green);
+  }
+  .rf-buttons button:disabled { opacity: 0.5; cursor: default; }
+
   .conn { font-size: 0.8rem; color: #666; }
   .conn.ok { color: var(--green); }
   .conn.bad { color: var(--red); }
@@ -179,6 +211,16 @@
     <button id="park">PARK</button>
     <button id="clearFault">CLEAR FAULT</button>
     <button id="estop" class="danger">EMERGENCY STOP</button>
+  </div>
+
+  <div class="rf">
+    <h2>RF / Polarization</h2>
+    <div class="rf-buttons">
+      <button data-pol="vhf">VHF POL</button>
+      <button data-pol="uhf">UHF POL</button>
+      <button data-pol="lna">UHF LNA</button>
+      <button data-pol="rxtx">UHF RX/TX</button>
+    </div>
   </div>
 
   <div class="goto">
@@ -314,6 +356,12 @@ function render() {
   const rf = (t.pol_vhf ? 'V' : '-') + (t.pol_uhf ? 'U' : '-') + (t.lna_uhf ? 'L' : '-') + (t.rxtx_uhf ? 'R' : '-');
   $('row3').textContent = pad('A:' + azD + '% E:' + elD + '%  ' + rf, 20);
 
+  // Highlight RF/polarization toggle buttons to match live state
+  document.querySelectorAll('.rf-buttons button').forEach(b => {
+    const field = { vhf: 'pol_vhf', uhf: 'pol_uhf', lna: 'lna_uhf', rxtx: 'rxtx_uhf' }[b.dataset.pol];
+    b.classList.toggle('on', !!t[field]);
+  });
+
   // Highlight active direction buttons
   document.querySelectorAll('.pad button[data-az]').forEach(b => {
     const az = b.dataset.az, el = b.dataset.el;
@@ -387,6 +435,29 @@ document.querySelectorAll('.pad button[data-az]').forEach(btn => {
 $('park').addEventListener('click', () => fetch('/api/v1/park', { method: 'POST' }));
 $('clearFault').addEventListener('click', () => fetch('/api/v1/clear_fault', { method: 'POST' }));
 $('estop').addEventListener('click', () => fetch('/api/v1/emergency_stop', { method: 'POST' }));
+
+// ── RF / polarization toggles ───────────────────────────────────────────
+// The brain's /api/v1/polarization always sets the complete switch state
+// (no partial-toggle endpoint), so each button sends the last known state
+// for all four switches with just its own bit flipped.
+document.querySelectorAll('.rf-buttons button').forEach(btn => {
+  btn.addEventListener('click', () => withButton(btn, async () => {
+    if (!lastTelemetry) return;
+    const field = { vhf: 'pol_vhf', uhf: 'pol_uhf', lna: 'lna_uhf', rxtx: 'rxtx_uhf' }[btn.dataset.pol];
+    const body = {
+      pol_vhf: !!lastTelemetry.pol_vhf,
+      pol_uhf: !!lastTelemetry.pol_uhf,
+      lna_uhf: !!lastTelemetry.lna_uhf,
+      rxtx_uhf: !!lastTelemetry.rxtx_uhf,
+    };
+    body[field] = !body[field];
+    await fetch('/api/v1/polarization', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+  }));
+});
 
 // ── goto panel ─────────────────────────────────────────────────────────
 
