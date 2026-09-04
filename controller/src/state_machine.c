@@ -217,9 +217,25 @@ sm_output_t sm_tick(sm_ctx_t *ctx, const sm_input_t *in)
 
     /* ── 4. If faulted: motors off, hold RF switches, done ─────────────── */
     if (is_faulted(ctx)) {
+        sm_az_motion_t az_out = SM_AZ_STOP;
+        sm_el_motion_t el_out = SM_EL_STOP;
+
+        /* Duty-cycle fault only: if wind pushed the antenna past a soft
+         * limit while the motor was stopped, still allow corrective motion
+         * back toward safe range.  Step 7 is not reached here so duty-cycle
+         * counters do not accumulate during this recovery.
+         * Link-lost and ADC faults are hardware-safety faults — motion
+         * stays off unconditionally. */
+        if (ctx->state == SM_STATE_FAULT_DUTY_CYCLE) {
+            if (in->el_pos < ctx->el_min) { el_out = SM_EL_UP; }
+            if (in->el_pos > ctx->el_max) { el_out = SM_EL_DOWN; }
+            if (in->az_pos < ctx->az_min) { az_out = SM_AZ_CW; }
+            if (in->az_pos > ctx->az_max) { az_out = SM_AZ_CCW; }
+        }
+
         return (sm_output_t){
-            .az_dir   = SM_AZ_STOP,
-            .el_dir   = SM_EL_STOP,
+            .az_dir   = az_out,
+            .el_dir   = el_out,
             .pol_vhf  = ctx->pol_vhf,
             .pol_uhf  = ctx->pol_uhf,
             .lna_uhf  = ctx->lna_uhf,

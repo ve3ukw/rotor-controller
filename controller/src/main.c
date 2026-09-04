@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include "driverlib/sysctl.h"
 #include "driverlib/gpio.h"
@@ -37,6 +38,30 @@ static void debug_uart_init(void)
 #define LED_GREEN GPIO_PIN_3
 
 #define TICKS_PER_LED_TOGGLE  50U   /* 500 ms → 1 Hz blue blink */
+
+/* Format IP as "  IP:x.x.x.x  " centred in a 20-char LCD row. */
+static void fmt_ip_row(char *buf, const uint8_t ip[4])
+{
+    char s[16];
+    char *p = s;
+    for (uint8_t i = 0; i < 4; i++) {
+        uint8_t v = ip[i];
+        if (v >= 100) { *p++ = '0' + v / 100; }
+        if (v >= 10)  { *p++ = '0' + (v / 10) % 10; }
+        *p++ = '0' + v % 10;
+        if (i < 3) { *p++ = '.'; }
+    }
+    *p = '\0';
+    uint8_t ip_len = (uint8_t)(p - s);
+    uint8_t total  = 3u + ip_len;   /* "IP:" prefix */
+    uint8_t lpad   = (total < 20u) ? (20u - total) / 2u : 0u;
+    memset(buf, ' ', 20);
+    buf[20] = '\0';
+    buf[lpad]     = 'I';
+    buf[lpad + 1] = 'P';
+    buf[lpad + 2] = ':';
+    memcpy(buf + lpad + 3, s, ip_len);
+}
 
 static void apply_outputs(const sm_output_t *out)
 {
@@ -129,9 +154,13 @@ int main(void)
     net_init();          /* calls net_persist_init() which enables EEPROM peripheral */
     blocks_load();       /* load AZ block floors from EEPROM (EEPROM already up) */
     display_init();
+    uint8_t ip[4];
+    net_get_ip(ip);
+    char ip_row[21];
+    fmt_ip_row(ip_row, ip);
     display_splash("  Rotor Controller  ",
                    "     Starting...    ",
-                   "                    ",
+                   ip_row,
                    "     VE3UKW         ");
 
     /* Arm the watchdog AFTER all init — kicked every tick in the main loop.

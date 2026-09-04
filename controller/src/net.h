@@ -39,3 +39,6 @@ bool net_is_connected(void);
 void net_tick(const sm_ctx_t *sm, float az_raw, float el_raw, uint32_t ts_ms);
 
 void net_set_config(const net_config_t *cfg);
+
+/* Returns the currently active IP address (EEPROM override or config.h default). */
+void net_get_ip(uint8_t out[4]);

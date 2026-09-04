@@ -256,6 +256,7 @@ static void tcp_tx_send(uint16_t len)
 /* ── public API ──────────────────────────────────────────────────────────── */
 
 bool net_is_connected(void) { return g_brain_connected; }
+void net_get_ip(uint8_t out[4]) { memcpy(out, g_netinfo.ip, 4); }
 
 void net_init(void)
 {
